@@ -24,9 +24,12 @@
             </Grid.RowDefinitions>
 
             <Frame Grid.ColumnSpan="2" Grid.RowSpan="2" BorderColor="Black"></Frame>
-            <Label x:Name="ServerNameLabel" Grid.Column="0"  Grid.Row="0" Grid.ColumnSpan="2" HorizontalTextAlignment="Center" Text="{Binding ServerUriText}"></Label>
-            <Label x:Name="ConnectionStatusLabel" Grid.Column="0"  Grid.Row="1" HorizontalTextAlignment="Center" Text="{Binding ConnectionStatusText}"></Label>
-            <Label x:Name="OnlinePlayerLabel" Grid.Column="1"  Grid.Row="1" HorizontalTextAlignment="Center" Text="{Binding OnlinePlayerText}"></Label>
+            <Label x:Name="ServerNameLabel" Grid.Column="0"  Grid.Row="0" Grid.ColumnSpan="2" HorizontalTextAlignment="Center"
+                   Text="{Binding ServerUriText}"></Label>
+            <Label x:Name="ConnectionStatusLabel" Grid.Column="0"  Grid.Row="1" HorizontalTextAlignment="Center"
+                   Text="{Binding ConnectionStatusText}"></Label>
+            <Label x:Name="OnlinePlayerLabel" Grid.Column="1"  Grid.Row="1" HorizontalTextAlignment="Center"
+                   Text="{Binding OnlinePlayerText}"></Label>
         </Grid>
 
         <Grid x:Name="CommandGrid" Grid.Row="1">
@@ -52,8 +55,12 @@
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
 
-            <Button x:Name="RecentCommandsButton" Grid.Column="0" Command="{Binding RecentCommands}" Text="Recent Commands"></Button>
-            <Button x:Name="ToggleConnectionButton" Grid.Column="1" Command="{Binding ToggleConnection}" Text="{Binding ToggleConnectionText}"></Button>
+            <Button x:Name="RecentCommandsButton" Grid.Column="0"
+                    Command="{Binding RecentCommandsCommand}"
+                    Text="Recent Commands"></Button>
+            <Button x:Name="ToggleConnectionButton" Grid.Column="1"
+                    Command="{Binding ToggleConnectionCommand}"
+                    Text="{Binding ToggleConnectionText}"></Button>
 
         </Grid>
 

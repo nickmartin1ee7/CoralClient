@@ -1,6 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -9,7 +7,7 @@ using Xamarin.Forms;
 
 namespace CoralClient.ViewModel
 {
-    internal class RconPageViewModel : INotifyPropertyChanged
+    public class RconPageViewModel : BaseObservableViewModel
     {
         public enum ConnectionStatus
         {
@@ -22,56 +20,38 @@ namespace CoralClient.ViewModel
         private string _serverUriText = "Server URI";
         private string _connectionStatusText = "Disconnected";
         private string _onlinePlayerText = "Players: 0/20";
-        private string _toggleConnectionText = "ConnectAsync";
-
-        public event PropertyChangedEventHandler PropertyChanged;
+        private string _toggleConnectionText = "Connect";
 
         public string ServerUriText
         {
             get => _serverUriText;
-            set
-            {
-                _serverUriText = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ServerUriText)));
-            }
+            set => SetProperty(ref _serverUriText, value);
         }
 
         public string ConnectionStatusText
         {
             get => _connectionStatusText;
-            set
-            {
-                _connectionStatusText = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ServerUriText)));
-            }
+            set => SetProperty(ref _connectionStatusText, value);
         }
 
         public string OnlinePlayerText
         {
             get => _onlinePlayerText;
-            set
-            {
-                _onlinePlayerText = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ServerUriText)));
-            }
+            set => SetProperty(ref _onlinePlayerText, value);
         }
 
         public string ToggleConnectionText
         {
             get => _toggleConnectionText;
-            set
-            {
-                _toggleConnectionText = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ServerUriText)));
-            }
+            set => SetProperty(ref _toggleConnectionText, value);
         }
 
-        public ICommand ToggleConnection { get; }
-        public ICommand RecentCommands { get; }
+        public ICommand ToggleConnectionCommand { get; }
+        public ICommand RecentCommandsCommand { get; }
 
         public RconPageViewModel()
         {
-            ToggleConnection = new Command(
+            ToggleConnectionCommand = new Command(
                 execute: async () =>
                 {
                     switch (_connectionState)

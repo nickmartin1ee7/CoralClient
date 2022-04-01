@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using Xamarin.Forms;
+﻿using Xamarin.Forms;
 
 namespace CoralClient.View
 {
