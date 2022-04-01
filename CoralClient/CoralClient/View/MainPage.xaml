@@ -23,8 +23,10 @@
                                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
 
-                            <Label Grid.Column="0" Text="{Binding ServerUriText}"/>
-                            <Label Grid.Column="1" Text="TODO" />
+                            <Frame Grid.ColumnSpan="2" BorderColor="Black"></Frame>
+                            <Label Grid.Column="0" VerticalTextAlignment="Center" Margin="25,0,0,0"
+                                   Text="{Binding ServerUriText}"/>
+                            <Button x:Name="EditProfileButton" Grid.Column="1" Text="Edit" />
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

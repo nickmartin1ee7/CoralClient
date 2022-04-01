@@ -161,7 +161,7 @@ namespace CoralClient.ViewModel
             {
                 var host = await Dns.GetHostEntryAsync(_serverProfile.Uri);
                 var targetAddress = host.AddressList.First();
-                WriteToCommandLog($"Querying {targetAddress}...");
+                WriteToCommandLog($"Querying {targetAddress}:{_serverProfile.MinecraftPort}");
                 var result = await ServerQuery.Info(targetAddress,
                     _serverProfile.MinecraftPort,
                     ServerQuery.ServerType.Minecraft) as MinecraftQueryInfo;

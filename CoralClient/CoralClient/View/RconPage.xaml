@@ -42,7 +42,7 @@
             </Grid.RowDefinitions>
 
             <Frame Grid.RowSpan="2" BorderColor="Black"></Frame>
-            <Editor x:Name="CommandLogEditor" Grid.Row="0" IsReadOnly="True"
+            <Editor x:Name="CommandLogEditor" Grid.Row="0" IsReadOnly="True" FontSize="Small"
                     Text="{Binding CommandLogText}"></Editor>
             <Entry x:Name="CommandEntry" Grid.Row="1" Placeholder="Enter Command"
                     Text="{Binding CommandEntryText}"></Entry>
