@@ -1,8 +1,7 @@
-﻿using System;
+﻿using System.Linq.Expressions;
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
 
-namespace CoralClient
+namespace CoralClient.View
 {
     public partial class App : Application
     {

@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModel="clr-namespace:CoralClient.ViewModel;assembly=CoralClient"
+             x:Class="CoralClient.View.RconPage" x:DataType="viewModel:RconPageViewModel">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Grid x:Name="InfoGrid" Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <Frame Grid.ColumnSpan="2" Grid.RowSpan="2" BorderColor="Black"></Frame>
+            <Label x:Name="ServerNameLabel" Grid.Column="0"  Grid.Row="0" Grid.ColumnSpan="2" HorizontalTextAlignment="Center" Text="{Binding ServerUriText}"></Label>
+            <Label x:Name="ConnectionStatusLabel" Grid.Column="0"  Grid.Row="1" HorizontalTextAlignment="Center" Text="{Binding ConnectionStatusText}"></Label>
+            <Label x:Name="OnlinePlayerLabel" Grid.Column="1"  Grid.Row="1" HorizontalTextAlignment="Center" Text="{Binding OnlinePlayerText}"></Label>
+        </Grid>
+
+        <Grid x:Name="CommandGrid" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <Frame Grid.RowSpan="2" BorderColor="Black"></Frame>
+            <Editor x:Name="CommandLogEditor" Grid.Row="0" IsReadOnly="True"></Editor>
+            <Entry x:Name="CommandEntry" Grid.Row="1" Placeholder="Enter Command"></Entry>
+        </Grid>
+
+        <Grid x:Name="OptionsGrid" Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <Button x:Name="RecentCommandsButton" Grid.Column="0" Command="{Binding RecentCommands}" Text="Recent Commands"></Button>
+            <Button x:Name="ToggleConnectionButton" Grid.Column="1" Command="{Binding ToggleConnection}" Text="{Binding ToggleConnectionText}"></Button>
+
+        </Grid>
+
+    </Grid>
+
+</ContentPage>
