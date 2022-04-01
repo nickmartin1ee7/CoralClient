@@ -16,22 +16,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="View\Themes\DarkTheme.xaml.cs">
-      <DependentUpon>DarkTheme.xaml</DependentUpon>
-    </Compile>
-    <Compile Update="View\Themes\LightTheme.xaml.cs">
-      <DependentUpon>LightTheme.xaml</DependentUpon>
-    </Compile>
-    <Compile Update="View\RconPage.xaml.cs">
-      <DependentUpon>RconPage.xaml</DependentUpon>
-    </Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="View\Themes\LightTheme.xaml">
+    <EmbeddedResource Update="View\MainPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
-    <EmbeddedResource Update="View\MainPage.xaml">
+    <EmbeddedResource Update="View\RconPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
   </ItemGroup>
