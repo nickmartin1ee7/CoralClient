@@ -1,14 +1,19 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CoralClient.Model;
 using CoreRCON;
+using CoreRCON.PacketFormats;
 using Xamarin.Forms;
 
 namespace CoralClient.ViewModel
 {
     public class RconPageViewModel : BaseObservableViewModel
     {
+        private readonly ServerProfile _serverProfile;
+
         public enum ConnectionStatus
         {
             DISCONNECTED,
@@ -47,19 +52,24 @@ namespace CoralClient.ViewModel
         }
 
         public ICommand ToggleConnectionCommand { get; }
+
         public ICommand RecentCommandsCommand { get; }
 
-        public RconPageViewModel()
+        public RconPageViewModel(ServerProfile serverProfile)
         {
+            _serverProfile = serverProfile;
+
+            ServerUriText = serverProfile.ServerUriText;
+
             ToggleConnectionCommand = new Command(
                 execute: async () =>
                 {
                     switch (_connectionState)
                     {
-                        case ConnectionStatus.DISCONNECTED:
+                        case ConnectionStatus.CONNECTED:
                             _connectionState = await DisconnectAsync();
                             break;
-                        case ConnectionStatus.CONNECTED:
+                        case ConnectionStatus.DISCONNECTED:
                             _connectionState = await ConnectAsync();
                             break;
                         default:
@@ -72,15 +82,17 @@ namespace CoralClient.ViewModel
 
         private async Task<ConnectionStatus> ConnectAsync()
         {
-            var host = await Dns.GetHostEntryAsync(ServerUriText);
-            //ServerQuery.Info(host.AddressList.First() ); // TODO get info from user
+            _connectionState = ConnectionStatus.CONNECTING;
 
-            throw new NotImplementedException();
+            var host = await Dns.GetHostEntryAsync(_serverProfile.Uri);
+            var result = await ServerQuery.Info(host.AddressList.First(), _serverProfile.MinecraftPort, ServerQuery.ServerType.Minecraft) as MinecraftQueryInfo;
+
+            return ConnectionStatus.CONNECTED;
         }
 
         private async Task<ConnectionStatus> DisconnectAsync()
         {
-            throw new NotImplementedException();
+            return ConnectionStatus.DISCONNECTED;
         }
     }
 }

@@ -6,16 +6,13 @@ namespace CoralClient.View
 {
     public partial class RconPage : ContentPage
     {
-        private readonly ServerProfile _serverProfile;
-        private readonly RconPageViewModel _vm = new RconPageViewModel();
-
         public RconPage(ServerProfile serverProfile)
         {
-            _serverProfile = serverProfile;
-
             InitializeComponent();
 
-            BindingContext = _vm;
+            var vm = new RconPageViewModel(serverProfile);
+
+            BindingContext = vm;
         }
     }
 }

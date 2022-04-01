@@ -18,13 +18,13 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"></RowDefinition>
-                                <RowDefinition Height="Auto"></RowDefinition>
-                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
 
-                            <Label Grid.Row="0" Text="{Binding ServerUriText}"/>
-                            <Label Grid.Row="1" Text="{Binding ConnectionStatusText}" />
+                            <Label Grid.Column="0" Text="{Binding ServerUriText}"/>
+                            <Label Grid.Column="1" Text="TODO" />
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

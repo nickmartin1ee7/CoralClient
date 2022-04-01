@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Security;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CoralClient.Model;
@@ -23,8 +24,8 @@ namespace CoralClient.ViewModel
         {
             new ServerProfile
             {
-                ConnectionStatusText = "TEST",
-                Uri = "localhost"
+                Uri = "pi.hole",
+                MinecraftPort = 25565
             }
         };
 
@@ -66,11 +67,19 @@ namespace CoralClient.ViewModel
                 serverRconPort = "25575";
             }
 
+            var serverRconPassword = await _promptUserFunc("Server RCON Password", "Enter the RCON password.");
+
+            if (string.IsNullOrWhiteSpace(serverRconPassword))
+            {
+                return;
+            }
+
             ServerProfiles.Add(new ServerProfile
             {
                 Uri = serverUri,
-                MinecraftPort = int.Parse(serverMinecraftPort),
-                RconPort = int.Parse(serverRconPort)
+                MinecraftPort = ushort.Parse(serverMinecraftPort),
+                RconPort = ushort.Parse(serverRconPort),
+                Password = serverRconPassword
             });
         }
     }
