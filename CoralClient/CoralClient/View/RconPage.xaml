@@ -23,7 +23,6 @@
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
 
-            <Frame Grid.ColumnSpan="2" Grid.RowSpan="2" BorderColor="Black"></Frame>
             <Label x:Name="ServerNameLabel" Grid.Column="0"  Grid.Row="0" Grid.ColumnSpan="2" HorizontalTextAlignment="Center"
                    Text="{Binding ServerNameText}"></Label>
             <Label x:Name="ConnectionStatusLabel" Grid.Column="0"  Grid.Row="1" HorizontalTextAlignment="Center"
@@ -41,7 +40,7 @@
                 <RowDefinition Height="Auto"></RowDefinition>
             </Grid.RowDefinitions>
 
-            <Frame Grid.RowSpan="2" BorderColor="Black"></Frame>
+            <Frame Grid.Row="0" BorderColor="Black"></Frame>
             <Editor x:Name="CommandLogEditor" Grid.Row="0" IsReadOnly="True" FontSize="Small"
                     Text="{Binding CommandLogText}"></Editor>
             <Entry x:Name="CommandEntry" Grid.Row="1" Placeholder="Enter Command"

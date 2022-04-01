@@ -7,8 +7,24 @@
             <Setter Property="BackgroundColor" Value="White" />
         </Style>
 
+        <Style TargetType="{x:Type Grid}">
+            <Setter Property="BackgroundColor" Value="White" />
+        </Style>
+
         <Style TargetType="{x:Type Button}">
             <Setter Property="TextColor" Value="White"/>
+            <Setter Property="BackgroundColor" Value="Black"/>
+        </Style>
+
+        <Style TargetType="{x:Type Editor}">
+            <Setter Property="TextColor" Value="Black"/>
+            <Setter Property="BackgroundColor" Value="White"/>
+        </Style>
+
+        <Style TargetType="{x:Type Entry}">
+            <Setter Property="TextColor" Value="Black"/>
+            <Setter Property="PlaceholderColor" Value="LightGray"/>
+            <Setter Property="BackgroundColor" Value="White"/>
         </Style>
 
         <Style TargetType="{x:Type Label}">

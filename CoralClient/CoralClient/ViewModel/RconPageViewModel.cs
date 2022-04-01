@@ -6,14 +6,12 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CoralClient.Model;
 using CoreRCON;
-using CoreRCON.PacketFormats;
 using Xamarin.Forms;
 
 namespace CoralClient.ViewModel
 {
     public class RconPageViewModel : BaseObservableViewModel
     {
-        private readonly ServerProfile _serverProfile;
 
         public enum State
         {
@@ -22,6 +20,8 @@ namespace CoralClient.ViewModel
             CONNECTED
         }
 
+        private readonly ServerProfile _serverProfile;
+        private RCON _rcon;
         private string _serverNameText = "Server URI";
         private string _connectionStatusText = State.DISCONNECTED.ToString();
         private string _onlinePlayerText = "Players: ?/?";
@@ -98,7 +98,7 @@ namespace CoralClient.ViewModel
                     switch (CurrentState)
                     {
                         case State.CONNECTED:
-                            CurrentState = await DisconnectAsync();
+                            await DisconnectAsync();
                             break;
                         case State.DISCONNECTED:
                             CurrentState = await ConnectAsync();
@@ -119,7 +119,7 @@ namespace CoralClient.ViewModel
                 case State.DISCONNECTED:
                     {
                         OnlinePlayerText = "Players: ?/?";
-                        WriteToCommandLog("Disconnected...");
+                        WriteToCommandLog("Disconnected!");
                         ToggleConnectionButtonText = "Connect";
                     }
                     break;
@@ -162,24 +162,31 @@ namespace CoralClient.ViewModel
                 var host = await Dns.GetHostEntryAsync(_serverProfile.Uri);
                 var targetAddress = host.AddressList.First();
                 WriteToCommandLog($"Querying {targetAddress}:{_serverProfile.MinecraftPort}");
-                var result = await ServerQuery.Info(targetAddress,
-                    _serverProfile.MinecraftPort,
-                    ServerQuery.ServerType.Minecraft) as MinecraftQueryInfo;
-                WriteToCommandLog($"Connected to Minecraft ({result.Version})");
-                OnlinePlayerText = $"Players: {result.NumPlayers}/{result.MaxPlayers}";
+
+                _rcon = new RCON(targetAddress, _serverProfile.RconPort, _serverProfile.Password);
+                _rcon.OnDisconnected += () => CurrentState = State.DISCONNECTED;
+
+                await _rcon.ConnectAsync();
             }
             catch (Exception e)
             {
+                _rcon.Dispose();
+                _rcon = null;
+
                 WriteToCommandLog(e.Message);
+
                 return State.DISCONNECTED;
             }
 
             return State.CONNECTED;
         }
 
-        private async Task<State> DisconnectAsync()
+        private Task DisconnectAsync()
         {
-            return State.DISCONNECTED;
+            _rcon.Dispose();
+            _rcon = null;
+
+            return Task.CompletedTask;
         }
     }
 }
