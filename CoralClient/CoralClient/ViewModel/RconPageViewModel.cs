@@ -153,13 +153,45 @@ namespace CoralClient.ViewModel
 
                 WriteToCommandLog($"Authenticated successfully. {response.Body}");
 
-                //ServerNameText = $"{ServerNameText} ({status.Version})";
-                //OnlinePlayerText = $"Players: {status.NumPlayers}/{status.MaxPlayers}";
+                await GetServerInfo();
             }
             catch (Exception e)
             {
                 WriteToCommandLog(e.Message);
             }
+        }
+
+        private async Task GetServerInfo()
+        {
+            var playerInfo = await _rcon.SendCommandAsync("list");
+
+            if (playerInfo.IsValid)
+            {
+                var playerText = playerInfo.Response.Body.RemoveColorCodes();
+
+                var pCountStartIdx = playerText.IndexOf("There are ") + "There are ".Length;
+                var pCountEndLen = playerText.IndexOf(" out of") - pCountStartIdx;
+                var maxCountStartIdx = playerText.IndexOf("maximum ") + "maximum ".Length;
+                var maxCountEndLen = playerText.IndexOf(" players online.") - maxCountStartIdx;
+
+
+                var currentPlayers = string.Join(string.Empty, playerText
+                    .Skip(pCountStartIdx)
+                    .Take(pCountEndLen));
+
+                var maxPlayers = string.Join(string.Empty, playerText
+                    .Skip(maxCountStartIdx)
+                    .Take(maxCountEndLen));
+
+                OnlinePlayerText = $"Players: {currentPlayers}/{maxPlayers}";
+            }
+
+            //var serverInfo = await _rcon.SendCommandAsync("version");
+
+            //if (serverInfo.IsValid)
+            //{
+            //    ServerNameText = $"{ServerNameText} ({status.Version})";
+            //}
         }
 
         private void UiStateChangeLogic(object sender, EventArgs e)
