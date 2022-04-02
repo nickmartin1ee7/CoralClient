@@ -2,6 +2,7 @@
 using CoralClient.Services;
 using CoralClient.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
+using MinecraftRcon;
 using Xamarin.Forms;
 
 namespace CoralClient.View
@@ -13,7 +14,7 @@ namespace CoralClient.View
             InitializeComponent();
 
             var vm = new RconPageViewModel(serverProfile,
-                Dependencies.ServiceProvider.GetService<RconService>());
+                Dependencies.ServiceProvider.GetService<RconClient>());
 
             BindingContext = vm;
         }

@@ -4,8 +4,9 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CoralClient.Helpers;
 using CoralClient.Model;
-using CoralClient.Services;
+using MinecraftRcon;
 using Xamarin.Forms;
 
 namespace CoralClient.ViewModel
@@ -21,7 +22,7 @@ namespace CoralClient.ViewModel
         }
 
         private readonly ServerProfile _serverProfile;
-        private readonly RconService _rconService;
+        private readonly RconClient _rcon;
         private string _serverNameText = "Server URI";
         private string _connectionStatusText = State.DISCONNECTED.ToString();
         private string _onlinePlayerText = "Players: ?/?";
@@ -81,17 +82,17 @@ namespace CoralClient.ViewModel
             get => _toggleConnectionButtonText;
             set => SetProperty(ref _toggleConnectionButtonText, value);
         }
-        
+
         public ICommand SendCommandCommand { get; }
 
         public ICommand ToggleConnectionCommand { get; }
 
         public ICommand RecentCommandsCommand { get; }
 
-        public RconPageViewModel(ServerProfile serverProfile, RconService rconService)
+        public RconPageViewModel(ServerProfile serverProfile, RconClient rcon)
         {
             _serverProfile = serverProfile ?? throw new ArgumentNullException(nameof(serverProfile));
-            _rconService = rconService ?? throw new ArgumentNullException(nameof(rconService));
+            _rcon = rcon ?? throw new ArgumentNullException(nameof(rcon));
             ServerNameText = serverProfile.ServerUriText;
 
             SendCommandCommand = new Command(
@@ -100,13 +101,15 @@ namespace CoralClient.ViewModel
                     if (string.IsNullOrWhiteSpace(CommandEntryText)) return;
                     if (CurrentState != State.CONNECTED) return;
 
-                    WriteToCommandLog($"Client: {CommandEntryText}");
+                    WriteToCommandLog($"Client: /{CommandEntryText}");
 
-                    var result = await _rconService.SendCommandAsync(CommandEntryText);
+                    var (isValid, response) = await _rcon.SendCommandAsync(CommandEntryText);
 
                     CommandEntryText = string.Empty;
 
-                    WriteToCommandLog($"Server: {result}");
+                    WriteToCommandLog(isValid
+                    ? $"Server: {response.Body}"
+                    : $"Server: Command failed! {response.Body}");
                 },
                 canExecute: () =>
                     !string.IsNullOrWhiteSpace(CommandEntryText) && CurrentState == State.CONNECTED);
@@ -127,31 +130,42 @@ namespace CoralClient.ViewModel
                 canExecute: () =>
                     CurrentState != State.CONNECTING);
 
-            _rconService.OnDisconnected += (o, e) => CurrentState = State.DISCONNECTED;
-            _rconService.OnConnected += (o, e) => CurrentState = State.CONNECTED;
+            _rcon.Disconnected += (o, e) => CurrentState = State.DISCONNECTED;
+            _rcon.Connected += (o, e) => CurrentState = State.CONNECTED;
 
-            StateChange += OnStateChanged;
-            StateChange += (sender, args) => ConnectionStatusText = CurrentState.ToString();
-            StateChange += async (sender, args) =>
-            {
-                if (CurrentState != State.CONNECTED) return;
-
-                try
-                {
-                    var status = await _rconService.GetStatusAsync(_serverProfile.MinecraftPort);
-
-                    ServerNameText = $"{ServerNameText} ({status.Version})";
-                    OnlinePlayerText = $"Players: {status.NumPlayers}/{status.MaxPlayers}";
-                }
-                catch (Exception e)
-                {
-                    WriteToCommandLog(e.Message);
-                }
-            };
+            StateChange += UiStateChangeLogic;
+            StateChange += ConnectedLogic;
         }
 
-        private void OnStateChanged(object sender, EventArgs e)
+        private async void ConnectedLogic(object sender, EventArgs args)
         {
+            if (CurrentState != State.CONNECTED) return;
+
+            try
+            {
+                var (isValid, response) = await _rcon.AuthenticateAsync(_serverProfile.Password);
+
+                if (!isValid)
+                {
+                    WriteToCommandLog($"Failed to authenticate. {response.Body}");
+                    await _rcon.DisconnectAsync();
+                }
+
+                WriteToCommandLog($"Authenticated successfully. {response.Body}");
+
+                //ServerNameText = $"{ServerNameText} ({status.Version})";
+                //OnlinePlayerText = $"Players: {status.NumPlayers}/{status.MaxPlayers}";
+            }
+            catch (Exception e)
+            {
+                WriteToCommandLog(e.Message);
+            }
+        }
+
+        private void UiStateChangeLogic(object sender, EventArgs e)
+        {
+            ConnectionStatusText = CurrentState.ToString();
+
             switch (CurrentState)
             {
                 case State.DISCONNECTED:
@@ -178,7 +192,7 @@ namespace CoralClient.ViewModel
 
         private void WriteToCommandLog(string text, bool newLine = true)
         {
-            var formattedText = $"[{DateTime.Now}] {text}";
+            var formattedText = $"[{DateTime.Now}] {text.RemoveColorCodes()}";
 
             if (newLine)
             {
@@ -203,19 +217,18 @@ namespace CoralClient.ViewModel
 
                 WriteToCommandLog($"Establishing connection to {targetAddress}:{_serverProfile.MinecraftPort}");
 
-                await _rconService.ConnectAsync(targetAddress, _serverProfile.RconPort, _serverProfile.Password);
+                await _rcon.ConnectAsync(targetAddress.ToString(), _serverProfile.RconPort);
             }
             catch (Exception e)
             {
-                await _rconService.DisconnectAsync();
-
+                await _rcon.DisconnectAsync();
                 WriteToCommandLog(e.Message);
             }
         }
 
         private async Task DisconnectAsync()
         {
-            await _rconService.DisconnectAsync();
+            await _rcon.DisconnectAsync();
         }
     }
 }
