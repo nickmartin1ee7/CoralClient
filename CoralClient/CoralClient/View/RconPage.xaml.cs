@@ -9,14 +9,22 @@ namespace CoralClient.View
 {
     public partial class RconPage : ContentPage
     {
+        private readonly RconPageViewModel _vm;
+
         public RconPage(ServerProfile serverProfile)
         {
             InitializeComponent();
 
-            var vm = new RconPageViewModel(serverProfile,
+            _vm = new RconPageViewModel(serverProfile,
                 Dependencies.ServiceProvider.GetService<RconClient>());
 
-            BindingContext = vm;
+            BindingContext = _vm;
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            _vm.Dispose();
         }
     }
 }

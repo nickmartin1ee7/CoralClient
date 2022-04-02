@@ -48,6 +48,7 @@
             <Entry x:Name="CommandEntry" Grid.Row="1" Placeholder="Enter Command"
                    IsSpellCheckEnabled="False"
                    IsTextPredictionEnabled="False"
+                   IsEnabled="{Binding IsSendCommandEnabled}"
                    ClearButtonVisibility="WhileEditing"
                    ReturnType="Send"
                    ReturnCommand="{Binding SendCommandCommand}"
@@ -63,12 +64,12 @@
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
 
-            <Button x:Name="RecentCommandsButton" Grid.Column="0"
-                    Command="{Binding RecentCommandsCommand}"
-                    Text="Recent Commands"></Button>
+            <Button x:Name="RefreshButton" Grid.Column="0"
+                    Command="{Binding RefreshCommand}"
+                    Text="Refresh" />
             <Button x:Name="ToggleConnectionButton" Grid.Column="1"
                     Command="{Binding ToggleConnectionCommand}"
-                    Text="{Binding ToggleConnectionButtonText}"></Button>
+                    Text="{Binding ToggleConnectionButtonText}" />
 
         </Grid>
 
