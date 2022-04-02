@@ -89,7 +89,7 @@ namespace CoralClient.ViewModel
 
             return new ServerProfile
             {
-                Uri = serverUri,
+                Uri = serverUri.ToLower(),
                 MinecraftPort = ushort.Parse(serverMinecraftPort),
                 RconPort = ushort.Parse(serverRconPort),
                 Password = serverRconPassword
