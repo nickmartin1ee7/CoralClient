@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CoralClient.Model;
-using CoreRCON;
+using CoralClient.Services;
 using Xamarin.Forms;
 
 namespace CoralClient.ViewModel
@@ -21,7 +21,7 @@ namespace CoralClient.ViewModel
         }
 
         private readonly ServerProfile _serverProfile;
-        private RCON _rcon;
+        private readonly RconService _rconService;
         private string _serverNameText = "Server URI";
         private string _connectionStatusText = State.DISCONNECTED.ToString();
         private string _onlinePlayerText = "Players: ?/?";
@@ -86,10 +86,10 @@ namespace CoralClient.ViewModel
 
         public ICommand RecentCommandsCommand { get; }
 
-        public RconPageViewModel(ServerProfile serverProfile)
+        public RconPageViewModel(ServerProfile serverProfile, RconService rconService)
         {
-            _serverProfile = serverProfile;
-
+            _serverProfile = serverProfile ?? throw new ArgumentNullException(nameof(serverProfile));
+            _rconService = rconService ?? throw new ArgumentNullException(nameof(rconService));
             ServerNameText = serverProfile.ServerUriText;
 
             ToggleConnectionCommand = new Command(
@@ -101,7 +101,7 @@ namespace CoralClient.ViewModel
                             await DisconnectAsync();
                             break;
                         case State.DISCONNECTED:
-                            CurrentState = await ConnectAsync();
+                            await ConnectAsync();
                             break;
                     }
                 },
@@ -153,7 +153,7 @@ namespace CoralClient.ViewModel
             CommandLogText = _commandLogBuffer.ToString();
         }
 
-        private async Task<State> ConnectAsync()
+        private async Task ConnectAsync()
         {
             CurrentState = State.CONNECTING;
 
@@ -161,32 +161,25 @@ namespace CoralClient.ViewModel
             {
                 var host = await Dns.GetHostEntryAsync(_serverProfile.Uri);
                 var targetAddress = host.AddressList.First();
+
                 WriteToCommandLog($"Querying {targetAddress}:{_serverProfile.MinecraftPort}");
-
-                _rcon = new RCON(targetAddress, _serverProfile.RconPort, _serverProfile.Password);
-                _rcon.OnDisconnected += () => CurrentState = State.DISCONNECTED;
-
-                await _rcon.ConnectAsync();
+                
+                _rconService.OnDisconnected += (o, e) => CurrentState = State.DISCONNECTED;
+                _rconService.OnConnected += (o, e) => CurrentState = State.CONNECTED;
+                
+                await _rconService.ConnectAsync(targetAddress, _serverProfile.RconPort, _serverProfile.Password);
             }
             catch (Exception e)
             {
-                _rcon.Dispose();
-                _rcon = null;
+                await _rconService.DisconnectAsync();
 
                 WriteToCommandLog(e.Message);
-
-                return State.DISCONNECTED;
             }
-
-            return State.CONNECTED;
         }
 
-        private Task DisconnectAsync()
+        private async Task DisconnectAsync()
         {
-            _rcon.Dispose();
-            _rcon = null;
-
-            return Task.CompletedTask;
+            await _rconService.DisconnectAsync();
         }
     }
 }
