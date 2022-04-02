@@ -12,45 +12,58 @@ namespace CoralClient.ViewModel
     public class MainPageViewModel : BaseObservableViewModel
     {
         private Func<string, string, Task<string>> _promptUserFunc;
-        private ServerProfile _selectedItem;
-
-        public ServerProfile SelectedItem
-        {
-            get => _selectedItem;
-            set => SetProperty(ref _selectedItem, value);
-        }
 
         public IList<ServerProfile> ServerProfiles { get; } = new ObservableCollection<ServerProfile>
         {
             new ServerProfile
             {
                 Uri = "pi.hole",
-                MinecraftPort = 25565
+                MinecraftPort = 25565,
+                RconPort = 25575,
+                Password = "x"
             }
         };
 
         public ICommand AddServerProfileCommand { get; }
 
-        public ICommand SelectionChangeCommand { get; }
+        public ICommand LaunchProfileCommand { get; }
+
+        public ICommand EditProfileCommand { get; }
 
         public MainPageViewModel(Func<string, string, Task<string>> promptUserFunc, Func<ServerProfile, Task> showRconPageFuncAsync)
         {
             _promptUserFunc = promptUserFunc;
 
             AddServerProfileCommand = new Command(execute: async () =>
-                await AddServerProfileAsync());
+            {
+                var newProfile = await GetServerProfileAsync();
+                
+                if (newProfile is null) return;
 
-            SelectionChangeCommand = new Command(execute: async () =>
-                await showRconPageFuncAsync(SelectedItem));
+                ServerProfiles.Add(newProfile);
+            });
+
+            LaunchProfileCommand = new Command(execute: async (serverProfile) =>
+                await showRconPageFuncAsync((ServerProfile)serverProfile));
+
+            EditProfileCommand = new Command(execute: async (serverProfile) =>
+            {
+                var editedProfile = await GetServerProfileAsync();
+
+                if (editedProfile is null) return;
+
+                ServerProfiles.Remove((ServerProfile)serverProfile);
+                ServerProfiles.Add(editedProfile);
+            });
         }
 
-        private async Task AddServerProfileAsync()
+        private async Task<ServerProfile> GetServerProfileAsync()
         {
             var serverUri = await _promptUserFunc("Server URI", "Enter the server URI or IP address.");
 
             if (string.IsNullOrWhiteSpace(serverUri))
             {
-                return;
+                return null;
             }
 
             var serverMinecraftPort = await _promptUserFunc("Server Minecraft Port", "Enter the Minecraft port (25565).");
@@ -71,16 +84,16 @@ namespace CoralClient.ViewModel
 
             if (string.IsNullOrWhiteSpace(serverRconPassword))
             {
-                return;
+                return null;
             }
 
-            ServerProfiles.Add(new ServerProfile
+            return new ServerProfile
             {
                 Uri = serverUri,
                 MinecraftPort = ushort.Parse(serverMinecraftPort),
                 RconPort = ushort.Parse(serverRconPort),
                 Password = serverRconPassword
-            });
+            };
         }
     }
 }

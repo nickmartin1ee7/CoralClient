@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:CoralClient.ViewModel;assembly=CoralClient"
              x:Class="CoralClient.View.MainPage">
     <ContentPage.Content>
         <Grid>
@@ -11,9 +12,7 @@
 
             <CollectionView Grid.Row="0"
                             ItemsSource="{Binding ServerProfiles}"
-                            SelectionMode="Single"
-                            SelectedItem="{Binding SelectedItem}"
-                            SelectionChangedCommand="{Binding SelectionChangeCommand}">
+                            SelectionMode="Single">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Grid>
@@ -23,9 +22,16 @@
                             </Grid.ColumnDefinitions>
 
                             <Frame Grid.ColumnSpan="2" BorderColor="Black"></Frame>
-                            <Label Grid.Column="0" VerticalTextAlignment="Center" Margin="25,0,0,0"
-                                   Text="{Binding ServerUriText}"/>
-                            <Button x:Name="EditProfileButton" Grid.Column="1" Text="Edit" />
+                            <Button x:Name="LaunchProfileButton" Grid.Column="0" VerticalOptions="Center"
+                                    BackgroundColor="Transparent"
+                                    TextColor="Black"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=LaunchProfileCommand}"
+                                    CommandParameter="{Binding}"
+                                    Text="{Binding ServerUriText}"/>
+                            <Button x:Name="EditProfileButton" Grid.Column="1"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=EditProfileCommand}"
+                                    CommandParameter="{Binding}"
+                                    Text="Edit" />
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
