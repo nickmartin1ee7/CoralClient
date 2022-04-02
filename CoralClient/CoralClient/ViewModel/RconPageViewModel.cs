@@ -110,13 +110,19 @@ namespace CoralClient.ViewModel
 
                     WriteToCommandLog($"Client: /{CommandEntryText}");
 
-                    var (isValid, response) = await _rcon.SendCommandAsync(CommandEntryText);
+                    try
+                    {
+                        var (_, response) = await _rcon.SendCommandAsync(CommandEntryText);
 
-                    CommandEntryText = string.Empty;
+                        CommandEntryText = string.Empty;
 
-                    WriteToCommandLog(isValid
-                    ? $"Server: {response.Body}"
-                    : $"Server: Command failed! {response.Body}");
+                        WriteToCommandLog($"Server: {response.Body}");
+                    }
+                    catch (Exception e)
+                    {
+                        WriteToCommandLog($"Failed to send command! {e.Message}");
+                        await ConnectAsync();
+                    }
                 });
 
             ToggleConnectionCommand = new Command(
@@ -138,9 +144,16 @@ namespace CoralClient.ViewModel
                 {
                     if (CurrentState != State.CONNECTED) return;
 
-                    await GetServerInfo();
-
-                    WriteToCommandLog("Refreshed server info.");
+                    try
+                    {
+                        await GetServerInfo();
+                        WriteToCommandLog("Refreshed server info.");
+                    }
+                    catch (Exception e)
+                    {
+                        WriteToCommandLog($"Failed to refresh server info! {e.Message}");
+                        await ConnectAsync();
+                    }
                 });
 
             _rcon.Disconnected += (o, e) => CurrentState = State.DISCONNECTED;
@@ -161,21 +174,15 @@ namespace CoralClient.ViewModel
 
             try
             {
-                var (isValid, response) = await _rcon.AuthenticateAsync(_serverProfile.Password);
+                _ = await _rcon.AuthenticateAsync(_serverProfile.Password);
 
-                if (!isValid)
-                {
-                    WriteToCommandLog($"Failed to authenticate. {response.Body}");
-                    await _rcon.DisconnectAsync();
-                }
-
-                WriteToCommandLog($"Authenticated successfully. {response.Body}");
+                WriteToCommandLog("Authenticated successfully.");
 
                 await GetServerInfo();
             }
             catch (Exception e)
             {
-                WriteToCommandLog(e.Message);
+                WriteToCommandLog($"Failed to authenticate! {e.Message}");
             }
         }
 
@@ -183,35 +190,25 @@ namespace CoralClient.ViewModel
         {
             if (CurrentState != State.CONNECTED) return;
 
-            try
-            {
-                var playerInfo = await _rcon.SendCommandAsync("list");
+            var playerInfo = await _rcon.SendCommandAsync("list");
 
-                if (playerInfo.IsValid)
-                {
-                    var playerText = playerInfo.Response.Body.RemoveColorCodes();
+            var playerText = playerInfo.Response.Body.RemoveColorCodes();
 
-                    var pCountStartIdx = playerText.IndexOf("There are ") + "There are ".Length;
-                    var pCountEndLen = playerText.IndexOf(" out of") - pCountStartIdx;
-                    var maxCountStartIdx = playerText.IndexOf("maximum ") + "maximum ".Length;
-                    var maxCountEndLen = playerText.IndexOf(" players online.") - maxCountStartIdx;
+            var pCountStartIdx = playerText.IndexOf("There are ") + "There are ".Length;
+            var pCountEndLen = playerText.IndexOf(" out of") - pCountStartIdx;
+            var maxCountStartIdx = playerText.IndexOf("maximum ") + "maximum ".Length;
+            var maxCountEndLen = playerText.IndexOf(" players online.") - maxCountStartIdx;
 
 
-                    var currentPlayers = string.Join(string.Empty, playerText
-                        .Skip(pCountStartIdx)
-                        .Take(pCountEndLen));
+            var currentPlayers = string.Join(string.Empty, playerText
+                .Skip(pCountStartIdx)
+                .Take(pCountEndLen));
 
-                    var maxPlayers = string.Join(string.Empty, playerText
-                        .Skip(maxCountStartIdx)
-                        .Take(maxCountEndLen));
+            var maxPlayers = string.Join(string.Empty, playerText
+                .Skip(maxCountStartIdx)
+                .Take(maxCountEndLen));
 
-                    OnlinePlayerText = $"Players: {currentPlayers}/{maxPlayers}";
-                }
-            }
-            catch (Exception e)
-            {
-                WriteToCommandLog($"Failed to get online players! {e.Message}");
-            }
+            OnlinePlayerText = $"Players: {currentPlayers}/{maxPlayers}";
 
             //var serverInfo = await _rcon.SendCommandAsync("version");
 
@@ -231,19 +228,14 @@ namespace CoralClient.ViewModel
                     {
                         ServerNameText = _serverProfile.ServerUriText;
                         OnlinePlayerText = "Players: ?/?";
-                        WriteToCommandLog("Disconnected!");
+                        WriteToCommandLog("Disconnected.");
                         IsSendCommandEnabled = false;
                         ToggleConnectionButtonText = "Connect";
                     }
                     break;
-                case State.CONNECTING:
-                    {
-                        WriteToCommandLog("Connecting...");
-                    }
-                    break;
                 case State.CONNECTED:
                     {
-                        WriteToCommandLog("Connected!");
+                        WriteToCommandLog("Connection established.");
                         IsSendCommandEnabled = true;
                         ToggleConnectionButtonText = "Disconnect";
                     }
@@ -269,7 +261,10 @@ namespace CoralClient.ViewModel
 
         private async Task ConnectAsync()
         {
-            if (CurrentState != State.DISCONNECTED) return;
+            if (CurrentState != State.DISCONNECTED)
+            {
+                _rcon?.Dispose();
+            }
 
             CurrentState = State.CONNECTING;
 
@@ -284,8 +279,9 @@ namespace CoralClient.ViewModel
             }
             catch (Exception e)
             {
-                await _rcon.DisconnectAsync();
+                await DisconnectAsync();
                 WriteToCommandLog(e.Message);
+                CurrentState = State.DISCONNECTED;
             }
         }
 

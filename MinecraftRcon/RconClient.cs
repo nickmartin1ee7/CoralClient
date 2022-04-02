@@ -12,25 +12,39 @@ namespace MinecraftRcon
         private TcpClient _tcpClient;
         private NetworkStream _networkStream;
         private int _lastId;
+        private bool _isDisposed = true;
 
         public event EventHandler Connected;
         public event EventHandler Disconnected;
         
         public void Dispose()
         {
-            Disconnected?.Invoke(this, EventArgs.Empty);
+            if (_isDisposed) return;
+
             _networkStream?.Dispose();
             _tcpClient?.Dispose();
+            Disconnected?.Invoke(this, EventArgs.Empty);
+
+            _isDisposed = true;
         }
 
         public async Task ConnectAsync(string host, int port)
         {
+            _isDisposed = false;
+
             _tcpClient = new TcpClient();
 
             await _tcpClient.ConnectAsync(host, port);
-            _networkStream = _tcpClient.GetStream();
 
-            Connected?.Invoke(this, EventArgs.Empty);
+            if (_tcpClient.Connected)
+            {
+                _networkStream = _tcpClient.GetStream();
+                Connected?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                await DisconnectAsync();
+            }
         }
 
         public async Task DisconnectAsync()
@@ -71,7 +85,7 @@ namespace MinecraftRcon
 
         private async Task<(bool IsValid, Message Response)> SendMessageAsync(Message req)
         {
-            if (!_networkStream.CanWrite || !_tcpClient.Connected)
+            if (_isDisposed || !_networkStream.CanWrite || !_tcpClient.Connected)
             {
                 Disconnected?.Invoke(this, EventArgs.Empty);
                 Dispose();
