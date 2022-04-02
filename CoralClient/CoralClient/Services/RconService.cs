@@ -35,10 +35,6 @@ namespace CoralClient.Services
         public async Task<string> SendCommandAsync(string command) => 
             await _rcon.SendCommandAsync(command);
 
-        public async Task<TParseable> SendCommandAsync<TParseable>(string command)
-            where TParseable : class, IParseable, new() =>
-            await _rcon.SendCommandAsync<TParseable>(command);
-
         // TODO: Doesn't work
         public async Task<MinecraftQueryInfo> GetStatusAsync(ushort port) =>
             await ServerQuery.Info(_host, port, ServerQuery.ServerType.Minecraft) as MinecraftQueryInfo;

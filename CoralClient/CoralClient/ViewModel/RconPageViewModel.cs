@@ -100,6 +100,8 @@ namespace CoralClient.ViewModel
                     if (string.IsNullOrWhiteSpace(CommandEntryText)) return;
                     if (CurrentState != State.CONNECTED) return;
 
+                    WriteToCommandLog($"Client: {CommandEntryText}");
+
                     var result = await _rconService.SendCommandAsync(CommandEntryText);
 
                     CommandEntryText = string.Empty;
@@ -199,7 +201,7 @@ namespace CoralClient.ViewModel
                 var host = await Dns.GetHostEntryAsync(_serverProfile.Uri);
                 var targetAddress = host.AddressList.First();
 
-                WriteToCommandLog($"Querying {targetAddress}:{_serverProfile.MinecraftPort}");
+                WriteToCommandLog($"Establishing connection to {targetAddress}:{_serverProfile.MinecraftPort}");
 
                 await _rconService.ConnectAsync(targetAddress, _serverProfile.RconPort, _serverProfile.Password);
             }
