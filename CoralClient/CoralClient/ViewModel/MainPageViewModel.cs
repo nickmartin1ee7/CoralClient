@@ -30,6 +30,8 @@ namespace CoralClient.ViewModel
 
         public ICommand EditProfileCommand { get; }
 
+        public ICommand DeleteProfileCommand { get; }
+        
         public MainPageViewModel(Func<string, string, Task<string>> promptUserFunc, Func<ServerProfile, Task> showRconPageFuncAsync)
         {
             _promptUserFunc = promptUserFunc;
@@ -55,6 +57,9 @@ namespace CoralClient.ViewModel
                 ServerProfiles.Remove((ServerProfile)serverProfile);
                 ServerProfiles.Add(editedProfile);
             });
+
+            DeleteProfileCommand = new Command((serverProfile) =>
+                ServerProfiles.Remove((ServerProfile) serverProfile));
         }
 
         private async Task<ServerProfile> GetServerProfileAsync()

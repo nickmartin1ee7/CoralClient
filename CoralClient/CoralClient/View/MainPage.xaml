@@ -19,6 +19,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"></ColumnDefinition>
                                 <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
 
                             <Frame Grid.ColumnSpan="2" BorderColor="Black"></Frame>
@@ -32,6 +33,10 @@
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=EditProfileCommand}"
                                     CommandParameter="{Binding}"
                                     Text="Edit" />
+                            <Button x:Name="DeleteProfileButton" Grid.Column="2"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=DeleteProfileCommand}"
+                                    CommandParameter="{Binding}"
+                                    Text="Delete" />
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
