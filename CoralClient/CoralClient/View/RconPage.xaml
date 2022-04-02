@@ -41,10 +41,17 @@
             </Grid.RowDefinitions>
 
             <Frame Grid.Row="0" BorderColor="Black"></Frame>
-            <Editor x:Name="CommandLogEditor" Grid.Row="0" IsReadOnly="True" FontSize="Small"
+            <Editor x:Name="CommandLogEditor" Grid.Row="0"
+                    IsReadOnly="True"
+                    FontSize="Small"
                     Text="{Binding CommandLogText}"></Editor>
             <Entry x:Name="CommandEntry" Grid.Row="1" Placeholder="Enter Command"
-                    Text="{Binding CommandEntryText}"></Entry>
+                   IsSpellCheckEnabled="False"
+                   IsTextPredictionEnabled="False"
+                   ClearButtonVisibility="WhileEditing"
+                   ReturnType="Send"
+                   ReturnCommand="{Binding SendCommandCommand}"
+                   Text="{Binding CommandEntryText}"></Entry>
         </Grid>
 
         <Grid x:Name="OptionsGrid" Grid.Row="2">

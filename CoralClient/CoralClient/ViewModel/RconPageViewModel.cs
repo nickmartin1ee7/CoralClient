@@ -82,6 +82,8 @@ namespace CoralClient.ViewModel
             set => SetProperty(ref _toggleConnectionButtonText, value);
         }
         
+        public ICommand SendCommandCommand { get; }
+
         public ICommand ToggleConnectionCommand { get; }
 
         public ICommand RecentCommandsCommand { get; }
@@ -91,6 +93,21 @@ namespace CoralClient.ViewModel
             _serverProfile = serverProfile ?? throw new ArgumentNullException(nameof(serverProfile));
             _rconService = rconService ?? throw new ArgumentNullException(nameof(rconService));
             ServerNameText = serverProfile.ServerUriText;
+
+            SendCommandCommand = new Command(
+                execute: async () =>
+                {
+                    if (string.IsNullOrWhiteSpace(CommandEntryText)) return;
+                    if (CurrentState != State.CONNECTED) return;
+
+                    var result = await _rconService.SendCommandAsync(CommandEntryText);
+
+                    CommandEntryText = string.Empty;
+
+                    WriteToCommandLog($"Server: {result}");
+                },
+                canExecute: () =>
+                    !string.IsNullOrWhiteSpace(CommandEntryText) && CurrentState == State.CONNECTED);
 
             ToggleConnectionCommand = new Command(
                 execute: async () =>
@@ -108,8 +125,27 @@ namespace CoralClient.ViewModel
                 canExecute: () =>
                     CurrentState != State.CONNECTING);
 
+            _rconService.OnDisconnected += (o, e) => CurrentState = State.DISCONNECTED;
+            _rconService.OnConnected += (o, e) => CurrentState = State.CONNECTED;
+
             StateChange += OnStateChanged;
             StateChange += (sender, args) => ConnectionStatusText = CurrentState.ToString();
+            StateChange += async (sender, args) =>
+            {
+                if (CurrentState != State.CONNECTED) return;
+
+                try
+                {
+                    var status = await _rconService.GetStatusAsync(_serverProfile.MinecraftPort);
+
+                    ServerNameText = $"{ServerNameText} ({status.Version})";
+                    OnlinePlayerText = $"Players: {status.NumPlayers}/{status.MaxPlayers}";
+                }
+                catch (Exception e)
+                {
+                    WriteToCommandLog(e.Message);
+                }
+            };
         }
 
         private void OnStateChanged(object sender, EventArgs e)
@@ -118,6 +154,7 @@ namespace CoralClient.ViewModel
             {
                 case State.DISCONNECTED:
                     {
+                        ServerNameText = _serverProfile.ServerUriText;
                         OnlinePlayerText = "Players: ?/?";
                         WriteToCommandLog("Disconnected!");
                         ToggleConnectionButtonText = "Connect";
@@ -163,10 +200,7 @@ namespace CoralClient.ViewModel
                 var targetAddress = host.AddressList.First();
 
                 WriteToCommandLog($"Querying {targetAddress}:{_serverProfile.MinecraftPort}");
-                
-                _rconService.OnDisconnected += (o, e) => CurrentState = State.DISCONNECTED;
-                _rconService.OnConnected += (o, e) => CurrentState = State.CONNECTED;
-                
+
                 await _rconService.ConnectAsync(targetAddress, _serverProfile.RconPort, _serverProfile.Password);
             }
             catch (Exception e)
