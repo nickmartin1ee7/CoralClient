@@ -51,11 +51,11 @@ namespace CoralClient.ViewModel
 
             EditProfileCommand = new Command(execute: async (serverProfile) =>
             {
-                var cServerProfile = (ServerProfile) serverProfile;
-                var editedProfile = await GetServerProfileAsync(cServerProfile);
+                var editedProfile = await GetServerProfileAsync();
 
                 if (editedProfile is null) return;
 
+                var cServerProfile = (ServerProfile) serverProfile;
 
                 ServerProfiles.Remove(cServerProfile);
                 serverProfileContext.ServerProfiles.Remove(cServerProfile);
@@ -74,38 +74,34 @@ namespace CoralClient.ViewModel
             });
         }
 
-        private async Task<ServerProfile> GetServerProfileAsync(ServerProfile serverProfile = null)
+        private async Task<ServerProfile> GetServerProfileAsync()
         {
-            var serverUri = serverProfile?.Uri;
-            var newServerUri = await _promptUserFunc("Server URI", "Enter the server URI or IP address.");
+            var serverUri = await _promptUserFunc("Server URI", "Enter the server URI or IP address.");
 
-            if (!string.IsNullOrWhiteSpace(newServerUri))
+            if (string.IsNullOrWhiteSpace(serverUri))
             {
-                serverUri = newServerUri;
+                return null;
             }
 
-            var serverMinecraftPort = serverProfile?.MinecraftPort.ToString();
-            var newServerMinecraftPort = await _promptUserFunc("Server Minecraft Port", "Enter the Minecraft port (25565).");
+            var serverMinecraftPort = await _promptUserFunc("Server Minecraft Port", "Enter the Minecraft port (25565).");
 
-            if (!string.IsNullOrWhiteSpace(newServerMinecraftPort))
+            if (string.IsNullOrWhiteSpace(serverMinecraftPort))
             {
-                serverMinecraftPort = newServerMinecraftPort;
+                serverMinecraftPort = "25565";
             }
             
-            var serverRconPort = serverProfile?.RconPort.ToString();
-            var newServerRconPort = await _promptUserFunc("Server RCON Port", "Enter the RCON port (25575).");
+            var serverRconPort = await _promptUserFunc("Server RCON Port", "Enter the RCON port (25575).");
 
-            if (!string.IsNullOrWhiteSpace(newServerRconPort))
+            if (string.IsNullOrWhiteSpace(serverRconPort))
             {
-                serverRconPort = newServerRconPort;
+                serverRconPort = "25575";
             }
 
-            var serverRconPassword = serverProfile?.Password;
-            var newServerRconPassword = await _promptUserFunc("Server RCON Password", "Enter the RCON password.");
+            var serverRconPassword = await _promptUserFunc("Server RCON Password", "Enter the RCON password.");
 
-            if (!string.IsNullOrWhiteSpace(newServerRconPassword))
+            if (string.IsNullOrWhiteSpace(serverRconPassword))
             {
-                serverRconPassword = newServerRconPassword;
+                return null;
             }
 
             return new ServerProfile
