@@ -1,4 +1,5 @@
 ﻿using System;
+using CoralClient.DbContext;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CoralClient.Services
@@ -15,7 +16,9 @@ namespace CoralClient.Services
         private static IServiceProvider CreateServiceProvider()
         {
             var services = new ServiceCollection()
-                .AddSingleton<RconService>();
+                .AddSingleton<RconService>()
+                .AddDbContext<ServerProfileContext>()
+                ;
 
             return services.BuildServiceProvider();
         }

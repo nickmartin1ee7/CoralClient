@@ -1,4 +1,6 @@
-﻿using CoralClient.ViewModel;
+﻿using CoralClient.DbContext;
+using CoralClient.Services;
+using CoralClient.ViewModel;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -11,7 +13,7 @@ namespace CoralClient.View
         {
             InitializeComponent();
 
-            var vm = new MainPageViewModel(
+            var vm = new MainPageViewModel(Dependencies.ServiceProvider.GetService<ServerProfileContext>(),
                 (title, message) => DisplayPromptAsync(title, message),
                 (serverProfile) => Navigation.PushModalAsync(new RconPage(serverProfile)));
 

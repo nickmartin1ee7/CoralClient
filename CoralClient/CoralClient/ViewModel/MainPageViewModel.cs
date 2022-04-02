@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Security;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CoralClient.DbContext;
 using CoralClient.Model;
 using Xamarin.Forms;
 
@@ -11,18 +13,10 @@ namespace CoralClient.ViewModel
 {
     public class MainPageViewModel : BaseObservableViewModel
     {
-        private Func<string, string, Task<string>> _promptUserFunc;
+        private readonly ServerProfileContext _serverProfileContext;
+        private readonly Func<string, string, Task<string>> _promptUserFunc;
 
-        public IList<ServerProfile> ServerProfiles { get; } = new ObservableCollection<ServerProfile>
-        {
-            new ServerProfile
-            {
-                Uri = "pi.hole",
-                MinecraftPort = 25565,
-                RconPort = 25575,
-                Password = "x"
-            }
-        };
+        public IList<ServerProfile> ServerProfiles { get; }
 
         public ICommand AddServerProfileCommand { get; }
 
@@ -32,9 +26,14 @@ namespace CoralClient.ViewModel
 
         public ICommand DeleteProfileCommand { get; }
         
-        public MainPageViewModel(Func<string, string, Task<string>> promptUserFunc, Func<ServerProfile, Task> showRconPageFuncAsync)
+        public MainPageViewModel(ServerProfileContext serverProfileContext,
+            Func<string, string, Task<string>> promptUserFunc,
+            Func<ServerProfile, Task> showRconPageFuncAsync)
         {
             _promptUserFunc = promptUserFunc;
+            _serverProfileContext = serverProfileContext;
+
+            ServerProfiles = new ObservableCollection<ServerProfile>(serverProfileContext.ServerProfiles.ToList());
 
             AddServerProfileCommand = new Command(execute: async () =>
             {
@@ -43,6 +42,8 @@ namespace CoralClient.ViewModel
                 if (newProfile is null) return;
 
                 ServerProfiles.Add(newProfile);
+                await serverProfileContext.ServerProfiles.AddAsync(newProfile);
+                await serverProfileContext.SaveChangesAsync();
             });
 
             LaunchProfileCommand = new Command(execute: async (serverProfile) =>
@@ -54,12 +55,23 @@ namespace CoralClient.ViewModel
 
                 if (editedProfile is null) return;
 
-                ServerProfiles.Remove((ServerProfile)serverProfile);
+                var cServerProfile = (ServerProfile) serverProfile;
+
+                ServerProfiles.Remove(cServerProfile);
+                serverProfileContext.ServerProfiles.Remove(cServerProfile);
                 ServerProfiles.Add(editedProfile);
+                await serverProfileContext.ServerProfiles.AddAsync(editedProfile);
+                await serverProfileContext.SaveChangesAsync();
             });
 
-            DeleteProfileCommand = new Command((serverProfile) =>
-                ServerProfiles.Remove((ServerProfile) serverProfile));
+            DeleteProfileCommand = new Command(async (serverProfile) =>
+            {
+                var cServerProfile = (ServerProfile) serverProfile;
+
+                ServerProfiles.Remove(cServerProfile);
+                serverProfileContext.ServerProfiles.Remove(cServerProfile);
+                await serverProfileContext.SaveChangesAsync();
+            });
         }
 
         private async Task<ServerProfile> GetServerProfileAsync()
