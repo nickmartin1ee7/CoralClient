@@ -30,7 +30,7 @@ namespace MinecraftRcon
             _isDisposed = true;
         }
 
-        public async Task ConnectAsync(string host, int port)
+        public Task ConnectAsync(string host, int port)
         {
             _tcpClient = new TcpClient(host, port);
 
@@ -40,6 +40,8 @@ namespace MinecraftRcon
                 _ = Task.Run(ReadMessagesJob);
                 Connected?.Invoke(this, EventArgs.Empty);
             }
+
+            return Task.CompletedTask;
         }
 
         public async Task DisconnectAsync()
