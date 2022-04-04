@@ -12,10 +12,13 @@ namespace MinecraftRcon
         private TcpClient _tcpClient;
         private NetworkStream _networkStream;
         private int _lastId;
-        private bool _isDisposed = true;
+        private bool _isDisposed;
 
         public event EventHandler Connected;
         public event EventHandler Disconnected;
+        public event EventHandler<Message> MessageReceived;
+
+        public bool IsConnected => _tcpClient?.Connected ?? false;
         
         public void Dispose()
         {
@@ -23,27 +26,19 @@ namespace MinecraftRcon
 
             _networkStream?.Dispose();
             _tcpClient?.Dispose();
-            Disconnected?.Invoke(this, EventArgs.Empty);
 
             _isDisposed = true;
         }
 
         public async Task ConnectAsync(string host, int port)
         {
-            _isDisposed = false;
+            _tcpClient = new TcpClient(host, port);
 
-            _tcpClient = new TcpClient();
-
-            await _tcpClient.ConnectAsync(host, port);
-
-            if (_tcpClient.Connected)
+            if (IsConnected)
             {
                 _networkStream = _tcpClient.GetStream();
+                _ = Task.Run(ReadMessagesJob);
                 Connected?.Invoke(this, EventArgs.Empty);
-            }
-            else
-            {
-                await DisconnectAsync();
             }
         }
 
@@ -61,11 +56,11 @@ namespace MinecraftRcon
             }
             finally
             {
-                Dispose();
+                Disconnected?.Invoke(this, EventArgs.Empty);
             }
         }
 
-        public Task<(bool IsValid, Message Response)> AuthenticateAsync(string password)
+        public Task AuthenticateAsync(string password)
         {
             return SendMessageAsync(new Message(
                 password.Length + Encoder.HEADER_LENGTH,
@@ -74,7 +69,7 @@ namespace MinecraftRcon
                 password));
         }
 
-        public Task<(bool IsValid, Message Response)> SendCommandAsync(string command)
+        public Task SendCommandAsync(string command)
         {
             return SendMessageAsync(new Message(
                 command.Length + Encoder.HEADER_LENGTH,
@@ -83,26 +78,51 @@ namespace MinecraftRcon
                 command));
         }
 
-        private async Task<(bool IsValid, Message Response)> SendMessageAsync(Message req)
+        private async Task SendMessageAsync(Message req)
         {
-            if (_isDisposed || !_networkStream.CanWrite || !_tcpClient.Connected)
+            if (!IsConnected)
             {
                 Disconnected?.Invoke(this, EventArgs.Empty);
                 Dispose();
-                return (false, default);
             }
 
+            // Send a new message
             var encoded = Encoder.EncodeMessage(req);
             await _networkStream.WriteAsync(encoded, 0, encoded.Length);
+        }
 
-            var respBytes = new byte[MAX_MESSAGE_SIZE];
-            var bytesRead = await _networkStream.ReadAsync(respBytes, 0, respBytes.Length);
+        private async Task ReadMessagesJob()
+        {
+            while (IsConnected)
+            {
+                if (!_networkStream.DataAvailable)
+                    continue;
 
-            Array.Resize(ref respBytes, bytesRead);
+                // Receive a message
+                var respBytes = new byte[MAX_MESSAGE_SIZE];
 
-            var resp = Encoder.DecodeMessage(respBytes);
-            
-            return (req.Id == resp.Id, resp);
+                try
+                {
+                    var bytesRead = await _networkStream.ReadAsync(respBytes, 0, respBytes.Length);
+                    if (bytesRead > 0)
+                    {
+                        Array.Resize(ref respBytes, bytesRead);
+                        MessageReceived?.Invoke(this, Encoder.DecodeMessage(respBytes));
+                    }
+#if DEBUG
+                    else
+                    {
+                        const string body = "DEBUG: EMPTY MESSAGE FROM SERVER";
+                        MessageReceived?.Invoke(this, new Message(body.Length, -1, MessageType._, body));
+                    }
+#endif
+                }
+                catch (Exception e)
+                {
+                    var body = $"Error reading from server connection. {e.Message}";
+                    MessageReceived?.Invoke(this, new Message(body.Length, -1, MessageType._, body));
+                }
+            }
         }
     }
 }

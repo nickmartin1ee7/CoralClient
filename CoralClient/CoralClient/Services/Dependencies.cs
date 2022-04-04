@@ -17,7 +17,7 @@ namespace CoralClient.Services
         private static IServiceProvider CreateServiceProvider()
         {
             var services = new ServiceCollection()
-                .AddSingleton<RconClient>()
+                .AddTransient<RconClient>()
                 .AddDbContext<ServerProfileContext>()
                 ;
 

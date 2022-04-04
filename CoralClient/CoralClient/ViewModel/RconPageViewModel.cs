@@ -35,14 +35,11 @@ namespace CoralClient.ViewModel
 
         public event EventHandler StateChange;
 
-        public State LastState { get; set; }
-
         public State CurrentState
         {
             get => _currentState;
             set
             {
-                LastState = CurrentState;
                 _currentState = value;
                 StateChange?.Invoke(this, EventArgs.Empty);
             }
@@ -108,20 +105,16 @@ namespace CoralClient.ViewModel
                     if (CurrentState != State.CONNECTED) return;
                     if (string.IsNullOrWhiteSpace(CommandEntryText)) return;
 
-                    WriteToCommandLog($"Client: /{CommandEntryText}");
+                    WriteToCommandLog($"Client: {CommandEntryText}");
 
                     try
                     {
-                        var (_, response) = await _rcon.SendCommandAsync(CommandEntryText);
-
+                        await _rcon.SendCommandAsync(CommandEntryText);
                         CommandEntryText = string.Empty;
-
-                        WriteToCommandLog($"Server: {response.Body}");
                     }
                     catch (Exception e)
                     {
                         WriteToCommandLog($"Failed to send command! {e.Message}");
-                        await ConnectAsync();
                     }
                 });
 
@@ -158,6 +151,32 @@ namespace CoralClient.ViewModel
 
             _rcon.Disconnected += (o, e) => CurrentState = State.DISCONNECTED;
             _rcon.Connected += (o, e) => CurrentState = State.CONNECTED;
+            _rcon.MessageReceived += (o, e) =>
+                WriteToCommandLog($"Server: {e.Body}");
+            _rcon.MessageReceived += (o, e) => // Auto update player count on any list commands
+            {
+                var playerText = e.Body.RemoveColorCodes();
+
+                var pCountStartIdx = playerText.IndexOf("There are ") + "There are ".Length;
+                var pCountEndLen = playerText.IndexOf(" out of") - pCountStartIdx;
+                var maxCountStartIdx = playerText.IndexOf("maximum ") + "maximum ".Length;
+                var maxCountEndLen = playerText.IndexOf(" players online.") - maxCountStartIdx;
+
+                if (pCountStartIdx < 0 || pCountEndLen < 0 || maxCountStartIdx < 0 || maxCountEndLen < 0)
+                {
+                    return;
+                }
+
+                var currentPlayers = string.Join(string.Empty, playerText
+                    .Skip(pCountStartIdx)
+                    .Take(pCountEndLen));
+
+                var maxPlayers = string.Join(string.Empty, playerText
+                    .Skip(maxCountStartIdx)
+                    .Take(maxCountEndLen));
+
+                OnlinePlayerText = $"Players: {currentPlayers}/{maxPlayers}";
+            };
 
             StateChange += UiStateChangeLogic;
             StateChange += ConnectedLogic;
@@ -174,7 +193,7 @@ namespace CoralClient.ViewModel
 
             try
             {
-                _ = await _rcon.AuthenticateAsync(_serverProfile.Password);
+                await _rcon.AuthenticateAsync(_serverProfile.Password);
 
                 WriteToCommandLog("Authenticated successfully.");
 
@@ -185,37 +204,11 @@ namespace CoralClient.ViewModel
                 WriteToCommandLog($"Failed to authenticate! {e.Message}");
             }
         }
-
+        
         private async Task GetServerInfo()
         {
             if (CurrentState != State.CONNECTED) return;
-
-            var playerInfo = await _rcon.SendCommandAsync("list");
-
-            var playerText = playerInfo.Response.Body.RemoveColorCodes();
-
-            var pCountStartIdx = playerText.IndexOf("There are ") + "There are ".Length;
-            var pCountEndLen = playerText.IndexOf(" out of") - pCountStartIdx;
-            var maxCountStartIdx = playerText.IndexOf("maximum ") + "maximum ".Length;
-            var maxCountEndLen = playerText.IndexOf(" players online.") - maxCountStartIdx;
-
-
-            var currentPlayers = string.Join(string.Empty, playerText
-                .Skip(pCountStartIdx)
-                .Take(pCountEndLen));
-
-            var maxPlayers = string.Join(string.Empty, playerText
-                .Skip(maxCountStartIdx)
-                .Take(maxCountEndLen));
-
-            OnlinePlayerText = $"Players: {currentPlayers}/{maxPlayers}";
-
-            //var serverInfo = await _rcon.SendCommandAsync("version");
-
-            //if (serverInfo.IsValid)
-            //{
-            //    ServerNameText = $"{ServerNameText} ({status.Version})";
-            //}
+            await _rcon.SendCommandAsync("list");
         }
 
         private void UiStateChangeLogic(object sender, EventArgs e)
@@ -245,6 +238,9 @@ namespace CoralClient.ViewModel
 
         private void WriteToCommandLog(string text, bool newLine = true)
         {
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+
             var formattedText = $"[{DateTime.Now}] {text.RemoveColorCodes()}";
 
             if (newLine)
@@ -261,11 +257,6 @@ namespace CoralClient.ViewModel
 
         private async Task ConnectAsync()
         {
-            if (CurrentState != State.DISCONNECTED)
-            {
-                _rcon?.Dispose();
-            }
-
             CurrentState = State.CONNECTING;
 
             try
@@ -288,7 +279,6 @@ namespace CoralClient.ViewModel
         private async Task DisconnectAsync()
         {
             if (CurrentState != State.CONNECTED) return;
-
             await _rcon.DisconnectAsync();
         }
     }
