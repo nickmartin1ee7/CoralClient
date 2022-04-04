@@ -105,7 +105,7 @@ namespace CoralClient.ViewModel
                     if (CurrentState != State.CONNECTED) return;
                     if (string.IsNullOrWhiteSpace(CommandEntryText)) return;
 
-                    WriteToCommandLog($"Client: {CommandEntryText}");
+                    WriteToCommandLog("Client", CommandEntryText);
 
                     try
                     {
@@ -114,7 +114,7 @@ namespace CoralClient.ViewModel
                     }
                     catch (Exception e)
                     {
-                        WriteToCommandLog($"Failed to send command! {e.Message}");
+                        WriteToCommandLog("Error", $"Failed to send command! {e.Message}");
                     }
                 });
 
@@ -140,11 +140,11 @@ namespace CoralClient.ViewModel
                     try
                     {
                         await GetServerInfo();
-                        WriteToCommandLog("Refreshed server info.");
+                        WriteToCommandLog("Info", "Refreshed server info");
                     }
                     catch (Exception e)
                     {
-                        WriteToCommandLog($"Failed to refresh server info! {e.Message}");
+                        WriteToCommandLog("Error", $"Failed to refresh server info! {e.Message}");
                         await ConnectAsync();
                     }
                 });
@@ -152,7 +152,7 @@ namespace CoralClient.ViewModel
             _rcon.Disconnected += (o, e) => CurrentState = State.DISCONNECTED;
             _rcon.Connected += (o, e) => CurrentState = State.CONNECTED;
             _rcon.MessageReceived += (o, e) =>
-                WriteToCommandLog($"Server: {e.Body}");
+                WriteToCommandLog("Server", e.Body);
             _rcon.MessageReceived += (o, e) => // Auto update player count on any list commands
             {
                 var playerText = e.Body.RemoveColorCodes();
@@ -195,13 +195,13 @@ namespace CoralClient.ViewModel
             {
                 await _rcon.AuthenticateAsync(_serverProfile.Password);
 
-                WriteToCommandLog("Authenticated successfully.");
+                WriteToCommandLog("Info", "Authenticated successfully");
 
                 await GetServerInfo();
             }
             catch (Exception e)
             {
-                WriteToCommandLog($"Failed to authenticate! {e.Message}");
+                WriteToCommandLog("Error", $"Failed to authenticate! {e.Message}");
             }
         }
         
@@ -221,14 +221,14 @@ namespace CoralClient.ViewModel
                     {
                         ServerNameText = _serverProfile.ServerUriText;
                         OnlinePlayerText = "Players: ?/?";
-                        WriteToCommandLog("Disconnected.");
+                        WriteToCommandLog("Info", "Disconnected");
                         IsSendCommandEnabled = false;
                         ToggleConnectionButtonText = "Connect";
                     }
                     break;
                 case State.CONNECTED:
                     {
-                        WriteToCommandLog("Connection established.");
+                        WriteToCommandLog("Info", "Connection established");
                         IsSendCommandEnabled = true;
                         ToggleConnectionButtonText = "Disconnect";
                     }
@@ -236,12 +236,12 @@ namespace CoralClient.ViewModel
             }
         }
 
-        private void WriteToCommandLog(string text, bool newLine = true)
+        private void WriteToCommandLog(string prefix, string text, bool newLine = true)
         {
             if (string.IsNullOrWhiteSpace(text))
                 return;
 
-            var formattedText = $"[{DateTime.Now}] {text.RemoveColorCodes()}";
+            var formattedText = $"[{DateTime.Now}] {prefix}: {text.RemoveColorCodes()}";
 
             if (newLine)
             {
@@ -264,14 +264,14 @@ namespace CoralClient.ViewModel
                 var host = await Dns.GetHostEntryAsync(_serverProfile.Uri);
                 var targetAddress = host.AddressList.First();
 
-                WriteToCommandLog($"Establishing connection to {targetAddress}:{_serverProfile.MinecraftPort}");
+                WriteToCommandLog("Info", $"Establishing connection to {targetAddress}:{_serverProfile.MinecraftPort}");
 
                 await _rcon.ConnectAsync(targetAddress.ToString(), _serverProfile.RconPort);
             }
             catch (Exception e)
             {
                 await DisconnectAsync();
-                WriteToCommandLog(e.Message);
+                WriteToCommandLog("Error", $"Failed to connect! {e.Message}");
                 CurrentState = State.DISCONNECTED;
             }
         }
