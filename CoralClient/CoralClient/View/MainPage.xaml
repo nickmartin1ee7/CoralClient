@@ -6,9 +6,13 @@
     <ContentPage.Content>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
+
+            <Image x:Name="LogoImage"
+                   Aspect="AspectFit"
+                   Opacity="0.5" />
 
             <CollectionView Grid.Row="0"
                             ItemsSource="{Binding ServerProfiles}"
@@ -17,23 +21,28 @@
                     <DataTemplate>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
-                                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <Frame Grid.ColumnSpan="2" BorderColor="Black"></Frame>
-                            <Button x:Name="LaunchProfileButton" Grid.Column="0" VerticalOptions="Center"
+                            <Frame Grid.ColumnSpan="3" BorderColor="Black" />
+
+                            <Button x:Name="LaunchProfileButton" Grid.Column="0"
+                                    VerticalOptions="Center"
                                     BackgroundColor="Transparent"
                                     TextColor="Black"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=LaunchProfileCommand}"
                                     CommandParameter="{Binding}"
                                     Text="{Binding ServerUriText}"/>
+
                             <Button x:Name="EditProfileButton" Grid.Column="1"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=EditProfileCommand}"
                                     CommandParameter="{Binding}"
                                     Text="Edit" />
+
                             <Button x:Name="DeleteProfileButton" Grid.Column="2"
+                                    
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=DeleteProfileCommand}"
                                     CommandParameter="{Binding}"
                                     Text="Delete" />

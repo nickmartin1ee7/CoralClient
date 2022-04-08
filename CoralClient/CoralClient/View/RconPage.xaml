@@ -5,46 +5,46 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Grid x:Name="InfoGrid" Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
             <Label x:Name="ServerNameLabel" Grid.Column="0"  Grid.Row="0" Grid.ColumnSpan="2" HorizontalTextAlignment="Center"
-                   Text="{Binding ServerNameText}"></Label>
+                   Text="{Binding ServerNameText}" />
             <Label x:Name="ConnectionStatusLabel" Grid.Column="0"  Grid.Row="1" HorizontalTextAlignment="Center"
-                   Text="{Binding ConnectionStatusText}"></Label>
+                   Text="{Binding ConnectionStatusText}" />
             <Label x:Name="OnlinePlayerLabel" Grid.Column="1"  Grid.Row="1" HorizontalTextAlignment="Center"
-                   Text="{Binding OnlinePlayerText}"></Label>
+                   Text="{Binding OnlinePlayerText}" />
         </Grid>
 
         <Grid x:Name="CommandGrid" Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Frame Grid.Row="0" BorderColor="Black"></Frame>
+            <Frame Grid.Row="0" BorderColor="Black" />
             <Editor x:Name="CommandLogEditor" Grid.Row="0"
                     IsReadOnly="True"
                     FontSize="Small"
-                    Text="{Binding CommandLogText}"></Editor>
+                    Text="{Binding CommandLogText}" />
             <Entry x:Name="CommandEntry" Grid.Row="1" Placeholder="Enter Command"
                    IsSpellCheckEnabled="False"
                    IsTextPredictionEnabled="False"
@@ -52,16 +52,16 @@
                    ClearButtonVisibility="WhileEditing"
                    ReturnType="Send"
                    ReturnCommand="{Binding SendCommandCommand}"
-                   Text="{Binding CommandEntryText}"></Entry>
+                   Text="{Binding CommandEntryText}" />
         </Grid>
 
         <Grid x:Name="OptionsGrid" Grid.Row="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
             <Button x:Name="RefreshButton" Grid.Column="0"
