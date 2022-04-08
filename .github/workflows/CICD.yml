@@ -30,7 +30,7 @@ jobs:
         version-code: ${{ github.run_number }}
         
     - name: Build
-      run: msbuild ./CoralClient/CoralClient.Android/CoralClient.Android.csproj /t:PackageForAndroid /p:Configuration=Release
+      run: msbuild ./CoralClient/CoralClient.Android/CoralClient.Android.csproj /t:PackageForAndroid /t:SignAndroidPackage /p:Configuration=Release
       
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.0.0
