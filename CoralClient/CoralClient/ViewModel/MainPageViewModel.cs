@@ -85,16 +85,16 @@ namespace CoralClient.ViewModel
 
             var serverMinecraftPort = await _promptUserFunc("Server Minecraft Port", "Enter the Minecraft port (25565).");
 
-            if (string.IsNullOrWhiteSpace(serverMinecraftPort))
+            if (!ushort.TryParse(serverMinecraftPort, out var serverMinecraftPortParsed))
             {
-                serverMinecraftPort = "25565";
+                serverMinecraftPortParsed = 25565;
             }
             
             var serverRconPort = await _promptUserFunc("Server RCON Port", "Enter the RCON port (25575).");
 
-            if (string.IsNullOrWhiteSpace(serverRconPort))
+            if (!ushort.TryParse(serverRconPort, out var serverRconPortParsed))
             {
-                serverRconPort = "25575";
+                serverMinecraftPortParsed = 25575;
             }
 
             var serverRconPassword = await _promptUserFunc("Server RCON Password", "Enter the RCON password.");
@@ -107,8 +107,8 @@ namespace CoralClient.ViewModel
             return new ServerProfile
             {
                 Uri = serverUri.ToLower(),
-                MinecraftPort = ushort.Parse(serverMinecraftPort),
-                RconPort = ushort.Parse(serverRconPort),
+                MinecraftPort = serverMinecraftPortParsed,
+                RconPort = serverRconPortParsed,
                 Password = serverRconPassword
             };
         }
