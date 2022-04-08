@@ -21,10 +21,10 @@ namespace CoralClient.View
             BindingContext = _vm;
         }
 
-        protected override void OnDisappearing()
+        protected override bool OnBackButtonPressed()
         {
-            base.OnDisappearing();
             _vm.Dispose();
+            return base.OnBackButtonPressed();
         }
     }
 }
