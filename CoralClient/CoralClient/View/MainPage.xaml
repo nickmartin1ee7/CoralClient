@@ -19,14 +19,22 @@
                             SelectionMode="Single">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Grid>
+                        <Grid Padding="0,25,0,0"
+                            BackgroundColor="Transparent">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <Frame Grid.ColumnSpan="3" BorderColor="Black" />
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Frame Grid.ColumnSpan="3"
+                                   BackgroundColor="Pink"
+                                   Opacity=".25"
+                                   BorderColor="Black" />
 
                             <Button x:Name="LaunchProfileButton" Grid.Column="0"
                                     VerticalOptions="Center"
