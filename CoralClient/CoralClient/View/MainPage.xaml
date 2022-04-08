@@ -37,9 +37,6 @@
                                    BorderColor="Black" />
 
                             <Button x:Name="LaunchProfileButton" Grid.Column="0"
-                                    VerticalOptions="Center"
-                                    BackgroundColor="Transparent"
-                                    TextColor="Black"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=LaunchProfileCommand}"
                                     CommandParameter="{Binding}"
                                     Text="{Binding ServerUriText}"/>
@@ -50,7 +47,6 @@
                                     Text="Edit" />
 
                             <Button x:Name="DeleteProfileButton" Grid.Column="2"
-                                    
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=DeleteProfileCommand}"
                                     CommandParameter="{Binding}"
                                     Text="Delete" />

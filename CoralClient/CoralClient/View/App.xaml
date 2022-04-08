@@ -12,8 +12,12 @@
         </Style>
 
         <Style TargetType="{x:Type Button}">
-            <Setter Property="TextColor" Value="White"/>
-            <Setter Property="BackgroundColor" Value="Black"/>
+            <Setter Property="TextColor" Value="Black"/>
+            <Setter Property="BackgroundColor" Value="Transparent"/>
+            <Setter Property="BorderColor" Value="DeepSkyBlue"/>
+            <Setter Property="BorderWidth" Value="2"/>
+            <Setter Property="Margin" Value="5,5,5,5"/>
+            <Setter Property="VerticalOptions" Value="Center"/>
         </Style>
 
         <Style TargetType="{x:Type Editor}">
