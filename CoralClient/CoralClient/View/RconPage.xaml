@@ -45,6 +45,9 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
+            <Frame Grid.Row="0"
+                   BorderColor="Black" />
+
             <Editor x:Name="CommandLogEditor" Grid.Row="0"
                     IsReadOnly="True"
                     FontSize="Small"

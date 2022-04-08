@@ -94,7 +94,7 @@ namespace CoralClient.ViewModel
 
             if (!ushort.TryParse(serverRconPort, out var serverRconPortParsed))
             {
-                serverMinecraftPortParsed = 25575;
+                serverRconPortParsed = 25575;
             }
 
             var serverRconPassword = await _promptUserFunc("Server RCON Password", "Enter the RCON password.");
