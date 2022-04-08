@@ -25,12 +25,12 @@ jobs:
     - name: Set Android version
       uses: damienaicheh/update-android-version-manifest-action@v1.0.0
       with:
-        android-manifest-path: ./CoralClient.Android/Properties/AndroidManifest.xml
+        android-manifest-path: ./CoralClient/CoralClient.Android/Properties/AndroidManifest.xml
         version-name: ${{ secrets.APP_VERSION }}
         version-code: ${{ github.run_number }}
         
     - name: Build Android
-      run: MSBuild /p:Configuration=Release /p:AndroidPackageFormat=apk ./CoralClient.Android/CoralClient.Android.csproj
+      run: MSBuild /p:Configuration=Release /p:AndroidPackageFormat=apk ./CoralClient/CoralClient.Android/CoralClient.Android.csproj
       
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.0.0
