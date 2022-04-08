@@ -42,4 +42,4 @@ jobs:
         name: CoralClient v${{ secrets.APP_VERSION }} (Build ${{ github.run_number }})
         draft: false
         prerelease: false
-        files: "**/bin/Release/*.apk"
+        files: "**/bin/Release/*-Signed.apk"
