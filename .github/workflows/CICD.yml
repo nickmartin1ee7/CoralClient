@@ -36,3 +36,12 @@ jobs:
       uses: actions/upload-artifact@v3.0.0
       with:
         path: "**/bin/Release/*.apk"
+        
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1      
+      with:
+        tag_name: ${{ github.workflow }}
+        name: Release ${{ github.run_number }}
+        draft: false
+        prerelease: false
+        files: CoralClient-v${{ secrets.APP_VERSION }}-${{ github.run_number }}.zip
