@@ -2,7 +2,7 @@
 
 namespace CoralClient.Helpers
 {
-    public static class MinecraftHelper
+    public static class MinecraftExtensions
     {
         private const string COLOR_REGEX = @"(§(\d|\w))+";
 
