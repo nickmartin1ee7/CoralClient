@@ -1,14 +1,16 @@
-﻿using Xamarin.Forms;
+﻿using System;
+using Xamarin.Forms;
+using Xamarin.Forms.Xaml;
 
-namespace CoralClient.View
+namespace CoralClient
 {
     public partial class App : Application
     {
         public App()
         {
             InitializeComponent();
-
-            MainPage = new MainPage();
+            Device.SetFlags(new[] { "Shapes_Experimental", "Brush_Experimental" });
+            MainPage = new NavigationPage(new MainPage());
         }
 
         protected override void OnStart()
