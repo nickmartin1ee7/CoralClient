@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Security;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CoralClient.DbContext;
@@ -13,7 +12,6 @@ namespace CoralClient.ViewModel
 {
     public class MainPageViewModel : BaseObservableViewModel
     {
-        private readonly ServerProfileContext _serverProfileContext;
         private readonly Func<string, string, Task<string>> _promptUserFunc;
 
         public IList<ServerProfile> ServerProfiles { get; }
@@ -31,8 +29,6 @@ namespace CoralClient.ViewModel
             Func<ServerProfile, Task> showRconPageFuncAsync)
         {
             _promptUserFunc = promptUserFunc;
-            _serverProfileContext = serverProfileContext;
-
             ServerProfiles = new ObservableCollection<ServerProfile>(serverProfileContext.ServerProfiles.ToList());
 
             AddServerProfileCommand = new Command(execute: async () =>

@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace CoralClient.ViewModel
@@ -10,7 +9,7 @@ namespace CoralClient.ViewModel
 
         protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {
-            if (Object.Equals(storage, value))
+            if (object.Equals(storage, value))
                 return false;
 
             storage = value;
