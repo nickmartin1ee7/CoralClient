@@ -1,11 +1,33 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" 
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:CoralClient.ViewModel"
-             x:Class="CoralClient.ViewServerPage">
-  <ContentView.Content>
-      <StackLayout>
-          <Label Text="Hello Xamarin.Forms!" />
-      </StackLayout>
-  </ContentView.Content>
-</ContentView>
+             x:Class="CoralClient.ViewServerPage"
+             NavigationPage.HasNavigationBar="False">
+
+    <ContentPage.BindingContext>
+        <vm:ViewServerViewModel x:Name="vm"/>
+    </ContentPage.BindingContext>
+
+    <Grid RowDefinitions="130, *">
+        <BoxView Grid.RowSpan="2">
+            <BoxView.Background>
+                <LinearGradientBrush>
+                    <GradientStopCollection>
+                        <GradientStop Color="#161616" Offset="0"/>
+                        <GradientStop Color="#30343F" Offset="1"/>
+                    </GradientStopCollection>
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+        <Grid>
+            <Path Data="M0,0H375V129.651s-9.025,2.382-55.426-5.3-70.141-41.09-130.3-41.176-83.544,33.5-130.893,41.176S0,129.651,0,129.651Z"
+                  Aspect="Fill" Fill="#eda1ab"/>
+            <StackLayout Orientation="Horizontal" Margin="25" Spacing="20" VerticalOptions="Start">
+                <ImageButton Source="back.png" BackgroundColor="Transparent" WidthRequest="20" HeightRequest="20" 
+                    HorizontalOptions="Start" VerticalOptions="Center" Command="{Binding BackCommand}"/>
+                <Label Text="View Server" TextColor="Black" FontSize="20" FontAttributes="Bold" VerticalOptions="Start"/>
+            </StackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

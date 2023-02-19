@@ -82,5 +82,8 @@ namespace CoralClient.ViewModel
 
         public ICommand NewServerCommand => new Command(() =>
             Application.Current.MainPage.Navigation.PushAsync(new NewServerPage()));
+
+        public ICommand ViewServerCommand => new Command(() =>
+            Application.Current.MainPage.Navigation.PushAsync(new ViewServerPage()));
     }
 }

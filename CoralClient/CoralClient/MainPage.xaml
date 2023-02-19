@@ -24,8 +24,6 @@
         <Grid>
             <Path Data="M0,0H375V262.033s-9.025,4.813-55.426-10.71-70.141-83.047-130.3-83.22-83.544,67.7-130.893,83.22S0,262.033,0,262.033Z"
                   Aspect="Fill" Fill="#eda1ab"/>
-            <!--<Image Source="@drawable/back.png" WidthRequest="20" HeightRequest="20" HorizontalOptions="Start" VerticalOptions="Start" Margin="25"/>-->
-            <!--<Image Source="@drawable/menu.png" WidthRequest="20" HeightRequest="20" HorizontalOptions="End" VerticalOptions="Start" Margin="25"/>-->
         </Grid>
         <StackLayout Grid.Row="1" HorizontalOptions="Center" Margin="0,-85,0,0" Spacing="30">
             <Grid HeightRequest="210" WidthRequest="210" HorizontalOptions="Center">
@@ -46,6 +44,10 @@
                     <BindableLayout.ItemTemplate>
                         <DataTemplate>
                             <Grid ColumnDefinitions="Auto, Auto" ColumnSpacing="15">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ViewServerCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
                                 <Image Source="{Binding Image}" WidthRequest="75" HeightRequest="75" HorizontalOptions="Center" VerticalOptions="Center"
                                        x:DataType="model:ServerProfile" />
                                 <StackLayout Grid.Column="1" Spacing="5" WidthRequest="115">

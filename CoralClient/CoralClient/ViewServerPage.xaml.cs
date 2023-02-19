@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Xamarin.Forms;
+﻿using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 namespace CoralClient
 {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class ViewServerPage : ContentView
+	public partial class ViewServerPage : ContentPage
 	{
-		public ViewServerPage ()
+		public ViewServerPage()
 		{
-			InitializeComponent ();
+			InitializeComponent();
 		}
 	}
 }
