@@ -12,9 +12,9 @@ using Xamarin.Forms;
 
 namespace CoralClient.ViewModel
 {
-    public class OrderViewModel : BaseViewModel
+    public class NewServerViewModel : BaseViewModel
     {
-        public OrderViewModel()
+        public NewServerViewModel()
         {
             ServerProfiles = GetServerProfiles();
         }

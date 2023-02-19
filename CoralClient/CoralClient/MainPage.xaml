@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:vm="clr-namespace:CoralClient.ViewModel"
              xmlns:model="clr-namespace:CoralClient.Model;assembly=CoralClient"
              xmlns:local="clr-namespace:CoralClient;assembly=CoralClient"
-             x:Class="CoralClient.MainPage" NavigationPage.HasNavigationBar="False">
+             x:Class="CoralClient.MainPage"
+             NavigationPage.HasNavigationBar="False">
 
     <ContentPage.BindingContext>
         <vm:MainViewModel x:Name="vm"/>
