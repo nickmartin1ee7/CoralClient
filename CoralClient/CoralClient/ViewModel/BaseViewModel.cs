@@ -12,6 +12,5 @@ namespace CoralClient.ViewModel
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-
     }
 }

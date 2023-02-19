@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -10,9 +6,9 @@ using Xamarin.Forms.Xaml;
 namespace CoralClient
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class OrderPage : ContentPage
+    public partial class NewServerPage : ContentPage
     {
-        public OrderPage()
+        public NewServerPage()
         {
             InitializeComponent();
         }
@@ -22,12 +18,12 @@ namespace CoralClient
             var carousel = sender as CarouselView;
             var views = carousel.VisibleViews;
 
-            if(views.Count > 0)
+            if (views.Count > 0)
             {
                 foreach (var view in views)
                 {
-                    var img = view.FindByName<Image>("MenuImg");
-                    ViewExtensions.CancelAnimations(img);
+                    var img = view.FindByName<Image>("ServerImage");
+                    img.CancelAnimations();
 
                     Task.Run(async () => await img.RelRotateTo(360, 5000, Easing.BounceOut));
                 }

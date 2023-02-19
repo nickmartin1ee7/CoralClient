@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:vm="clr-namespace:CoralClient.ViewModel"
-             x:Class="CoralClient.OrderPage" NavigationPage.HasNavigationBar="False">
+             x:Class="CoralClient.NewServerPage" NavigationPage.HasNavigationBar="False">
 
     <ContentPage.BindingContext>
         <vm:OrderViewModel x:Name="vm"/>
@@ -20,11 +20,11 @@
         </BoxView>
         <Grid>
             <Path Data="M0,0H375V129.651s-9.025,2.382-55.426-5.3-70.141-41.09-130.3-41.176-83.544,33.5-130.893,41.176S0,129.651,0,129.651Z"
-                  Aspect="Fill" Fill="#FFBE00"/>
+                  Aspect="Fill" Fill="#eda1ab"/>
             <StackLayout Orientation="Horizontal" Margin="25" Spacing="20" VerticalOptions="Start">
                 <ImageButton Source="back.png" BackgroundColor="Transparent" WidthRequest="20" HeightRequest="20" 
                     HorizontalOptions="Start" VerticalOptions="Center" Command="{Binding BackCommand}"/>
-                <Label Text="MENU" TextColor="Black" FontSize="20" FontAttributes="Bold" VerticalOptions="Start"/>
+                <Label Text="New Server" TextColor="Black" FontSize="20" FontAttributes="Bold" VerticalOptions="Start"/>
             </StackLayout>
         </Grid>
         <CarouselView Grid.Row="1" ItemsSource="{Binding ServerProfiles}" PeekAreaInsets="80" Margin="0,-20,0,20"
@@ -46,13 +46,13 @@
                             <StackLayout Grid.Row="2" Spacing="20" Padding="20" VerticalOptions="End">
                                 <Label Text="{Binding ServerUriText}" TextColor="Black" FontSize="20" FontAttributes="Bold"
                                          HorizontalOptions="Center"/>
-                                <Button Text="Connect" TextColor="White" BackgroundColor="#FFBE00" WidthRequest="100" HeightRequest="40" 
+                                <Button Text="Connect" TextColor="White" BackgroundColor="#eda1ab" WidthRequest="100" HeightRequest="40" 
                                         CornerRadius="20" HorizontalOptions="Center"/>
                             </StackLayout>
                         </Grid>
                         <Grid HeightRequest="210" WidthRequest="210" VerticalOptions="Start" HorizontalOptions="Center">
                             <Ellipse Stroke="White" StrokeThickness="2" Aspect="Fill"/>
-                            <Image x:Name="MenuImg" Source="PLACEHOLDER" HeightRequest="195" WidthRequest="195" HorizontalOptions="Center"
+                            <Image x:Name="ServerImage" Source="{Binding Image}" HeightRequest="195" WidthRequest="195" HorizontalOptions="Center"
                                     VerticalOptions="Center" />
                         </Grid>
                     </Grid>
@@ -60,5 +60,4 @@
             </CarouselView.ItemTemplate>
         </CarouselView>
     </Grid>
-
 </ContentPage>
