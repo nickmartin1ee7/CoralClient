@@ -17,7 +17,7 @@
                 </LinearGradientBrush>
             </BoxView.Background>
         </BoxView>
-        <Grid RowDefinitions="Auto, *">
+        <Grid RowDefinitions="Auto, *, *">
             <Path Data="M0,0H375V129.651s-9.025,2.382-55.426-5.3-70.141-41.09-130.3-41.176-83.544,33.5-130.893,41.176S0,129.651,0,129.651Z"
                   Aspect="Fill" Fill="#eda1ab"/>
 
@@ -27,7 +27,21 @@
                 <Label Text="View Server" TextColor="Black" FontSize="20" FontAttributes="Bold" VerticalOptions="Start"/>
             </StackLayout>
 
-            <Grid Grid.Row="1">
+            <Grid Grid.Row="1" BackgroundColor="Black">
+                <Image Source="{Binding ServerProfile.Image}" Aspect="AspectFit" />
+                <AbsoluteLayout>
+                    <BoxView x:Name="OverlayBoxView"
+                             BackgroundColor="#80000000"
+                             IsVisible="{Binding IsEditing, Mode=TwoWay}"
+                             AbsoluteLayout.LayoutFlags="All"
+                             AbsoluteLayout.LayoutBounds="0,0,1,1" />
+                    <StackLayout Orientation="Vertical" VerticalOptions="Center" HorizontalOptions="Center">
+                        <Button Text="Change Image" Command="{Binding EditImageCommand}" IsVisible="{Binding IsEditing, Converter={StaticResource InverseBoolConverter}}" />
+                    </StackLayout>
+                </AbsoluteLayout>
+            </Grid>
+
+            <Grid Grid.Row="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -37,17 +51,26 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <Label Grid.Row="0" Grid.Column="0" TextColor="White" Text="URI:" FontAttributes="Bold" />
-                <Label Grid.Row="0" Grid.Column="1" TextColor="White" Text="{Binding ServerProfile.Uri}" />
+                <Entry Grid.Row="0" Grid.Column="1" TextColor="White" Text="{Binding ServerProfile.Uri}" />
+                <Button Grid.Row="0" Grid.Column="2" Text="Edit" Command="{Binding EditUriCommand}" />
+
                 <Label Grid.Row="1" Grid.Column="0" TextColor="White" Text="Minecraft Port:" FontAttributes="Bold" />
-                <Label Grid.Row="1" Grid.Column="1" TextColor="White" Text="{Binding ServerProfile.MinecraftPort}" />
+                <Entry Grid.Row="1" Grid.Column="1" TextColor="White" Text="{Binding ServerProfile.MinecraftPort}" />
+                <Button Grid.Row="1" Grid.Column="2" Text="Edit" Command="{Binding EditMinecraftPortCommand}" />
+
                 <Label Grid.Row="2" Grid.Column="0" TextColor="White" Text="RCON Port:" FontAttributes="Bold" />
-                <Label Grid.Row="2" Grid.Column="1" TextColor="White" Text="{Binding ServerProfile.RconPort}" />
-                <Label Grid.Row="3" Grid.Column="0" TextColor="White" Text="Password:" FontAttributes="Bold" />
-                <Label Grid.Row="3" Grid.Column="1" TextColor="White" Text="{Binding ServerProfile.Password}" />
+                <Entry Grid.Row="2" Grid.Column="1" TextColor="White" Text="{Binding ServerProfile.RconPort}" />
+                <Button Grid.Row="2" Grid.Column="2" Text="Edit" Command="{Binding EditRconPortCommand}" />
+
+                <Label Grid.Row="3" Grid.Column="0" TextColor="White" Text="RCON Password:" FontAttributes="Bold" />
+                <Entry Grid.Row="3" Grid.Column="1" TextColor="White" Text="{Binding ServerProfile.Password}" />
+                <Button Grid.Row="3" Grid.Column="2" Text="Edit" Command="{Binding EditPasswordCommand}" />
             </Grid>
+
         </Grid>
     </Grid>
 </ContentPage>

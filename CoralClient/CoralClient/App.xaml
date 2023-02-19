@@ -5,5 +5,6 @@
              x:Class="CoralClient.App">
     <Application.Resources>
         <converters:IsNullOrWhiteSpaceConverter x:Key="IsNullOrWhiteSpaceConverter" />
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
     </Application.Resources>
 </Application>
