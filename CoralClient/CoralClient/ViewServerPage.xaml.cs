@@ -1,4 +1,7 @@
-﻿using Xamarin.Forms;
+﻿using CoralClient.Model;
+using CoralClient.ViewModel;
+
+using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 namespace CoralClient
@@ -6,9 +9,10 @@ namespace CoralClient
 	[XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class ViewServerPage : ContentPage
 	{
-		public ViewServerPage()
+		public ViewServerPage(ServerProfile serverProfile)
 		{
 			InitializeComponent();
+			BindingContext = new ViewServerViewModel(serverProfile);
 		}
 	}
 }

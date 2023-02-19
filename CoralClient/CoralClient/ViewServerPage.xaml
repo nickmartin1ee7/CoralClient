@@ -2,12 +2,9 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms" 
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:CoralClient.ViewModel"
+             x:DataType="vm:ViewServerViewModel"
              x:Class="CoralClient.ViewServerPage"
              NavigationPage.HasNavigationBar="False">
-
-    <ContentPage.BindingContext>
-        <vm:ViewServerViewModel x:Name="vm"/>
-    </ContentPage.BindingContext>
 
     <Grid RowDefinitions="130, *">
         <BoxView Grid.RowSpan="2">
@@ -20,14 +17,37 @@
                 </LinearGradientBrush>
             </BoxView.Background>
         </BoxView>
-        <Grid>
+        <Grid RowDefinitions="Auto, *">
             <Path Data="M0,0H375V129.651s-9.025,2.382-55.426-5.3-70.141-41.09-130.3-41.176-83.544,33.5-130.893,41.176S0,129.651,0,129.651Z"
                   Aspect="Fill" Fill="#eda1ab"/>
-            <StackLayout Orientation="Horizontal" Margin="25" Spacing="20" VerticalOptions="Start">
+
+            <StackLayout Grid.Row="0" Orientation="Horizontal" Margin="25" Spacing="20" VerticalOptions="Start">
                 <ImageButton Source="back.png" BackgroundColor="Transparent" WidthRequest="20" HeightRequest="20" 
                     HorizontalOptions="Start" VerticalOptions="Center" Command="{Binding BackCommand}"/>
                 <Label Text="View Server" TextColor="Black" FontSize="20" FontAttributes="Bold" VerticalOptions="Start"/>
             </StackLayout>
+
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0" TextColor="White" Text="URI:" FontAttributes="Bold" />
+                <Label Grid.Row="0" Grid.Column="1" TextColor="White" Text="{Binding ServerProfile.Uri}" />
+                <Label Grid.Row="1" Grid.Column="0" TextColor="White" Text="Minecraft Port:" FontAttributes="Bold" />
+                <Label Grid.Row="1" Grid.Column="1" TextColor="White" Text="{Binding ServerProfile.MinecraftPort}" />
+                <Label Grid.Row="2" Grid.Column="0" TextColor="White" Text="RCON Port:" FontAttributes="Bold" />
+                <Label Grid.Row="2" Grid.Column="1" TextColor="White" Text="{Binding ServerProfile.RconPort}" />
+                <Label Grid.Row="3" Grid.Column="0" TextColor="White" Text="Password:" FontAttributes="Bold" />
+                <Label Grid.Row="3" Grid.Column="1" TextColor="White" Text="{Binding ServerProfile.Password}" />
+            </Grid>
         </Grid>
     </Grid>
 </ContentPage>

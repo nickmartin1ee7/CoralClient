@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows.Input;
 
@@ -23,6 +22,7 @@ namespace CoralClient.ViewModel
                 .GetRequiredService<ServerProfileContext>();
 
             ServerProfiles = new ObservableCollection<ServerProfile>(_serverProfilesCtx.ServerProfiles);
+
             ServerProfiles.CollectionChanged += (sender, args) =>
             {
                 switch (args.Action)
@@ -39,14 +39,6 @@ namespace CoralClient.ViewModel
                             _serverProfilesCtx.ServerProfiles.Remove((ServerProfile)profile);
                         }
                         break;
-                    case NotifyCollectionChangedAction.Move:
-                        break;
-                    case NotifyCollectionChangedAction.Replace:
-                        break;
-                    case NotifyCollectionChangedAction.Reset:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
             };
 #if DEBUG
@@ -83,7 +75,7 @@ namespace CoralClient.ViewModel
         public ICommand NewServerCommand => new Command(() =>
             Application.Current.MainPage.Navigation.PushAsync(new NewServerPage()));
 
-        public ICommand ViewServerCommand => new Command(() =>
-            Application.Current.MainPage.Navigation.PushAsync(new ViewServerPage()));
+        public ICommand ViewServerCommand => new Command(sp =>
+            Application.Current.MainPage.Navigation.PushAsync(new ViewServerPage((ServerProfile)sp)));
     }
 }

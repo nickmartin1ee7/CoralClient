@@ -45,7 +45,7 @@
                         <DataTemplate>
                             <Grid ColumnDefinitions="Auto, Auto" ColumnSpacing="15">
                                 <Grid.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ViewServerCommand}"
+                                    <TapGestureRecognizer Command="{Binding Path=BindingContext.ViewServerCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
                                                           CommandParameter="{Binding .}" />
                                 </Grid.GestureRecognizers>
                                 <Image Source="{Binding Image}" WidthRequest="75" HeightRequest="75" HorizontalOptions="Center" VerticalOptions="Center"
