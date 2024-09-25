@@ -2,11 +2,15 @@
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
+
 using CoralClient.Helpers;
 using CoralClient.Model;
+
 using MinecraftRcon;
+
 using Xamarin.Forms;
 
 namespace CoralClient.ViewModel
@@ -155,25 +159,30 @@ namespace CoralClient.ViewModel
                 WriteToCommandLog("Server", e.Body);
             _rcon.MessageReceived += (o, e) => // Auto update player count on any list commands
             {
-                var playerText = e.Body.RemoveColorCodes();
-
-                var pCountStartIdx = playerText.IndexOf("There are ") + "There are ".Length;
-                var pCountEndLen = playerText.IndexOf(" out of") - pCountStartIdx;
-                var maxCountStartIdx = playerText.IndexOf("maximum ") + "maximum ".Length;
-                var maxCountEndLen = playerText.IndexOf(" players online.") - maxCountStartIdx;
-
-                if (pCountStartIdx < 0 || pCountEndLen < 0 || maxCountStartIdx < 0 || maxCountEndLen < 0)
+                if (string.IsNullOrWhiteSpace(e.Body))
                 {
                     return;
                 }
 
-                var currentPlayers = string.Join(string.Empty, playerText
-                    .Skip(pCountStartIdx)
-                    .Take(pCountEndLen));
+                var playerText = e.Body.RemoveColorCodes();
 
-                var maxPlayers = string.Join(string.Empty, playerText
-                    .Skip(maxCountStartIdx)
-                    .Take(maxCountEndLen));
+                // Ex: There are 0 of a max of 20 players online:
+                int currentPlayers = 0;
+                int maxPlayers = 0;
+
+                var match = Regex.Match(playerText, $"There are (?<{nameof(currentPlayers)}>\\d+) of a max of (?<{nameof(maxPlayers)}>\\d+) players online:");
+
+                if (!match.Success
+                    || !match.Groups.Any())
+                {
+                    return;
+                }
+
+                var currentPlayersGroup = match.Groups.FirstOrDefault(g => g.Name == nameof(currentPlayers));
+                var maxPlayersGroup = match.Groups.FirstOrDefault(g => g.Name == nameof(maxPlayers));
+
+                int.TryParse(currentPlayersGroup?.Value, out currentPlayers);
+                int.TryParse(maxPlayersGroup?.Value, out maxPlayers);
 
                 OnlinePlayerText = $"Players: {currentPlayers}/{maxPlayers}";
             };
@@ -204,7 +213,7 @@ namespace CoralClient.ViewModel
                 WriteToCommandLog("Error", $"Failed to authenticate! {e.Message}");
             }
         }
-        
+
         private async Task GetServerInfo()
         {
             if (CurrentState != State.CONNECTED) return;
@@ -218,21 +227,21 @@ namespace CoralClient.ViewModel
             switch (CurrentState)
             {
                 case State.DISCONNECTED:
-                    {
-                        ServerNameText = _serverProfile.ServerUriText;
-                        OnlinePlayerText = "Players: ?/?";
-                        WriteToCommandLog("Info", "Disconnected");
-                        IsSendCommandEnabled = false;
-                        ToggleConnectionButtonText = "Connect";
-                    }
-                    break;
+                {
+                    ServerNameText = _serverProfile.ServerUriText;
+                    OnlinePlayerText = "Players: ?/?";
+                    WriteToCommandLog("Info", "Disconnected");
+                    IsSendCommandEnabled = false;
+                    ToggleConnectionButtonText = "Connect";
+                }
+                break;
                 case State.CONNECTED:
-                    {
-                        WriteToCommandLog("Info", "Connection established");
-                        IsSendCommandEnabled = true;
-                        ToggleConnectionButtonText = "Disconnect";
-                    }
-                    break;
+                {
+                    WriteToCommandLog("Info", "Connection established");
+                    IsSendCommandEnabled = true;
+                    ToggleConnectionButtonText = "Disconnect";
+                }
+                break;
             }
         }
 

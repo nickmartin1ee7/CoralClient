@@ -2,9 +2,9 @@
 {
     public enum MessageType
     {
-        Response,
-        _,
-        Command,
-        Authenticate
+        Response = 0,
+        _ = 1,
+        Command = 2,
+        Authenticate = 3
     }
 }
