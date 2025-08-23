@@ -1,0 +1,19 @@
+{
+    // .NET MAUI build task for VS Code
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build .NET MAUI",
+            "type": "shell",
+            "command": "dotnet build",
+            "args": [
+                "${workspaceFolder}/CoralClient.sln"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}
