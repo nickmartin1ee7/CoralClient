@@ -1,20 +1,23 @@
 ﻿using CoralClientMobileApp.View;
 using CoralClientMobileApp.ViewModel;
 using CoralClientMobileApp.Model;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CoralClientMobileApp;
 
 public partial class MainPage : ContentPage
 {
 	private readonly MainPageViewModel _viewModel;
+	private readonly IServiceProvider _serviceProvider;
 
-	public MainPage(MainPageViewModel viewModel)
+	public MainPage(MainPageViewModel viewModel, IServiceProvider serviceProvider)
 	{
 		InitializeComponent();
 		_viewModel = viewModel;
+		_serviceProvider = serviceProvider;
 
 		// Set dependencies that need the Page context
-		_viewModel.SetDependencies(
+		_viewModel.Initialize(
 			(title, message) => DisplayPromptAsync(title, message),
 			(serverProfile) => NavigateToRconPage(serverProfile)
 		);
@@ -26,7 +29,8 @@ public partial class MainPage : ContentPage
 
 	private async Task NavigateToRconPage(ServerProfile serverProfile)
 	{
-		var rconPage = new RconPage(serverProfile);
+		var rconPage = _serviceProvider.GetRequiredService<RconPage>();
+		rconPage.Initialize(serverProfile);
 		await Navigation.PushModalAsync(rconPage);
 	}
 }

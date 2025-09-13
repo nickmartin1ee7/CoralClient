@@ -12,7 +12,7 @@ namespace CoralClientMobileApp.ViewModel
     public partial class MainPageViewModel : BaseObservableViewModel
     {
         private readonly ServerProfileContext _serverProfileContext;
-        private Func<string, string, Task<string>>? _promptUserFunc;
+        private Func<string, string, Task<string>>? _promptUserFuncAsync;
         private Func<ServerProfile, Task>? _showRconPageFuncAsync;
 
         public IList<ServerProfile> ServerProfiles { get; }
@@ -23,9 +23,11 @@ namespace CoralClientMobileApp.ViewModel
             ServerProfiles = new ObservableCollection<ServerProfile>(serverProfileContext.ServerProfiles.ToList());
         }
 
-        public void SetDependencies(Func<string, string, Task<string>> promptUserFunc, Func<ServerProfile, Task> showRconPageFuncAsync)
+        public void Initialize(
+            Func<string, string, Task<string>> promptUserFunc,
+            Func<ServerProfile, Task> showRconPageFuncAsync)
         {
-            _promptUserFunc = promptUserFunc;
+            _promptUserFuncAsync = promptUserFunc;
             _showRconPageFuncAsync = showRconPageFuncAsync;
         }
 
@@ -72,30 +74,30 @@ namespace CoralClientMobileApp.ViewModel
 
         private async Task<ServerProfile?> GetServerProfileAsync()
         {
-            if (_promptUserFunc == null) return null;
+            if (_promptUserFuncAsync == null) return null;
 
-            var serverUri = await _promptUserFunc("Server URI", "Enter the server URI or IP address.");
+            var serverUri = await _promptUserFuncAsync("Server URI", "Enter the server URI or IP address.");
 
             if (string.IsNullOrWhiteSpace(serverUri))
             {
                 return null;
             }
 
-            var serverMinecraftPort = await _promptUserFunc("Server Minecraft Port", "Enter the Minecraft port (25565).");
+            var serverMinecraftPort = await _promptUserFuncAsync("Server Minecraft Port", "Enter the Minecraft port (25565).");
 
             if (!ushort.TryParse(serverMinecraftPort, out var serverMinecraftPortParsed))
             {
                 serverMinecraftPortParsed = 25565;
             }
             
-            var serverRconPort = await _promptUserFunc("Server RCON Port", "Enter the RCON port (25575).");
+            var serverRconPort = await _promptUserFuncAsync("Server RCON Port", "Enter the RCON port (25575).");
 
             if (!ushort.TryParse(serverRconPort, out var serverRconPortParsed))
             {
                 serverRconPortParsed = 25575;
             }
 
-            var serverRconPassword = await _promptUserFunc("Server RCON Password", "Enter the RCON password.");
+            var serverRconPassword = await _promptUserFuncAsync("Server RCON Password", "Enter the RCON password.");
 
             if (string.IsNullOrWhiteSpace(serverRconPassword))
             {

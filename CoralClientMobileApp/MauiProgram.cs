@@ -2,6 +2,7 @@
 using CoralClientMobileApp.DbContext;
 using CoralClientMobileApp.View;
 using CoralClientMobileApp.ViewModel;
+using CoralClientMobileApp.Model;
 using MinecraftRcon;
 
 namespace CoralClientMobileApp;
@@ -26,7 +27,10 @@ public static class MauiProgram
 
 		// Register ViewModels
 		builder.Services.AddSingleton<MainPageViewModel>();
-		// Note: RconPageViewModel needs special handling since it requires ServerProfile parameter
+		
+		// Register factory for RconPageViewModel since it needs ServerProfile parameter
+		builder.Services.AddTransient<Func<ServerProfile, RconPageViewModel>>(serviceProvider =>
+			serverProfile => new RconPageViewModel(serverProfile, serviceProvider.GetRequiredService<RconClient>()));
 
 		// Register services
 		builder.Services.AddDbContext<ServerProfileContext>();

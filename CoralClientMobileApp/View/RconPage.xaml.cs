@@ -1,27 +1,28 @@
 ﻿using CoralClientMobileApp.Model;
 using CoralClientMobileApp.ViewModel;
-using MinecraftRcon;
 
 namespace CoralClientMobileApp.View
 {
     public partial class RconPage : ContentPage
     {
-        private readonly RconPageViewModel _vm;
+        private RconPageViewModel? _vm;
+        private readonly Func<ServerProfile, RconPageViewModel> _rconViewModelFactory;
 
-        public RconPage(ServerProfile serverProfile)
+        public RconPage(Func<ServerProfile, RconPageViewModel> rconViewModelFactory)
         {
             InitializeComponent();
+            _rconViewModelFactory = rconViewModelFactory;
+        }
 
-            // Create RconClient for this specific page instance
-            var rconClient = new RconClient();
-            _vm = new RconPageViewModel(serverProfile, rconClient);
-
+        public void Initialize(ServerProfile serverProfile)
+        {
+            _vm = _rconViewModelFactory(serverProfile);
             BindingContext = _vm;
         }
 
         protected override bool OnBackButtonPressed()
         {
-            _vm.Dispose();
+            _vm?.Dispose();
             return base.OnBackButtonPressed();
         }
     }
