@@ -1,10 +1,14 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
-using CoralClient.DbContext;
-using CoralClient.Model;
+using CoralClientMobileApp.DbContext;
+using CoralClientMobileApp.Model;
 using Microsoft.Maui.Controls;
 
-namespace CoralClient.ViewModel
+namespace CoralClientMobileApp.ViewModel
 {
     public class MainPageViewModel : BaseObservableViewModel
     {

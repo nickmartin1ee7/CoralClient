@@ -5,12 +5,12 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using CoralClient.Helpers;
-using CoralClient.Model;
+using CoralClientMobileApp.Helpers;
+using CoralClientMobileApp.Model;
 using Microsoft.Maui.Controls;
 using MinecraftRcon;
 
-namespace CoralClient.ViewModel
+namespace CoralClientMobileApp.ViewModel
 {
     public class RconPageViewModel : BaseObservableViewModel, IDisposable
     {

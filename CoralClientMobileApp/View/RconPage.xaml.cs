@@ -1,9 +1,10 @@
-﻿using CoralClient.Model;
-using CoralClient.Services;
-using CoralClient.ViewModel;
+﻿using CoralClientMobileApp.Model;
+using CoralClientMobileApp.Services;
+using CoralClientMobileApp.ViewModel;
+using Microsoft.Extensions.DependencyInjection;
 using MinecraftRcon;
 
-namespace CoralClient.View
+namespace CoralClientMobileApp.View
 {
     public partial class RconPage : ContentPage
     {

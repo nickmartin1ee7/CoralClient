@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace CoralClient.Helpers
+namespace CoralClientMobileApp.Helpers
 {
     public static class MinecraftExtensions
     {

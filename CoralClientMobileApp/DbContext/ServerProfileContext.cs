@@ -1,8 +1,9 @@
-﻿using CoralClient.Model;
+﻿using System.IO;
+using CoralClientMobileApp.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Maui.Storage;
 
-namespace CoralClient.DbContext
+namespace CoralClientMobileApp.DbContext
 {
     public class ServerProfileContext : Microsoft.EntityFrameworkCore.DbContext
     {

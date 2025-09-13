@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace CoralClient.ViewModel
+namespace CoralClientMobileApp.ViewModel
 {
     public abstract class BaseObservableViewModel : INotifyPropertyChanged
     {

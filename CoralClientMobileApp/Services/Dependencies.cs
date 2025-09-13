@@ -1,9 +1,9 @@
 ﻿using System;
-using CoralClient.DbContext;
+using CoralClientMobileApp.DbContext;
 using Microsoft.Extensions.DependencyInjection;
 using MinecraftRcon;
 
-namespace CoralClient.Services
+namespace CoralClientMobileApp.Services
 {
     internal static class Dependencies
     {
