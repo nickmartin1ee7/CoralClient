@@ -2,14 +2,14 @@
 <resources>
     <!-- Coral Theme Android colors -->
     <color name="colorPrimary">#FF69B4</color>
-    <color name="colorPrimaryDark">#8B4B8C</color>
-    <color name="colorAccent">#FFB3BA</color>
+    <color name="colorPrimaryDark">#FF69B4</color>
+    <color name="colorAccent">#FF69B4</color>
     
     <!-- Coral Theme Colors - matching XAML resources -->
-    <color name="CoralPrimary">#FF7F7F</color>
+    <color name="CoralPrimary">#FF69B4</color>
     <color name="CoralSecondary">#FFB3BA</color>
     <color name="CoralAccent">#FF69B4</color>
-    <color name="CoralDark">#8B4B8C</color>
+    <color name="CoralDark">#FF69B4</color>
     
     <!-- Base Colors - matching XAML resources -->
     <color name="White">#FFFFFF</color>

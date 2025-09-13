@@ -10,12 +10,12 @@
     <Shell.Resources>
         <ResourceDictionary>
             <Style TargetType="Shell" ApplyToDerivedTypes="True">
-                <Setter Property="Shell.BackgroundColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#8B4B8C}" />
+                <Setter Property="Shell.BackgroundColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FF69B4}" />
                 <Setter Property="Shell.ForegroundColor" Value="{AppThemeBinding Light=#FFFFFF, Dark=#FFFFFF}" />
                 <Setter Property="Shell.TitleColor" Value="{AppThemeBinding Light=#FFFFFF, Dark=#FFFFFF}" />
                 <Setter Property="Shell.DisabledColor" Value="{AppThemeBinding Light=#B3B3B3, Dark=#808080}" />
                 <Setter Property="Shell.UnselectedColor" Value="{AppThemeBinding Light=#95FFFFFF, Dark=#95FFFFFF}" />
-                <Setter Property="Shell.TabBarBackgroundColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#8B4B8C}" />
+                <Setter Property="Shell.TabBarBackgroundColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FF69B4}" />
                 <Setter Property="Shell.TabBarForegroundColor" Value="{AppThemeBinding Light=#FFFFFF, Dark=#FFFFFF}" />
                 <Setter Property="Shell.TabBarUnselectedColor" Value="{AppThemeBinding Light=#95FFFFFF, Dark=#95FFFFFF}" />
             </Style>
