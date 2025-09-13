@@ -3,7 +3,46 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:CoralClientMobileApp.ViewModel"
              x:Class="CoralClientMobileApp.View.RconPage"
-             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}">
+             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1f1f1f}">
+             
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Inline Label Styles -->
+            <Style x:Key="SubHeadline" TargetType="Label">
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}" />
+            </Style>
+
+            <!-- Inline Button Styles -->
+            <Style x:Key="PrimaryButton" TargetType="Button">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=#FFFFFF, Dark=#000000}" />
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}" />
+                <Setter Property="FontFamily" Value="OpenSansRegular"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="BorderWidth" Value="0"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="Padding" Value="16,12"/>
+                <Setter Property="MinimumHeightRequest" Value="44"/>
+                <Setter Property="MinimumWidthRequest" Value="44"/>
+            </Style>
+
+            <Style x:Key="SecondaryButton" TargetType="Button">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="BorderColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}" />
+                <Setter Property="BorderWidth" Value="2"/>
+                <Setter Property="FontFamily" Value="OpenSansRegular"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="Padding" Value="16,12"/>
+                <Setter Property="MinimumHeightRequest" Value="44"/>
+                <Setter Property="MinimumWidthRequest" Value="44"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
     <Grid Margin="16">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -36,14 +75,14 @@
                    HorizontalTextAlignment="Center"
                    FontSize="16"
                    FontAttributes="Bold"
-                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"
+                   TextColor="{AppThemeBinding Light=#404040, Dark=#ACACAC}"
                    Text="{Binding ConnectionStatusText}" />
 
             <Label x:Name="OnlinePlayerLabel" Grid.Column="1" Grid.Row="1" 
                    HorizontalTextAlignment="Center"
                    FontSize="16"
                    FontAttributes="Bold"
-                   TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                   TextColor="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}"
                    Text="{Binding OnlinePlayerText}" />
         </Grid>
 
@@ -58,8 +97,8 @@
             </Grid.RowDefinitions>
 
             <Frame Grid.Row="0"
-                   BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}"
-                   BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                   BackgroundColor="{AppThemeBinding Light=#E1E1E1, Dark=#212121}"
+                   BorderColor="{AppThemeBinding Light=#FFB3BA, Dark=#8B4B8C}"
                    CornerRadius="8"
                    Padding="8"
                    Margin="0,0,0,8" />
@@ -69,6 +108,7 @@
                     FontSize="Small"
                     FontFamily="CourierNew"
                     BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
                     Margin="8"
                     Text="{Binding CommandLogText}" />
 
@@ -80,7 +120,9 @@
                    ClearButtonVisibility="WhileEditing"
                    ReturnType="Send"
                    ReturnCommand="{Binding SendCommandCommand}"
-                   Text="{Binding CommandEntryText}" />
+                   Text="{Binding CommandEntryText}"
+                   TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                   PlaceholderColor="{AppThemeBinding Light=#919191, Dark=#6E6E6E}" />
         </Grid>
 
         <Grid x:Name="OptionsGrid" Grid.Row="2">
@@ -95,11 +137,13 @@
 
             <Button x:Name="RefreshButton" Grid.Column="0"
                     Command="{Binding RefreshCommand}"
+                    Style="{StaticResource SecondaryButton}"
                     Margin="0,0,8,0"
                     Text="Refresh" />
 
             <Button x:Name="ToggleConnectionButton" Grid.Column="1"
                     Command="{Binding ToggleConnectionCommand}"
+                    Style="{StaticResource PrimaryButton}"
                     Margin="8,0,0,0"
                     Text="{Binding ToggleConnectionButtonText}" />
 

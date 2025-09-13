@@ -2,9 +2,53 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:CoralClientMobileApp.ViewModel"
-             x:Class="CoralClientMobileApp.MainPage">
+             x:Class="CoralClientMobileApp.MainPage"
+             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1f1f1f}">
 
-    <Grid>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Inline Button Styles -->
+            <Style x:Key="PrimaryButton" TargetType="Button">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=#FFFFFF, Dark=#000000}" />
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}" />
+                <Setter Property="FontFamily" Value="OpenSansRegular"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="BorderWidth" Value="0"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="Padding" Value="16,12"/>
+                <Setter Property="MinimumHeightRequest" Value="44"/>
+                <Setter Property="MinimumWidthRequest" Value="44"/>
+            </Style>
+
+            <Style x:Key="SecondaryButton" TargetType="Button">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="BorderColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}" />
+                <Setter Property="BorderWidth" Value="2"/>
+                <Setter Property="FontFamily" Value="OpenSansRegular"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="Padding" Value="16,12"/>
+                <Setter Property="MinimumHeightRequest" Value="44"/>
+                <Setter Property="MinimumWidthRequest" Value="44"/>
+            </Style>
+
+            <Style x:Key="DangerButton" TargetType="Button">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=#FFFFFF, Dark=#FFFFFF}" />
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#C71585, Dark=#8B4B8C}" />
+                <Setter Property="FontFamily" Value="OpenSansRegular"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="BorderWidth" Value="0"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="Padding" Value="16,12"/>
+                <Setter Property="MinimumHeightRequest" Value="44"/>
+                <Setter Property="MinimumWidthRequest" Value="44"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid Margin="16">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
@@ -19,7 +63,7 @@
                             SelectionMode="Single">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Grid Padding="0,25,0,0"
+                        <Grid Padding="0,8,0,8"
                             BackgroundColor="Transparent">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -32,23 +76,31 @@
                             </Grid.RowDefinitions>
 
                             <Frame Grid.ColumnSpan="3"
-                                   BackgroundColor="Pink"
-                                   Opacity=".25"
-                                   BorderColor="Black" />
+                                   BackgroundColor="{AppThemeBinding Light=#FFB3BA, Dark=#8B4B8C}"
+                                   Opacity="0.25"
+                                   BorderColor="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}"
+                                   CornerRadius="8"
+                                   HasShadow="False" />
 
                             <Button x:Name="LaunchProfileButton" Grid.Column="0"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=LaunchProfileCommand}"
                                     CommandParameter="{Binding}"
+                                    Style="{StaticResource PrimaryButton}"
+                                    Margin="8,8,4,8"
                                     Text="{Binding ServerUriText}"/>
 
                             <Button x:Name="EditProfileButton" Grid.Column="1"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=EditProfileCommand}"
                                     CommandParameter="{Binding}"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Margin="4,8,4,8"
                                     Text="Edit" />
 
                             <Button x:Name="DeleteProfileButton" Grid.Column="2"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=DeleteProfileCommand}"
                                     CommandParameter="{Binding}"
+                                    Style="{StaticResource DangerButton}"
+                                    Margin="4,8,8,8"
                                     Text="Delete" />
                         </Grid>
                     </DataTemplate>
@@ -58,6 +110,8 @@
             <Button x:Name="AddServerProfileButton"
                     Grid.Row="1"
                     Command="{Binding AddServerProfileCommand}"
+                    Style="{StaticResource PrimaryButton}"
+                    Margin="0,16,0,0"
                     Text="Add Server" />
         </Grid>
 </ContentPage>

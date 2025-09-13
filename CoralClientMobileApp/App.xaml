@@ -4,11 +4,6 @@
              xmlns:local="clr-namespace:CoralClientMobileApp"
              x:Class="CoralClientMobileApp.App">
     <Application.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
-                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
+        <!-- Resources will be defined inline in each page -->
     </Application.Resources>
 </Application>
