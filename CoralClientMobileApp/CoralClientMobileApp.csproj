@@ -86,6 +86,7 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"
 			Version="9.0.9" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+		<PackageReference Include="DotNetMeteor.HotReload.Plugin" Version="3.*" />
 	</ItemGroup>
 
 	<ItemGroup>
