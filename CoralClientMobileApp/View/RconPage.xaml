@@ -97,7 +97,7 @@
             </Grid.RowDefinitions>
 
             <Frame Grid.Row="0"
-                   BackgroundColor="{AppThemeBinding Light=#E1E1E1, Dark=#212121}"
+                   BackgroundColor="Transparent"
                    BorderColor="{AppThemeBinding Light=#FFB3BA, Dark=#8B4B8C}"
                    CornerRadius="8"
                    Padding="8"
