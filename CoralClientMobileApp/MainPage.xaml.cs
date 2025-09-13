@@ -27,6 +27,14 @@ public partial class MainPage : ContentPage
 		BindingContext = _viewModel;
 	}
 
+	protected override async void OnAppearing()
+	{
+		base.OnAppearing();
+		
+		// Initialize the ViewModel and load data when the page appears
+		await _viewModel.InitializeAsync();
+	}
+
 	private async Task NavigateToRconPage(ServerProfile serverProfile)
 	{
 		var rconPage = _serviceProvider.GetRequiredService<RconPage>();

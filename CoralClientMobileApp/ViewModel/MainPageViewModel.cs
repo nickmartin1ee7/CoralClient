@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CoralClientMobileApp.DbContext;
 using CoralClientMobileApp.Model;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.EntityFrameworkCore;
 
 namespace CoralClientMobileApp.ViewModel
 {
@@ -15,12 +16,48 @@ namespace CoralClientMobileApp.ViewModel
         private Func<string, string, Task<string>>? _promptUserFuncAsync;
         private Func<ServerProfile, Task>? _showRconPageFuncAsync;
 
-        public IList<ServerProfile> ServerProfiles { get; }
+        public ObservableCollection<ServerProfile> ServerProfiles { get; }
 
         public MainPageViewModel(ServerProfileContext serverProfileContext)
         {
             _serverProfileContext = serverProfileContext;
-            ServerProfiles = new ObservableCollection<ServerProfile>(serverProfileContext.ServerProfiles.ToList());
+            ServerProfiles = new ObservableCollection<ServerProfile>();
+        }
+
+        public async Task InitializeAsync()
+        {
+            try
+            {
+                // Initialize the database
+                await _serverProfileContext.InitializeDatabaseAsync();
+                
+                // Load existing profiles
+                await LoadServerProfilesAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error initializing database: {ex}");
+            }
+        }
+
+        private async Task LoadServerProfilesAsync()
+        {
+            try
+            {
+                var profiles = await _serverProfileContext.ServerProfiles.ToListAsync();
+                ServerProfiles.Clear();
+                
+                foreach (var profile in profiles)
+                {
+                    ServerProfiles.Add(profile);
+                }
+                
+                System.Console.WriteLine($"Loaded {profiles.Count} server profiles from database");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error loading server profiles: {ex}");
+            }
         }
 
         public void Initialize(
@@ -34,13 +71,22 @@ namespace CoralClientMobileApp.ViewModel
         [RelayCommand]
         private async Task AddServerProfile()
         {
-            var newProfile = await GetServerProfileAsync();
-            
-            if (newProfile is null) return;
+            try
+            {
+                var newProfile = await GetServerProfileAsync();
+                
+                if (newProfile is null) return;
 
-            ServerProfiles.Add(newProfile);
-            await _serverProfileContext.ServerProfiles.AddAsync(newProfile);
-            await _serverProfileContext.SaveChangesAsync();
+                await _serverProfileContext.ServerProfiles.AddAsync(newProfile);
+                await _serverProfileContext.SaveChangesAsync();
+                
+                ServerProfiles.Add(newProfile);
+                System.Console.WriteLine($"Added server profile: {newProfile.ServerUriText}");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error adding server profile: {ex}");
+            }
         }
 
         [RelayCommand]
@@ -53,23 +99,49 @@ namespace CoralClientMobileApp.ViewModel
         [RelayCommand]
         private async Task EditProfile(ServerProfile serverProfile)
         {
-            var editedProfile = await GetServerProfileAsync();
+            try
+            {
+                var editedProfile = await GetServerProfileAsync();
 
-            if (editedProfile is null) return;
+                if (editedProfile is null) return;
 
-            ServerProfiles.Remove(serverProfile);
-            _serverProfileContext.ServerProfiles.Remove(serverProfile);
-            ServerProfiles.Add(editedProfile);
-            await _serverProfileContext.ServerProfiles.AddAsync(editedProfile);
-            await _serverProfileContext.SaveChangesAsync();
+                // Update the existing profile instead of removing and adding
+                var existingProfile = await _serverProfileContext.ServerProfiles.FindAsync(serverProfile.Id);
+                if (existingProfile != null)
+                {
+                    existingProfile.Uri = editedProfile.Uri;
+                    existingProfile.MinecraftPort = editedProfile.MinecraftPort;
+                    existingProfile.RconPort = editedProfile.RconPort;
+                    existingProfile.Password = editedProfile.Password;
+                    
+                    await _serverProfileContext.SaveChangesAsync();
+                    
+                    // Refresh the collection
+                    await LoadServerProfilesAsync();
+                    System.Console.WriteLine($"Updated server profile: {existingProfile.ServerUriText}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error editing server profile: {ex}");
+            }
         }
 
         [RelayCommand]
         private async Task DeleteProfile(ServerProfile serverProfile)
         {
-            ServerProfiles.Remove(serverProfile);
-            _serverProfileContext.ServerProfiles.Remove(serverProfile);
-            await _serverProfileContext.SaveChangesAsync();
+            try
+            {
+                _serverProfileContext.ServerProfiles.Remove(serverProfile);
+                await _serverProfileContext.SaveChangesAsync();
+                
+                ServerProfiles.Remove(serverProfile);
+                System.Console.WriteLine($"Deleted server profile: {serverProfile.ServerUriText}");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error deleting server profile: {ex}");
+            }
         }
 
         private async Task<ServerProfile?> GetServerProfileAsync()
