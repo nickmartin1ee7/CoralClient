@@ -24,9 +24,11 @@ public static class MauiProgram
 		builder.Services.AddSingleton<AppShell>();
 		builder.Services.AddSingleton<MainPage>();
 		builder.Services.AddTransient<RconPage>();
+		builder.Services.AddTransient<ServerProfilePage>();
 
 		// Register ViewModels
 		builder.Services.AddSingleton<MainPageViewModel>();
+		builder.Services.AddTransient<ServerProfilePageViewModel>();
 		
 		// Register factory for RconPageViewModel since it needs ServerProfile parameter
 		builder.Services.AddTransient<Func<ServerProfile, RconPageViewModel>>(serviceProvider =>

@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Card Styles -->
+    <Style x:Key="ServerCardFrame" TargetType="Frame">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={DynamicResource CardLight}, Dark={DynamicResource CardDark}}" />
+        <Setter Property="BorderColor" Value="{AppThemeBinding Light={DynamicResource BorderLight}, Dark={DynamicResource BorderDark}}" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="HasShadow" Value="True" />
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="Margin" Value="8" />
+    </Style>
+
+    <Style x:Key="MinecraftCardFrame" TargetType="Frame">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={DynamicResource CardLight}, Dark={DynamicResource CardDark}}" />
+        <Setter Property="BorderColor" Value="{DynamicResource Primary}" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="HasShadow" Value="True" />
+        <Setter Property="Padding" Value="12" />
+    </Style>
+
+    <!-- Button Styles -->
+    <Style x:Key="PrimaryButton" TargetType="Button">
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource Primary}" />
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="BorderWidth" Value="0"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="20,14"/>
+        <Setter Property="MinimumHeightRequest" Value="48"/>
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="Black" Opacity="0.3" Radius="4" Offset="0,2" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{DynamicResource PrimaryDark}" />
+                            <Setter Property="Scale" Value="0.96" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SecondaryButton" TargetType="Button">
+        <Setter Property="TextColor" Value="{DynamicResource Primary}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="BorderColor" Value="{DynamicResource Primary}" />
+        <Setter Property="BorderWidth" Value="2"/>
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="20,14"/>
+        <Setter Property="MinimumHeightRequest" Value="48"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{DynamicResource PrimaryLight}" />
+                            <Setter Property="TextColor" Value="White" />
+                            <Setter Property="Scale" Value="0.96" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style x:Key="DangerButton" TargetType="Button">
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource Danger}" />
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="BorderWidth" Value="0"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="20,14"/>
+        <Setter Property="MinimumHeightRequest" Value="48"/>
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="Black" Opacity="0.3" Radius="4" Offset="0,2" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="#D32F2F" />
+                            <Setter Property="Scale" Value="0.96" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style x:Key="IconButton" TargetType="Button">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource TextPrimaryLight}, Dark={DynamicResource TextPrimaryDark}}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="BorderWidth" Value="0"/>
+        <Setter Property="CornerRadius" Value="20"/>
+        <Setter Property="Padding" Value="12"/>
+        <Setter Property="WidthRequest" Value="40"/>
+        <Setter Property="HeightRequest" Value="40"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={DynamicResource BorderLight}, Dark={DynamicResource BorderDark}}" />
+                            <Setter Property="Scale" Value="0.9" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <!-- Label Styles -->
+    <Style x:Key="TitleLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="28"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource TextPrimaryLight}, Dark={DynamicResource TextPrimaryDark}}" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+    </Style>
+
+    <Style x:Key="SubtitleLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="TextColor" Value="{DynamicResource Primary}" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+    </Style>
+
+    <Style x:Key="ServerNameLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource TextPrimaryLight}, Dark={DynamicResource TextPrimaryDark}}" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+    </Style>
+
+    <Style x:Key="ServerStatusLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+    </Style>
+
+    <Style x:Key="BodyLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource TextSecondaryLight}, Dark={DynamicResource TextSecondaryDark}}" />
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+    </Style>
+
+    <!-- Entry Styles -->
+    <Style x:Key="ModernEntry" TargetType="Entry">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource TextPrimaryLight}, Dark={DynamicResource TextPrimaryDark}}" />
+        <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={DynamicResource TextSecondaryLight}, Dark={DynamicResource TextSecondaryDark}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={DynamicResource SurfaceLight}, Dark={DynamicResource SurfaceDark}}" />
+        <Setter Property="MinimumHeightRequest" Value="48"/>
+    </Style>
+
+    <Style x:Key="MinecraftCommandEntry" TargetType="Entry">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontFamily" Value="CourierNew"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource TextPrimaryLight}, Dark={DynamicResource TextPrimaryDark}}" />
+        <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={DynamicResource TextSecondaryLight}, Dark={DynamicResource TextSecondaryDark}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={DynamicResource SurfaceLight}, Dark={DynamicResource SurfaceDark}}" />
+        <Setter Property="MinimumHeightRequest" Value="48"/>
+    </Style>
+
+    <!-- Editor Styles -->
+    <Style x:Key="ConsoleEditor" TargetType="Editor">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontFamily" Value="CourierNew"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource TextPrimaryLight}, Dark={DynamicResource TextPrimaryDark}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={DynamicResource SurfaceLight}, Dark={DynamicResource SurfaceDark}}" />
+    </Style>
+
+</ResourceDictionary>

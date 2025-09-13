@@ -17,8 +17,19 @@ namespace CoralClientMobileApp.ViewModel
         private readonly ILogger<MainPageViewModel> _logger;
         private Func<string, string, Task<string>>? _promptUserFuncAsync;
         private Func<ServerProfile, Task>? _showRconPageFuncAsync;
+        private Func<ServerProfile?, Task<ServerProfile?>>? _showServerProfilePageFuncAsync;
 
         public ObservableCollection<ServerProfile> ServerProfiles { get; }
+
+        public string ServerCountText => ServerProfiles.Count == 0 
+            ? "No servers configured" 
+            : ServerProfiles.Count == 1 
+                ? "1 server configured" 
+                : $"{ServerProfiles.Count} servers configured";
+
+        public bool IsEmptyState => ServerProfiles.Count == 0;
+        public bool HasServerProfiles => ServerProfiles.Count > 0;
+        public bool HasMultipleServers => ServerProfiles.Count > 1;
 
         public MainPageViewModel(ServerProfileContext serverProfileContext, ILogger<MainPageViewModel> logger)
         {
@@ -59,6 +70,12 @@ namespace CoralClientMobileApp.ViewModel
                     ServerProfiles.Add(profile);
                 }
                 
+                // Notify property changes for the UI
+                OnPropertyChanged(nameof(ServerCountText));
+                OnPropertyChanged(nameof(IsEmptyState));
+                OnPropertyChanged(nameof(HasServerProfiles));
+                OnPropertyChanged(nameof(HasMultipleServers));
+                
                 _logger.LogInformation("Loaded {ProfileCount} server profiles from database", profiles.Count);
             }
             catch (Exception ex)
@@ -69,10 +86,12 @@ namespace CoralClientMobileApp.ViewModel
 
         public void Initialize(
             Func<string, string, Task<string>> promptUserFunc,
-            Func<ServerProfile, Task> showRconPageFuncAsync)
+            Func<ServerProfile, Task> showRconPageFuncAsync,
+            Func<ServerProfile?, Task<ServerProfile?>> showServerProfilePageFuncAsync)
         {
             _promptUserFuncAsync = promptUserFunc;
             _showRconPageFuncAsync = showRconPageFuncAsync;
+            _showServerProfilePageFuncAsync = showServerProfilePageFuncAsync;
         }
 
         [RelayCommand]
@@ -82,7 +101,14 @@ namespace CoralClientMobileApp.ViewModel
             {
                 _logger.LogInformation("Adding new server profile");
                 
-                var newProfile = await GetServerProfileAsync();
+                if (_showServerProfilePageFuncAsync == null)
+                {
+                    _logger.LogWarning("ServerProfilePage navigation function not initialized");
+                    return;
+                }
+
+                // Show the ServerProfilePage for creating a new profile
+                var newProfile = await _showServerProfilePageFuncAsync(null);
                 
                 if (newProfile is null) 
                 {
@@ -94,6 +120,12 @@ namespace CoralClientMobileApp.ViewModel
                 await _serverProfileContext.SaveChangesAsync();
                 
                 ServerProfiles.Add(newProfile);
+                
+                // Notify property changes for the UI
+                OnPropertyChanged(nameof(ServerCountText));
+                OnPropertyChanged(nameof(IsEmptyState));
+                OnPropertyChanged(nameof(HasServerProfiles));
+                OnPropertyChanged(nameof(HasMultipleServers));
                 
                 _logger.LogInformation("Successfully added server profile: {ServerUri}", newProfile.ServerUriText);
             }
@@ -119,7 +151,14 @@ namespace CoralClientMobileApp.ViewModel
             {
                 _logger.LogInformation("Editing server profile: {ServerUri}", serverProfile.ServerUriText);
                 
-                var editedProfile = await GetServerProfileAsync();
+                if (_showServerProfilePageFuncAsync == null)
+                {
+                    _logger.LogWarning("ServerProfilePage navigation function not initialized");
+                    return;
+                }
+
+                // Show the ServerProfilePage for editing the existing profile
+                var editedProfile = await _showServerProfilePageFuncAsync(serverProfile);
 
                 if (editedProfile is null) 
                 {
@@ -161,6 +200,12 @@ namespace CoralClientMobileApp.ViewModel
                 await _serverProfileContext.SaveChangesAsync();
                 
                 ServerProfiles.Remove(serverProfile);
+                
+                // Notify property changes for the UI
+                OnPropertyChanged(nameof(ServerCountText));
+                OnPropertyChanged(nameof(IsEmptyState));
+                OnPropertyChanged(nameof(HasServerProfiles));
+                OnPropertyChanged(nameof(HasMultipleServers));
                 
                 _logger.LogInformation("Successfully deleted server profile: {ServerUri}", serverProfile.ServerUriText);
             }

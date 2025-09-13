@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-stylesheet type="text/css" href="../Styles/Application.css" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Minecraft-inspired color palette -->
+    
+    <!-- Primary Colors -->
+    <Color x:Key="Primary">#4CAF50</Color>
+    <Color x:Key="PrimaryDark">#2E7D32</Color>
+    <Color x:Key="PrimaryLight">#81C784</Color>
+    
+    <!-- Secondary Colors -->
+    <Color x:Key="Secondary">#FF9800</Color>
+    <Color x:Key="SecondaryDark">#F57C00</Color>
+    <Color x:Key="SecondaryLight">#FFB74D</Color>
+    
+    <!-- Accent Colors -->
+    <Color x:Key="Accent">#2196F3</Color>
+    <Color x:Key="AccentDark">#1976D2</Color>
+    <Color x:Key="AccentLight">#64B5F6</Color>
+    
+    <!-- Danger/Warning -->
+    <Color x:Key="Danger">#F44336</Color>
+    <Color x:Key="Warning">#FF9800</Color>
+    <Color x:Key="Success">#4CAF50</Color>
+    
+    <!-- Background Colors -->
+    <Color x:Key="BackgroundLight">#F5F5F5</Color>
+    <Color x:Key="BackgroundDark">#1E1E1E</Color>
+    <Color x:Key="SurfaceLight">#FFFFFF</Color>
+    <Color x:Key="SurfaceDark">#2D2D2D</Color>
+    <Color x:Key="CardLight">#FFFFFF</Color>
+    <Color x:Key="CardDark">#3D3D3D</Color>
+    
+    <!-- Text Colors -->
+    <Color x:Key="TextPrimaryLight">#212121</Color>
+    <Color x:Key="TextPrimaryDark">#FFFFFF</Color>
+    <Color x:Key="TextSecondaryLight">#757575</Color>
+    <Color x:Key="TextSecondaryDark">#B0B0B0</Color>
+    
+    <!-- Border Colors -->
+    <Color x:Key="BorderLight">#E0E0E0</Color>
+    <Color x:Key="BorderDark">#484848</Color>
+    
+    <!-- Minecraft Status Colors -->
+    <Color x:Key="ServerOnline">#00E676</Color>
+    <Color x:Key="ServerOffline">#F44336</Color>
+    <Color x:Key="ServerConnecting">#FF9800</Color>
+    
+</ResourceDictionary>

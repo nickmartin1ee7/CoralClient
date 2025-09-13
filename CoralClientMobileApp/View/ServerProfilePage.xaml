@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CoralClientMobileApp.View.ServerProfilePage"
+             Title="Server Configuration"
+             BackgroundColor="{AppThemeBinding Light={DynamicResource BackgroundLight}, Dark={DynamicResource BackgroundDark}}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="../Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <StackLayout Grid.Row="0" Orientation="Vertical" Spacing="8" Margin="0,20,0,30">
+                <Label Text="🛠️ Configure Server" 
+                       Style="{DynamicResource TitleLabel}"
+                       HorizontalTextAlignment="Center" />
+                <Label Text="Add your Minecraft server details" 
+                       Style="{DynamicResource BodyLabel}"
+                       HorizontalTextAlignment="Center" />
+            </StackLayout>
+
+            <!-- Quick Setup Cards -->
+            <Frame Grid.Row="1" 
+                   Style="{DynamicResource MinecraftCardFrame}"
+                   Margin="0,0,0,20">
+                <StackLayout Orientation="Vertical" Spacing="12">
+                    <Label Text="💡 Quick Setup Tips" 
+                           Style="{DynamicResource SubtitleLabel}" />
+                    <Label Text="• Use your server's IP address or domain name" 
+                           Style="{DynamicResource BodyLabel}" FontSize="14" />
+                    <Label Text="• Default Minecraft port is 25565" 
+                           Style="{DynamicResource BodyLabel}" FontSize="14" />
+                    <Label Text="• RCON must be enabled on your server" 
+                           Style="{DynamicResource BodyLabel}" FontSize="14" />
+                </StackLayout>
+            </Frame>
+
+            <!-- Server Configuration Form -->
+            <StackLayout Grid.Row="2" Orientation="Vertical" Spacing="20">
+                
+                <!-- Server Address Section -->
+                <Frame Style="{DynamicResource ServerCardFrame}">
+                    <StackLayout Orientation="Vertical" Spacing="12">
+                        <Label Text="🌐 Server Address" Style="{DynamicResource SubtitleLabel}" />
+                        
+                        <Label Text="Server IP or Domain" Style="{DynamicResource BodyLabel}" />
+                        <Entry x:Name="ServerUriEntry"
+                               Style="{DynamicResource ModernEntry}"
+                               Placeholder="e.g., play.myserver.net or 192.168.1.100"
+                               Text="{Binding ServerUri}" />
+                               
+                        <Label Text="Minecraft Port" Style="{DynamicResource BodyLabel}" />
+                        <Entry x:Name="MinecraftPortEntry"
+                               Style="{DynamicResource ModernEntry}"
+                               Placeholder="25565"
+                               Keyboard="Numeric"
+                               Text="{Binding MinecraftPort}" />
+                    </StackLayout>
+                </Frame>
+
+                <!-- RCON Configuration Section -->
+                <Frame Style="{DynamicResource ServerCardFrame}">
+                    <StackLayout Orientation="Vertical" Spacing="12">
+                        <Label Text="⚡ RCON Configuration" Style="{DynamicResource SubtitleLabel}" />
+                        
+                        <Label Text="RCON Port" Style="{DynamicResource BodyLabel}" />
+                        <Entry x:Name="RconPortEntry"
+                               Style="{DynamicResource ModernEntry}"
+                               Placeholder="25575"
+                               Keyboard="Numeric"
+                               Text="{Binding RconPort}" />
+                               
+                        <Label Text="RCON Password" Style="{DynamicResource BodyLabel}" />
+                        <Entry x:Name="RconPasswordEntry"
+                               Style="{DynamicResource ModernEntry}"
+                               Placeholder="Enter your RCON password"
+                               IsPassword="True"
+                               Text="{Binding RconPassword}" />
+                    </StackLayout>
+                </Frame>
+
+                <!-- Server Info Section -->
+                <Frame Style="{DynamicResource ServerCardFrame}">
+                    <StackLayout Orientation="Vertical" Spacing="12">
+                        <Label Text="📋 Server Information (Optional)" Style="{DynamicResource SubtitleLabel}" />
+                        
+                        <Label Text="Server Name" Style="{DynamicResource BodyLabel}" />
+                        <Entry x:Name="ServerNameEntry"
+                               Style="{DynamicResource ModernEntry}"
+                               Placeholder="My Awesome Server"
+                               Text="{Binding ServerName}" />
+                               
+                        <Label Text="Description" Style="{DynamicResource BodyLabel}" />
+                        <Editor x:Name="ServerDescriptionEditor"
+                                Style="{DynamicResource ConsoleEditor}"
+                                Placeholder="Add a description for this server..."
+                                HeightRequest="80"
+                                Text="{Binding ServerDescription}" />
+                    </StackLayout>
+                </Frame>
+
+            </StackLayout>
+
+            <!-- Spacer -->
+            <BoxView Grid.Row="3" />
+
+            <!-- Action Buttons -->
+            <StackLayout Grid.Row="4" Orientation="Vertical" Spacing="12" Margin="0,20,0,0">
+                <Button x:Name="TestConnectionButton"
+                        Command="{Binding TestConnectionCommand}"
+                        Style="{DynamicResource SecondaryButton}"
+                        Text="🔍 Test Connection" />
+                        
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button x:Name="CancelButton"
+                            Grid.Column="0"
+                            Command="{Binding CancelCommand}"
+                            Style="{DynamicResource SecondaryButton}"
+                            Text="Cancel"
+                            Margin="0,0,8,0" />
+                            
+                    <Button x:Name="SaveButton"
+                            Grid.Column="1"
+                            Command="{Binding SaveCommand}"
+                            Style="{DynamicResource PrimaryButton}"
+                            Text="💾 Save Server"
+                            Margin="8,0,0,0" />
+                </Grid>
+            </StackLayout>
+
+        </Grid>
+    </ScrollView>
+</ContentPage>

@@ -3,115 +3,223 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:CoralClientMobileApp.ViewModel"
              x:Class="CoralClientMobileApp.MainPage"
-             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1f1f1f}">
+             BackgroundColor="{AppThemeBinding Light={DynamicResource BackgroundLight}, Dark={DynamicResource BackgroundDark}}">
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <!-- Inline Button Styles -->
-            <Style x:Key="PrimaryButton" TargetType="Button">
-                <Setter Property="TextColor" Value="{AppThemeBinding Light=#FFFFFF, Dark=#000000}" />
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}" />
-                <Setter Property="FontFamily" Value="OpenSansRegular"/>
-                <Setter Property="FontSize" Value="14"/>
-                <Setter Property="FontAttributes" Value="Bold"/>
-                <Setter Property="BorderWidth" Value="0"/>
-                <Setter Property="CornerRadius" Value="8"/>
-                <Setter Property="Padding" Value="16,12"/>
-                <Setter Property="MinimumHeightRequest" Value="44"/>
-                <Setter Property="MinimumWidthRequest" Value="44"/>
-            </Style>
-
-            <Style x:Key="SecondaryButton" TargetType="Button">
-                <Setter Property="TextColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}" />
-                <Setter Property="BackgroundColor" Value="Transparent" />
-                <Setter Property="BorderColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}" />
-                <Setter Property="BorderWidth" Value="2"/>
-                <Setter Property="FontFamily" Value="OpenSansRegular"/>
-                <Setter Property="FontSize" Value="14"/>
-                <Setter Property="CornerRadius" Value="8"/>
-                <Setter Property="Padding" Value="16,12"/>
-                <Setter Property="MinimumHeightRequest" Value="44"/>
-                <Setter Property="MinimumWidthRequest" Value="44"/>
-            </Style>
-
-            <Style x:Key="DangerButton" TargetType="Button">
-                <Setter Property="TextColor" Value="{AppThemeBinding Light=#FFFFFF, Dark=#FFFFFF}" />
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#C71585, Dark=#8B4B8C}" />
-                <Setter Property="FontFamily" Value="OpenSansRegular"/>
-                <Setter Property="FontSize" Value="14"/>
-                <Setter Property="BorderWidth" Value="0"/>
-                <Setter Property="CornerRadius" Value="8"/>
-                <Setter Property="Padding" Value="16,12"/>
-                <Setter Property="MinimumHeightRequest" Value="44"/>
-                <Setter Property="MinimumWidthRequest" Value="44"/>
-            </Style>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid Margin="16">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header Section -->
+        <StackLayout Grid.Row="0" Orientation="Vertical" Spacing="8" Margin="0,20,0,30">
+            <Label Text="🎮 Coral Client" 
+                   Style="{DynamicResource TitleLabel}"
+                   HorizontalTextAlignment="Center" />
+            <Label Text="Minecraft Server Management" 
+                   Style="{DynamicResource BodyLabel}"
+                   HorizontalTextAlignment="Center" />
+        </StackLayout>
+
+        <!-- Server Count Info -->
+        <Frame Grid.Row="1" 
+               Style="{DynamicResource MinecraftCardFrame}"
+               Margin="0,0,0,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                
+                <Label Grid.Column="0"
+                       Text="{Binding ServerCountText}" 
+                       Style="{DynamicResource BodyLabel}"
+                       VerticalOptions="Center" />
+                       
+                <Label Grid.Column="1"
+                       Text="🏗️" 
+                       FontSize="24"
+                       VerticalOptions="Center" />
+            </Grid>
+        </Frame>
+
+        <!-- Server Profiles Carousel -->
+        <Grid Grid.Row="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Image x:Name="LogoImage"
-                   Aspect="AspectFit"
-                   Opacity="0.5" />
+            <!-- Empty State -->
+            <StackLayout x:Name="EmptyStateLayout" 
+                         Grid.Row="0"
+                         IsVisible="{Binding IsEmptyState}"
+                         VerticalOptions="Center" 
+                         HorizontalOptions="Center"
+                         Spacing="20">
+                <Label Text="🏗️" FontSize="72" HorizontalTextAlignment="Center" />
+                <Label Text="No servers configured" 
+                       Style="{DynamicResource SubtitleLabel}" 
+                       HorizontalTextAlignment="Center" />
+                <Label Text="Add your first Minecraft server to get started" 
+                       Style="{DynamicResource BodyLabel}" 
+                       HorizontalTextAlignment="Center" />
+            </StackLayout>
 
-            <CollectionView Grid.Row="0"
-                            ItemsSource="{Binding ServerProfiles}"
-                            SelectionMode="Single">
-                <CollectionView.ItemTemplate>
+            <!-- Carousel View for Server Profiles -->
+            <CarouselView x:Name="ServerProfilesCarousel" 
+                          Grid.Row="0"
+                          ItemsSource="{Binding ServerProfiles}"
+                          IsVisible="{Binding HasServerProfiles}"
+                          PeekAreaInsets="60"
+                          Loop="False">
+                <CarouselView.ItemTemplate>
                     <DataTemplate>
-                        <Grid Padding="0,8,0,8"
-                            BackgroundColor="Transparent">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
+                        <Frame Style="{DynamicResource ServerCardFrame}"
+                               Margin="12,20">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
 
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                                <!-- Server Icon and Status -->
+                                <Grid Grid.Row="0" Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
 
-                            <Frame Grid.ColumnSpan="3"
-                                   BackgroundColor="{AppThemeBinding Light=#FFB3BA, Dark=#8B4B8C}"
-                                   Opacity="0.25"
-                                   BorderColor="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}"
-                                   CornerRadius="8"
-                                   HasShadow="False" />
+                                    <Frame Grid.Column="0" 
+                                           BackgroundColor="{DynamicResource Primary}"
+                                           CornerRadius="8"
+                                           Padding="8"
+                                           HasShadow="False">
+                                        <Label Text="🎮" FontSize="24" TextColor="White" />
+                                    </Frame>
 
-                            <Button x:Name="LaunchProfileButton" Grid.Column="0"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=LaunchProfileCommand}"
-                                    CommandParameter="{Binding}"
-                                    Style="{StaticResource PrimaryButton}"
-                                    Margin="8,8,4,8"
-                                    Text="{Binding ServerUriText}"/>
+                                    <StackLayout Grid.Column="1" 
+                                                 Orientation="Vertical" 
+                                                 VerticalOptions="Center"
+                                                 Margin="12,0,0,0">
+                                        <Label Text="{Binding ServerUriText}" 
+                                               Style="{DynamicResource ServerNameLabel}" />
+                                        <Label Text="Ready to connect" 
+                                               Style="{DynamicResource BodyLabel}"
+                                               FontSize="14" />
+                                    </StackLayout>
 
-                            <Button x:Name="EditProfileButton" Grid.Column="1"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=EditProfileCommand}"
-                                    CommandParameter="{Binding}"
-                                    Style="{StaticResource SecondaryButton}"
-                                    Margin="4,8,4,8"
-                                    Text="Edit" />
+                                    <Frame Grid.Column="2"
+                                           BackgroundColor="{DynamicResource Success}"
+                                           CornerRadius="20"
+                                           Padding="8,4"
+                                           HasShadow="False">
+                                        <Label Text="●" 
+                                               TextColor="White"
+                                               FontSize="12"
+                                               HorizontalTextAlignment="Center" />
+                                    </Frame>
+                                </Grid>
 
-                            <Button x:Name="DeleteProfileButton" Grid.Column="2"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=DeleteProfileCommand}"
-                                    CommandParameter="{Binding}"
-                                    Style="{StaticResource DangerButton}"
-                                    Margin="4,8,8,8"
-                                    Text="Delete" />
-                        </Grid>
+                                <!-- Server Details -->
+                                <StackLayout Grid.Row="1" Orientation="Vertical" Spacing="8" Margin="0,0,0,16">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Text="🌐 Address:" Style="{DynamicResource BodyLabel}" FontSize="14" />
+                                        <Label Grid.Column="1" Text="{Binding Uri}" Style="{DynamicResource BodyLabel}" FontSize="14" />
+                                    </Grid>
+                                    
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Text="🔌 MC Port:" Style="{DynamicResource BodyLabel}" FontSize="14" />
+                                        <Label Grid.Column="1" Text="{Binding MinecraftPort}" Style="{DynamicResource BodyLabel}" FontSize="14" />
+                                    </Grid>
+                                    
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Text="⚡ RCON Port:" Style="{DynamicResource BodyLabel}" FontSize="14" />
+                                        <Label Grid.Column="1" Text="{Binding RconPort}" Style="{DynamicResource BodyLabel}" FontSize="14" />
+                                    </Grid>
+                                </StackLayout>
+
+                                <!-- Spacer -->
+                                <BoxView Grid.Row="3" />
+
+                                <!-- Action Buttons -->
+                                <Grid Grid.Row="4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Button Grid.Column="0"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=LaunchProfileCommand}"
+                                            CommandParameter="{Binding}"
+                                            Style="{DynamicResource PrimaryButton}"
+                                            Text="Connect"
+                                            Margin="0,0,8,0" />
+
+                                    <Button Grid.Column="1"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=EditProfileCommand}"
+                                            CommandParameter="{Binding}"
+                                            Style="{DynamicResource IconButton}"
+                                            Text="✏️"
+                                            Margin="4,0" />
+
+                                    <Button Grid.Column="2"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=DeleteProfileCommand}"
+                                            CommandParameter="{Binding}"
+                                            Style="{DynamicResource IconButton}"
+                                            Text="🗑️"
+                                            Margin="4,0,0,0" />
+                                </Grid>
+                            </Grid>
+                        </Frame>
                     </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                </CarouselView.ItemTemplate>
+            </CarouselView>
 
-            <Button x:Name="AddServerProfileButton"
-                    Grid.Row="1"
-                    Command="{Binding AddServerProfileCommand}"
-                    Style="{StaticResource PrimaryButton}"
-                    Margin="0,16,0,0"
-                    Text="Add Server" />
+            <!-- Carousel Indicators -->
+            <IndicatorView x:Name="ServerProfilesIndicator"
+                           Grid.Row="1"
+                           IndicatorColor="{AppThemeBinding Light={DynamicResource BorderLight}, Dark={DynamicResource BorderDark}}"
+                           SelectedIndicatorColor="{DynamicResource Primary}"
+                           HorizontalOptions="Center"
+                           Margin="0,16,0,0"
+                           IsVisible="{Binding HasMultipleServers}" />
         </Grid>
+
+        <!-- Add Server Button -->
+        <Button x:Name="AddServerProfileButton"
+                Grid.Row="3"
+                Command="{Binding AddServerProfileCommand}"
+                Style="{DynamicResource PrimaryButton}"
+                Margin="0,30,0,20"
+                Text="➕ Add New Server" />
+    </Grid>
 </ContentPage>

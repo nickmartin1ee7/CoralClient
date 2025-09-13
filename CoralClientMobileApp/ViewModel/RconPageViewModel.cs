@@ -48,6 +48,21 @@ namespace CoralClientMobileApp.ViewModel
         private string _commandEntryText = string.Empty;
 
         [ObservableProperty]
+        private string _serverPerformanceText = "20.0";
+
+        [ObservableProperty]
+        private string _serverUptimeText = "0d 0h";
+
+        [ObservableProperty]
+        private string _connectionStatusColor = "#808080";
+
+        [ObservableProperty]
+        private string _statusIndicatorColor = "#808080";
+
+        [ObservableProperty]
+        private string _connectionButtonColor = "#4CAF50";
+
+        [ObservableProperty]
         private bool _isSendCommandEnabled;
 
         public event EventHandler? StateChange;
@@ -181,6 +196,24 @@ namespace CoralClientMobileApp.ViewModel
             }
         }
 
+        [RelayCommand]
+        private async Task QuickCommand(string command)
+        {
+            if (string.IsNullOrWhiteSpace(command))
+                return;
+
+            CommandEntryText = command;
+            await SendCommand();
+        }
+
+        [RelayCommand]
+        private void ClearConsole()
+        {
+            _commandLogBuffer.Clear();
+            CommandLogText = string.Empty;
+            WriteToCommandLog("Info", "Console cleared");
+        }
+
         public void Dispose()
         {
             _rcon?.Dispose();
@@ -220,9 +253,25 @@ namespace CoralClientMobileApp.ViewModel
                 {
                     ServerNameText = _serverProfile.ServerUriText;
                     OnlinePlayerText = "Players: ?/?";
+                    ServerPerformanceText = "?.?";
+                    ServerUptimeText = "?d ?h";
                     WriteToCommandLog("Info", "Disconnected");
                     IsSendCommandEnabled = false;
                     ToggleConnectionButtonText = "Connect";
+                    ConnectionStatusColor = "#F44336"; // Red
+                    StatusIndicatorColor = "#F44336"; // Red
+                    ConnectionButtonColor = "#4CAF50"; // Green
+                }
+                break;
+                case State.CONNECTING:
+                {
+                    ConnectionStatusText = "CONNECTING";
+                    WriteToCommandLog("Info", "Connecting...");
+                    IsSendCommandEnabled = false;
+                    ToggleConnectionButtonText = "Connecting...";
+                    ConnectionStatusColor = "#FF9800"; // Orange
+                    StatusIndicatorColor = "#FF9800"; // Orange
+                    ConnectionButtonColor = "#FF9800"; // Orange
                 }
                 break;
                 case State.CONNECTED:
@@ -230,6 +279,9 @@ namespace CoralClientMobileApp.ViewModel
                     WriteToCommandLog("Info", "Connection established");
                     IsSendCommandEnabled = true;
                     ToggleConnectionButtonText = "Disconnect";
+                    ConnectionStatusColor = "#4CAF50"; // Green
+                    StatusIndicatorColor = "#4CAF50"; // Green
+                    ConnectionButtonColor = "#F44336"; // Red (for disconnect)
                 }
                 break;
             }

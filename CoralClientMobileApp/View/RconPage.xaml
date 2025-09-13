@@ -3,151 +3,252 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:CoralClientMobileApp.ViewModel"
              x:Class="CoralClientMobileApp.View.RconPage"
-             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1f1f1f}">
+             BackgroundColor="{AppThemeBinding Light={DynamicResource BackgroundLight}, Dark={DynamicResource BackgroundDark}}">
              
     <ContentPage.Resources>
         <ResourceDictionary>
-            <!-- Inline Label Styles -->
-            <Style x:Key="SubHeadline" TargetType="Label">
-                <Setter Property="FontSize" Value="18"/>
-                <Setter Property="FontAttributes" Value="Bold"/>
-                <Setter Property="TextColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}" />
-            </Style>
-
-            <!-- Inline Button Styles -->
-            <Style x:Key="PrimaryButton" TargetType="Button">
-                <Setter Property="TextColor" Value="{AppThemeBinding Light=#FFFFFF, Dark=#000000}" />
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}" />
-                <Setter Property="FontFamily" Value="OpenSansRegular"/>
-                <Setter Property="FontSize" Value="14"/>
-                <Setter Property="FontAttributes" Value="Bold"/>
-                <Setter Property="BorderWidth" Value="0"/>
-                <Setter Property="CornerRadius" Value="8"/>
-                <Setter Property="Padding" Value="16,12"/>
-                <Setter Property="MinimumHeightRequest" Value="44"/>
-                <Setter Property="MinimumWidthRequest" Value="44"/>
-            </Style>
-
-            <Style x:Key="SecondaryButton" TargetType="Button">
-                <Setter Property="TextColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}" />
-                <Setter Property="BackgroundColor" Value="Transparent" />
-                <Setter Property="BorderColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}" />
-                <Setter Property="BorderWidth" Value="2"/>
-                <Setter Property="FontFamily" Value="OpenSansRegular"/>
-                <Setter Property="FontSize" Value="14"/>
-                <Setter Property="CornerRadius" Value="8"/>
-                <Setter Property="Padding" Value="16,12"/>
-                <Setter Property="MinimumHeightRequest" Value="44"/>
-                <Setter Property="MinimumWidthRequest" Value="44"/>
-            </Style>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="../Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </ContentPage.Resources>
     
-    <Grid Margin="16">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-
+    <Grid Margin="20">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Grid x:Name="InfoGrid" Grid.Row="0" Margin="0,0,0,16">
+        <!-- Server Header -->
+        <Frame Grid.Row="0" 
+               Style="{DynamicResource MinecraftCardFrame}"
+               Margin="0,10,0,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Frame Grid.Column="0" 
+                       BackgroundColor="{DynamicResource Primary}"
+                       CornerRadius="8"
+                       Padding="8"
+                       HasShadow="False">
+                    <Label Text="🎮" FontSize="24" TextColor="White" />
+                </Frame>
+
+                <StackLayout Grid.Column="1" 
+                             Orientation="Vertical" 
+                             VerticalOptions="Center"
+                             Margin="12,0,0,0">
+                    <Label Text="{Binding ServerNameText}" 
+                           Style="{DynamicResource SubtitleLabel}" />
+                    <Label Text="{Binding ConnectionStatusText}" 
+                           Style="{DynamicResource ServerStatusLabel}"
+                           TextColor="{Binding ConnectionStatusColor}" />
+                </StackLayout>
+
+                <Frame Grid.Column="2"
+                       BackgroundColor="{Binding StatusIndicatorColor}"
+                       CornerRadius="20"
+                       Padding="8,4"
+                       HasShadow="False">
+                    <Label Text="●" 
+                           TextColor="White"
+                           FontSize="12"
+                           HorizontalTextAlignment="Center" />
+                </Frame>
+            </Grid>
+        </Frame>
+
+        <!-- Server Stats -->
+        <Grid Grid.Row="1" Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+            <Frame Grid.Column="0" Style="{DynamicResource ServerCardFrame}" Margin="0,0,8,0">
+                <StackLayout Orientation="Vertical" Spacing="4" HorizontalOptions="Center">
+                    <Label Text="👥" FontSize="24" HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding OnlinePlayerText}" 
+                           Style="{DynamicResource ServerNameLabel}" 
+                           HorizontalTextAlignment="Center" />
+                    <Label Text="Players" 
+                           Style="{DynamicResource BodyLabel}" 
+                           FontSize="12"
+                           HorizontalTextAlignment="Center" />
+                </StackLayout>
+            </Frame>
 
-            <Label x:Name="ServerNameLabel" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" 
-                   HorizontalTextAlignment="Center"
-                   Style="{StaticResource SubHeadline}"
-                   Margin="0,0,0,8"
-                   Text="{Binding ServerNameText}" />
+            <Frame Grid.Column="1" Style="{DynamicResource ServerCardFrame}" Margin="4,0">
+                <StackLayout Orientation="Vertical" Spacing="4" HorizontalOptions="Center">
+                    <Label Text="⚡" FontSize="24" HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding ServerPerformanceText}" 
+                           Style="{DynamicResource ServerNameLabel}" 
+                           HorizontalTextAlignment="Center" />
+                    <Label Text="TPS" 
+                           Style="{DynamicResource BodyLabel}" 
+                           FontSize="12"
+                           HorizontalTextAlignment="Center" />
+                </StackLayout>
+            </Frame>
 
-            <Label x:Name="ConnectionStatusLabel" Grid.Column="0" Grid.Row="1" 
-                   HorizontalTextAlignment="Center"
-                   FontSize="16"
-                   FontAttributes="Bold"
-                   TextColor="{AppThemeBinding Light=#404040, Dark=#ACACAC}"
-                   Text="{Binding ConnectionStatusText}" />
-
-            <Label x:Name="OnlinePlayerLabel" Grid.Column="1" Grid.Row="1" 
-                   HorizontalTextAlignment="Center"
-                   FontSize="16"
-                   FontAttributes="Bold"
-                   TextColor="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}"
-                   Text="{Binding OnlinePlayerText}" />
+            <Frame Grid.Column="2" Style="{DynamicResource ServerCardFrame}" Margin="8,0,0,0">
+                <StackLayout Orientation="Vertical" Spacing="4" HorizontalOptions="Center">
+                    <Label Text="🕒" FontSize="24" HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding ServerUptimeText}" 
+                           Style="{DynamicResource ServerNameLabel}" 
+                           HorizontalTextAlignment="Center" />
+                    <Label Text="Uptime" 
+                           Style="{DynamicResource BodyLabel}" 
+                           FontSize="12"
+                           HorizontalTextAlignment="Center" />
+                </StackLayout>
+            </Frame>
         </Grid>
 
-        <Grid x:Name="CommandGrid" Grid.Row="1" Margin="0,0,0,16">
+        <!-- Quick Commands -->
+        <Frame Grid.Row="2" 
+               Style="{DynamicResource ServerCardFrame}"
+               Margin="0,0,0,20">
+            <StackLayout Orientation="Vertical" Spacing="12">
+                <Label Text="⚡ Quick Commands" Style="{DynamicResource SubtitleLabel}" />
+                
+                <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                    <StackLayout Orientation="Horizontal" Spacing="8">
+                        <Button Text="📋 List Players" 
+                                Command="{Binding QuickCommandCommand}" 
+                                CommandParameter="list"
+                                Style="{DynamicResource SecondaryButton}"
+                                FontSize="12" />
+                        <Button Text="🌤️ Set Day" 
+                                Command="{Binding QuickCommandCommand}" 
+                                CommandParameter="time set day"
+                                Style="{DynamicResource SecondaryButton}"
+                                FontSize="12" />
+                        <Button Text="🌙 Set Night" 
+                                Command="{Binding QuickCommandCommand}" 
+                                CommandParameter="time set night"
+                                Style="{DynamicResource SecondaryButton}"
+                                FontSize="12" />
+                        <Button Text="☀️ Clear Weather" 
+                                Command="{Binding QuickCommandCommand}" 
+                                CommandParameter="weather clear"
+                                Style="{DynamicResource SecondaryButton}"
+                                FontSize="12" />
+                        <Button Text="🌧️ Rain" 
+                                Command="{Binding QuickCommandCommand}" 
+                                CommandParameter="weather rain"
+                                Style="{DynamicResource SecondaryButton}"
+                                FontSize="12" />
+                    </StackLayout>
+                </ScrollView>
+            </StackLayout>
+        </Frame>
+
+        <!-- Console Output -->
+        <Frame Grid.Row="3" 
+               Style="{DynamicResource MinecraftCardFrame}"
+               Margin="0,0,0,20">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <Label Grid.Column="0" 
+                           Text="📟 Console Output" 
+                           Style="{DynamicResource SubtitleLabel}" />
+                    
+                    <Button Grid.Column="1"
+                            Text="🧹"
+                            Command="{Binding ClearConsoleCommand}"
+                            Style="{DynamicResource IconButton}"
+                            FontSize="16" />
+                </Grid>
+
+                <Frame Grid.Row="1"
+                       BackgroundColor="{AppThemeBinding Light=#F8F8F8, Dark=#2A2A2A}"
+                       BorderColor="{AppThemeBinding Light={DynamicResource BorderLight}, Dark={DynamicResource BorderDark}}"
+                       CornerRadius="8"
+                       Padding="12">
+                    <Editor x:Name="CommandLogEditor"
+                            IsReadOnly="True"
+                            Style="{DynamicResource ConsoleEditor}"
+                            IsSpellCheckEnabled="False"
+                            Text="{Binding CommandLogText}"
+                            MinimumHeightRequest="200" />
+                </Frame>
+            </Grid>
+        </Frame>
+
+        <!-- Command Input -->
+        <Frame Grid.Row="4" 
+               Style="{DynamicResource MinecraftCardFrame}"
+               Margin="0,0,0,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Entry x:Name="CommandEntry" 
+                       Grid.Column="0"
+                       Style="{DynamicResource MinecraftCommandEntry}"
+                       Placeholder="Enter Minecraft command..."
+                       IsSpellCheckEnabled="False"
+                       IsTextPredictionEnabled="False"
+                       IsEnabled="{Binding IsSendCommandEnabled}"
+                       ClearButtonVisibility="WhileEditing"
+                       ReturnType="Send"
+                       ReturnCommand="{Binding SendCommandCommand}"
+                       Text="{Binding CommandEntryText}" />
+
+                <Button x:Name="SendCommandButton"
+                        Grid.Column="1"
+                        Command="{Binding SendCommandCommand}"
+                        Style="{DynamicResource PrimaryButton}"
+                        Text="📤"
+                        Margin="12,0,0,0"
+                        IsEnabled="{Binding IsSendCommandEnabled}" />
+            </Grid>
+        </Frame>
+
+        <!-- Connection Controls -->
+        <Grid Grid.Row="5">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-
-            <Frame Grid.Row="0"
-                   BackgroundColor="Transparent"
-                   BorderColor="{AppThemeBinding Light=#FFB3BA, Dark=#8B4B8C}"
-                   CornerRadius="8"
-                   Padding="8"
-                   Margin="0,0,0,8" />
-
-            <Editor x:Name="CommandLogEditor" Grid.Row="0"
-                    IsReadOnly="True"
-                    FontSize="Small"
-                    FontFamily="CourierNew"
-                    BackgroundColor="Transparent"
-                    TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
-                    Margin="8"
-                    IsSpellCheckEnabled="False"
-                    Text="{Binding CommandLogText}" />
-
-            <Entry x:Name="CommandEntry" Grid.Row="1" 
-                   Placeholder="Enter Command"
-                   IsSpellCheckEnabled="False"
-                   IsTextPredictionEnabled="False"
-                   IsEnabled="{Binding IsSendCommandEnabled}"
-                   ClearButtonVisibility="WhileEditing"
-                   ReturnType="Send"
-                   ReturnCommand="{Binding SendCommandCommand}"
-                   Text="{Binding CommandEntryText}"
-                   TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
-                   PlaceholderColor="{AppThemeBinding Light=#919191, Dark=#6E6E6E}" />
-        </Grid>
-
-        <Grid x:Name="OptionsGrid" Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-
-            <Button x:Name="RefreshButton" Grid.Column="0"
+            <Button x:Name="RefreshButton" 
+                    Grid.Column="0"
                     Command="{Binding RefreshCommand}"
-                    Style="{StaticResource SecondaryButton}"
-                    Margin="0,0,8,0"
-                    Text="Refresh" />
+                    Style="{DynamicResource SecondaryButton}"
+                    Text="🔄 Refresh"
+                    Margin="0,0,8,0" />
 
-            <Button x:Name="ToggleConnectionButton" Grid.Column="1"
+            <Button x:Name="ToggleConnectionButton" 
+                    Grid.Column="1"
                     Command="{Binding ToggleConnectionCommand}"
-                    Style="{StaticResource PrimaryButton}"
-                    Margin="8,0,0,0"
-                    Text="{Binding ToggleConnectionButtonText}" />
-
+                    Style="{DynamicResource PrimaryButton}"
+                    Text="{Binding ToggleConnectionButtonText}"
+                    BackgroundColor="{Binding ConnectionButtonColor}"
+                    Margin="8,0,0,0" />
         </Grid>
     </Grid>
 </ContentPage>
