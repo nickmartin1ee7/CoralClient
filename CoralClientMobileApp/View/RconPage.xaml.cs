@@ -1,7 +1,5 @@
 ﻿using CoralClientMobileApp.Model;
-using CoralClientMobileApp.Services;
 using CoralClientMobileApp.ViewModel;
-using Microsoft.Extensions.DependencyInjection;
 using MinecraftRcon;
 
 namespace CoralClientMobileApp.View
@@ -14,8 +12,9 @@ namespace CoralClientMobileApp.View
         {
             InitializeComponent();
 
-            _vm = new RconPageViewModel(serverProfile,
-                Dependencies.ServiceProvider.GetService<RconClient>());
+            // Create RconClient for this specific page instance
+            var rconClient = new RconClient();
+            _vm = new RconPageViewModel(serverProfile, rconClient);
 
             BindingContext = _vm;
         }

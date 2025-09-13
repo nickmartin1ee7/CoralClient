@@ -4,15 +4,15 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using CoralClientMobileApp.Helpers;
 using CoralClientMobileApp.Model;
-using Microsoft.Maui.Controls;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using MinecraftRcon;
 
 namespace CoralClientMobileApp.ViewModel
 {
-    public class RconPageViewModel : BaseObservableViewModel, IDisposable
+    public partial class RconPageViewModel : BaseObservableViewModel, IDisposable
     {
 
         public enum State
@@ -24,17 +24,31 @@ namespace CoralClientMobileApp.ViewModel
 
         private readonly ServerProfile _serverProfile;
         private readonly RconClient _rcon;
-        private string _serverNameText = "Server URI";
-        private string _connectionStatusText = State.DISCONNECTED.ToString();
-        private string _onlinePlayerText = "Players: ?/?";
-        private string _toggleConnectionButtonText = "Connect";
-        private string _commandLogText = string.Empty;
-        private string _commandEntryText = string.Empty;
         private readonly StringBuilder _commandLogBuffer = new StringBuilder();
         private State _currentState;
+
+        [ObservableProperty]
+        private string _serverNameText = "Server URI";
+
+        [ObservableProperty]
+        private string _connectionStatusText = State.DISCONNECTED.ToString();
+
+        [ObservableProperty]
+        private string _onlinePlayerText = "Players: ?/?";
+
+        [ObservableProperty]
+        private string _toggleConnectionButtonText = "Connect";
+
+        [ObservableProperty]
+        private string _commandLogText = string.Empty;
+
+        [ObservableProperty]
+        private string _commandEntryText = string.Empty;
+
+        [ObservableProperty]
         private bool _isSendCommandEnabled;
 
-        public event EventHandler StateChange;
+        public event EventHandler? StateChange;
 
         public State CurrentState
         {
@@ -46,109 +60,11 @@ namespace CoralClientMobileApp.ViewModel
             }
         }
 
-        public bool IsSendCommandEnabled
-        {
-            get => _isSendCommandEnabled;
-            set => SetProperty(ref _isSendCommandEnabled, value);
-        }
-
-        public string ServerNameText
-        {
-            get => _serverNameText;
-            set => SetProperty(ref _serverNameText, value);
-        }
-
-        public string ConnectionStatusText
-        {
-            get => _connectionStatusText;
-            set => SetProperty(ref _connectionStatusText, value);
-        }
-
-        public string OnlinePlayerText
-        {
-            get => _onlinePlayerText;
-            set => SetProperty(ref _onlinePlayerText, value);
-        }
-
-        public string CommandLogText
-        {
-            get => _commandLogText;
-            set => SetProperty(ref _commandLogText, value);
-        }
-
-        public string CommandEntryText
-        {
-            get => _commandEntryText;
-            set => SetProperty(ref _commandEntryText, value);
-        }
-
-        public string ToggleConnectionButtonText
-        {
-            get => _toggleConnectionButtonText;
-            set => SetProperty(ref _toggleConnectionButtonText, value);
-        }
-
-        public ICommand SendCommandCommand { get; }
-
-        public ICommand ToggleConnectionCommand { get; }
-
-        public ICommand RefreshCommand { get; }
-
         public RconPageViewModel(ServerProfile serverProfile, RconClient rcon)
         {
             _serverProfile = serverProfile ?? throw new ArgumentNullException(nameof(serverProfile));
             _rcon = rcon ?? throw new ArgumentNullException(nameof(rcon));
             ServerNameText = serverProfile.ServerUriText;
-
-            SendCommandCommand = new Command(
-                execute: async () =>
-                {
-                    if (CurrentState != State.CONNECTED) return;
-                    if (string.IsNullOrWhiteSpace(CommandEntryText)) return;
-
-                    WriteToCommandLog("Client", CommandEntryText);
-
-                    try
-                    {
-                        await _rcon.SendCommandAsync(CommandEntryText);
-                        CommandEntryText = string.Empty;
-                    }
-                    catch (Exception e)
-                    {
-                        WriteToCommandLog("Error", $"Failed to send command! {e.Message}");
-                    }
-                });
-
-            ToggleConnectionCommand = new Command(
-                execute: async () =>
-                {
-                    switch (CurrentState)
-                    {
-                        case State.CONNECTED:
-                            await DisconnectAsync();
-                            break;
-                        case State.DISCONNECTED:
-                            await ConnectAsync();
-                            break;
-                    }
-                });
-
-            RefreshCommand = new Command(
-                execute: async () =>
-                {
-                    if (CurrentState != State.CONNECTED) return;
-
-                    try
-                    {
-                        await GetServerInfo();
-                        WriteToCommandLog("Info", "Refreshed server info");
-                    }
-                    catch (Exception e)
-                    {
-                        WriteToCommandLog("Error", $"Failed to refresh server info! {e.Message}");
-                        await ConnectAsync();
-                    }
-                });
 
             _rcon.Disconnected += (o, e) => CurrentState = State.DISCONNECTED;
             _rcon.Connected += (o, e) => CurrentState = State.CONNECTED;
@@ -186,6 +102,56 @@ namespace CoralClientMobileApp.ViewModel
 
             StateChange += UiStateChangeLogic;
             StateChange += ConnectedLogic;
+        }
+
+        [RelayCommand]
+        private async Task SendCommand()
+        {
+            if (CurrentState != State.CONNECTED) return;
+            if (string.IsNullOrWhiteSpace(CommandEntryText)) return;
+
+            WriteToCommandLog("Client", CommandEntryText);
+
+            try
+            {
+                await _rcon.SendCommandAsync(CommandEntryText);
+                CommandEntryText = string.Empty;
+            }
+            catch (Exception e)
+            {
+                WriteToCommandLog("Error", $"Failed to send command! {e.Message}");
+            }
+        }
+
+        [RelayCommand]
+        private async Task ToggleConnection()
+        {
+            switch (CurrentState)
+            {
+                case State.CONNECTED:
+                    await DisconnectAsync();
+                    break;
+                case State.DISCONNECTED:
+                    await ConnectAsync();
+                    break;
+            }
+        }
+
+        [RelayCommand]
+        private async Task Refresh()
+        {
+            if (CurrentState != State.CONNECTED) return;
+
+            try
+            {
+                await GetServerInfo();
+                WriteToCommandLog("Info", "Refreshed server info");
+            }
+            catch (Exception e)
+            {
+                WriteToCommandLog("Error", $"Failed to refresh server info! {e.Message}");
+                await ConnectAsync();
+            }
         }
 
         public void Dispose()

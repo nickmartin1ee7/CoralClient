@@ -1,26 +1,33 @@
-﻿using CoralClientMobileApp.DbContext;
-using CoralClientMobileApp.Services;
-using CoralClientMobileApp.View;
+﻿using CoralClientMobileApp.View;
 using CoralClientMobileApp.ViewModel;
-using Microsoft.Extensions.DependencyInjection;
+using CoralClientMobileApp.Model;
 
 namespace CoralClientMobileApp;
 
 public partial class MainPage : ContentPage
 {
-	int count = 0;
+	private readonly MainPageViewModel _viewModel;
 
-	public MainPage()
+	public MainPage(MainPageViewModel viewModel)
 	{
 		InitializeComponent();
+		_viewModel = viewModel;
 
-		var vm = new MainPageViewModel(Dependencies.ServiceProvider.GetService<ServerProfileContext>(),
-                (title, message) => DisplayPromptAsync(title, message),
-                (serverProfile) => Navigation.PushModalAsync(new RconPage(serverProfile)));
+		// Set dependencies that need the Page context
+		_viewModel.SetDependencies(
+			(title, message) => DisplayPromptAsync(title, message),
+			(serverProfile) => NavigateToRconPage(serverProfile)
+		);
 
-            LogoImage.Source = ImageSource.FromResource("CoralClientMobileApp.Assets.icon.png", GetType().Assembly);
+		LogoImage.Source = ImageSource.FromResource("CoralClientMobileApp.Assets.icon.png", GetType().Assembly);
 
-            BindingContext = vm;
+		BindingContext = _viewModel;
+	}
+
+	private async Task NavigateToRconPage(ServerProfile serverProfile)
+	{
+		var rconPage = new RconPage(serverProfile);
+		await Navigation.PushModalAsync(rconPage);
 	}
 }
 
