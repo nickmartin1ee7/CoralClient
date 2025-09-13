@@ -110,6 +110,7 @@
                     BackgroundColor="Transparent"
                     TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
                     Margin="8"
+                    IsSpellCheckEnabled="False"
                     Text="{Binding CommandLogText}" />
 
             <Entry x:Name="CommandEntry" Grid.Row="1" 
