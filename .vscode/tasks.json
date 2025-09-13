@@ -5,8 +5,9 @@
         {
             "label": "Build .NET MAUI",
             "type": "shell",
-            "command": "dotnet build",
+            "command": "/usr/bin/dotnet",
             "args": [
+                "build",
                 "${workspaceFolder}/CoralClient.sln"
             ],
             "group": {
