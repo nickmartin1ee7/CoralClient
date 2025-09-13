@@ -1,4 +1,6 @@
 ﻿using CoralClient.Model;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Maui.Storage;
 
 namespace CoralClient.DbContext
 {

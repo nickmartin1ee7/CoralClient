@@ -1,5 +1,14 @@
-﻿using CoralClient.Helpers;
+﻿using System;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using CoralClient.Helpers;
 using CoralClient.Model;
+using Microsoft.Maui.Controls;
+using MinecraftRcon;
 
 namespace CoralClient.ViewModel
 {
@@ -19,8 +28,8 @@ namespace CoralClient.ViewModel
         private string _connectionStatusText = State.DISCONNECTED.ToString();
         private string _onlinePlayerText = "Players: ?/?";
         private string _toggleConnectionButtonText = "Connect";
-        private string _commandLogText;
-        private string _commandEntryText;
+        private string _commandLogText = string.Empty;
+        private string _commandEntryText = string.Empty;
         private readonly StringBuilder _commandLogBuffer = new StringBuilder();
         private State _currentState;
         private bool _isSendCommandEnabled;
@@ -161,13 +170,13 @@ namespace CoralClient.ViewModel
                 var match = Regex.Match(playerText, $"There are (?<{nameof(currentPlayers)}>\\d+) of a max of (?<{nameof(maxPlayers)}>\\d+) players online:");
 
                 if (!match.Success
-                    || !match.Groups.Any())
+                    || match.Groups.Count == 0)
                 {
                     return;
                 }
 
-                var currentPlayersGroup = match.Groups.FirstOrDefault(g => g.Name == nameof(currentPlayers));
-                var maxPlayersGroup = match.Groups.FirstOrDefault(g => g.Name == nameof(maxPlayers));
+                var currentPlayersGroup = match.Groups[nameof(currentPlayers)];
+                var maxPlayersGroup = match.Groups[nameof(maxPlayers)];
 
                 int.TryParse(currentPlayersGroup?.Value, out currentPlayers);
                 int.TryParse(maxPlayersGroup?.Value, out maxPlayers);
@@ -184,7 +193,7 @@ namespace CoralClient.ViewModel
             _rcon?.Dispose();
         }
 
-        private async void ConnectedLogic(object sender, EventArgs args)
+        private async void ConnectedLogic(object? sender, EventArgs args)
         {
             if (CurrentState != State.CONNECTED) return;
 
@@ -208,7 +217,7 @@ namespace CoralClient.ViewModel
             await _rcon.SendCommandAsync("list");
         }
 
-        private void UiStateChangeLogic(object sender, EventArgs e)
+        private void UiStateChangeLogic(object? sender, EventArgs e)
         {
             ConnectionStatusText = CurrentState.ToString();
 

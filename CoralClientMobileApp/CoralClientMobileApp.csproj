@@ -26,10 +26,10 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Display name -->
-		<ApplicationTitle>CoralClientMobileApp</ApplicationTitle>
+		<ApplicationTitle>Coral Client</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.coralclientmobileapp</ApplicationId>
+		<ApplicationId>com.gitgoodsoftware.coralclient</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -79,13 +79,12 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-		<!-- Imported -->
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="*" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="*" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="*" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.9" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.9" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"
-			Version="*" />
+			Version="9.0.9" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -1,6 +1,7 @@
 ﻿using CoralClient.Model;
 using CoralClient.Services;
 using CoralClient.ViewModel;
+using MinecraftRcon;
 
 namespace CoralClient.View
 {

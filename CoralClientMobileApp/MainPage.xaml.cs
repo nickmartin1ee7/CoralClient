@@ -1,4 +1,9 @@
-﻿namespace CoralClientMobileApp;
+﻿using CoralClient.DbContext;
+using CoralClient.Services;
+using CoralClient.View;
+using CoralClient.ViewModel;
+
+namespace CoralClientMobileApp;
 
 public partial class MainPage : ContentPage
 {

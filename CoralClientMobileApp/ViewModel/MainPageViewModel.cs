@@ -1,5 +1,8 @@
-﻿using CoralClient.DbContext;
+﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
+using CoralClient.DbContext;
 using CoralClient.Model;
+using Microsoft.Maui.Controls;
 
 namespace CoralClient.ViewModel
 {
