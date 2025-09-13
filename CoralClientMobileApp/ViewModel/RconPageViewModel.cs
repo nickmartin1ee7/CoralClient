@@ -9,6 +9,7 @@ using CoralClientMobileApp.Model;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MinecraftRcon;
+using Microsoft.Extensions.Logging;
 
 namespace CoralClientMobileApp.ViewModel
 {
@@ -24,6 +25,7 @@ namespace CoralClientMobileApp.ViewModel
 
         private readonly ServerProfile _serverProfile;
         private readonly RconClient _rcon;
+        private readonly ILogger<RconPageViewModel> _logger;
         private readonly StringBuilder _commandLogBuffer = new StringBuilder();
         private State _currentState;
 
@@ -60,11 +62,14 @@ namespace CoralClientMobileApp.ViewModel
             }
         }
 
-        public RconPageViewModel(ServerProfile serverProfile, RconClient rcon)
+        public RconPageViewModel(ServerProfile serverProfile, RconClient rcon, ILogger<RconPageViewModel> logger)
         {
             _serverProfile = serverProfile ?? throw new ArgumentNullException(nameof(serverProfile));
             _rcon = rcon ?? throw new ArgumentNullException(nameof(rcon));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             ServerNameText = serverProfile.ServerUriText;
+
+            _logger.LogInformation("Initializing RconPageViewModel for server: {ServerUri}", serverProfile.ServerUriText);
 
             _rcon.Disconnected += (o, e) => CurrentState = State.DISCONNECTED;
             _rcon.Connected += (o, e) => CurrentState = State.CONNECTED;
@@ -107,18 +112,30 @@ namespace CoralClientMobileApp.ViewModel
         [RelayCommand]
         private async Task SendCommand()
         {
-            if (CurrentState != State.CONNECTED) return;
-            if (string.IsNullOrWhiteSpace(CommandEntryText)) return;
+            if (CurrentState != State.CONNECTED) 
+            {
+                _logger.LogWarning("Cannot send command - not connected to server");
+                return;
+            }
+            
+            if (string.IsNullOrWhiteSpace(CommandEntryText)) 
+            {
+                _logger.LogWarning("Cannot send empty command");
+                return;
+            }
 
+            _logger.LogInformation("Sending command: {Command}", CommandEntryText);
             WriteToCommandLog("Client", CommandEntryText);
 
             try
             {
                 await _rcon.SendCommandAsync(CommandEntryText);
                 CommandEntryText = string.Empty;
+                _logger.LogInformation("Command sent successfully");
             }
             catch (Exception e)
             {
+                _logger.LogError(e, "Failed to send command: {Command}", CommandEntryText);
                 WriteToCommandLog("Error", $"Failed to send command! {e.Message}");
             }
         }
@@ -126,6 +143,8 @@ namespace CoralClientMobileApp.ViewModel
         [RelayCommand]
         private async Task ToggleConnection()
         {
+            _logger.LogInformation("Toggling connection - current state: {CurrentState}", CurrentState);
+            
             switch (CurrentState)
             {
                 case State.CONNECTED:
@@ -140,15 +159,23 @@ namespace CoralClientMobileApp.ViewModel
         [RelayCommand]
         private async Task Refresh()
         {
-            if (CurrentState != State.CONNECTED) return;
+            if (CurrentState != State.CONNECTED) 
+            {
+                _logger.LogWarning("Cannot refresh - not connected to server");
+                return;
+            }
+
+            _logger.LogInformation("Refreshing server info");
 
             try
             {
                 await GetServerInfo();
                 WriteToCommandLog("Info", "Refreshed server info");
+                _logger.LogInformation("Server info refreshed successfully");
             }
             catch (Exception e)
             {
+                _logger.LogError(e, "Failed to refresh server info");
                 WriteToCommandLog("Error", $"Failed to refresh server info! {e.Message}");
                 await ConnectAsync();
             }
@@ -230,6 +257,7 @@ namespace CoralClientMobileApp.ViewModel
         private async Task ConnectAsync()
         {
             CurrentState = State.CONNECTING;
+            _logger.LogInformation("Attempting to connect to {ServerUri}:{RconPort}", _serverProfile.Uri, _serverProfile.RconPort);
 
             try
             {
@@ -237,11 +265,14 @@ namespace CoralClientMobileApp.ViewModel
                 var targetAddress = host.AddressList.First();
 
                 WriteToCommandLog("Info", $"Establishing connection to {targetAddress}:{_serverProfile.MinecraftPort}");
+                _logger.LogInformation("Resolved {ServerUri} to {TargetAddress}", _serverProfile.Uri, targetAddress);
 
                 await _rcon.ConnectAsync(targetAddress.ToString(), _serverProfile.RconPort);
+                _logger.LogInformation("Successfully connected to RCON server");
             }
             catch (Exception e)
             {
+                _logger.LogError(e, "Failed to connect to RCON server {ServerUri}:{RconPort}", _serverProfile.Uri, _serverProfile.RconPort);
                 await DisconnectAsync();
                 WriteToCommandLog("Error", $"Failed to connect! {e.Message}");
                 CurrentState = State.DISCONNECTED;
@@ -250,8 +281,15 @@ namespace CoralClientMobileApp.ViewModel
 
         private async Task DisconnectAsync()
         {
-            if (CurrentState != State.CONNECTED) return;
+            if (CurrentState != State.CONNECTED) 
+            {
+                _logger.LogInformation("Already disconnected from RCON server");
+                return;
+            }
+            
+            _logger.LogInformation("Disconnecting from RCON server");
             await _rcon.DisconnectAsync();
+            _logger.LogInformation("Successfully disconnected from RCON server");
         }
     }
 }

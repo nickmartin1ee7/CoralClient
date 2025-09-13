@@ -22,7 +22,7 @@ public partial class MainPage : ContentPage
 			(serverProfile) => NavigateToRconPage(serverProfile)
 		);
 
-		LogoImage.Source = ImageSource.FromResource("CoralClientMobileApp.Assets.icon.png", GetType().Assembly);
+		LogoImage.Source = "icon.png"; // Use the icon.png from Resources/Images
 
 		BindingContext = _viewModel;
 	}

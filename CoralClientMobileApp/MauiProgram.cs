@@ -30,7 +30,9 @@ public static class MauiProgram
 		
 		// Register factory for RconPageViewModel since it needs ServerProfile parameter
 		builder.Services.AddTransient<Func<ServerProfile, RconPageViewModel>>(serviceProvider =>
-			serverProfile => new RconPageViewModel(serverProfile, serviceProvider.GetRequiredService<RconClient>()));
+			serverProfile => new RconPageViewModel(serverProfile, 
+				serviceProvider.GetRequiredService<RconClient>(),
+				serviceProvider.GetRequiredService<ILogger<RconPageViewModel>>()));
 
 		// Register services
 		builder.Services.AddDbContext<ServerProfileContext>();

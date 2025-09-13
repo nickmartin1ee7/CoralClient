@@ -7,20 +7,23 @@ using CoralClientMobileApp.DbContext;
 using CoralClientMobileApp.Model;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace CoralClientMobileApp.ViewModel
 {
     public partial class MainPageViewModel : BaseObservableViewModel
     {
         private readonly ServerProfileContext _serverProfileContext;
+        private readonly ILogger<MainPageViewModel> _logger;
         private Func<string, string, Task<string>>? _promptUserFuncAsync;
         private Func<ServerProfile, Task>? _showRconPageFuncAsync;
 
         public ObservableCollection<ServerProfile> ServerProfiles { get; }
 
-        public MainPageViewModel(ServerProfileContext serverProfileContext)
+        public MainPageViewModel(ServerProfileContext serverProfileContext, ILogger<MainPageViewModel> logger)
         {
             _serverProfileContext = serverProfileContext;
+            _logger = logger;
             ServerProfiles = new ObservableCollection<ServerProfile>();
         }
 
@@ -28,15 +31,19 @@ namespace CoralClientMobileApp.ViewModel
         {
             try
             {
+                _logger.LogInformation("Initializing MainPageViewModel");
+                
                 // Initialize the database
                 await _serverProfileContext.InitializeDatabaseAsync();
                 
                 // Load existing profiles
                 await LoadServerProfilesAsync();
+                
+                _logger.LogInformation("MainPageViewModel initialized successfully");
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"Error initializing database: {ex}");
+                _logger.LogError(ex, "Failed to initialize MainPageViewModel");
             }
         }
 
@@ -52,11 +59,11 @@ namespace CoralClientMobileApp.ViewModel
                     ServerProfiles.Add(profile);
                 }
                 
-                System.Console.WriteLine($"Loaded {profiles.Count} server profiles from database");
+                _logger.LogInformation("Loaded {ProfileCount} server profiles from database", profiles.Count);
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"Error loading server profiles: {ex}");
+                _logger.LogError(ex, "Failed to load server profiles from database");
             }
         }
 
@@ -73,25 +80,34 @@ namespace CoralClientMobileApp.ViewModel
         {
             try
             {
+                _logger.LogInformation("Adding new server profile");
+                
                 var newProfile = await GetServerProfileAsync();
                 
-                if (newProfile is null) return;
+                if (newProfile is null) 
+                {
+                    _logger.LogInformation("Server profile creation cancelled by user");
+                    return;
+                }
 
                 await _serverProfileContext.ServerProfiles.AddAsync(newProfile);
                 await _serverProfileContext.SaveChangesAsync();
                 
                 ServerProfiles.Add(newProfile);
-                System.Console.WriteLine($"Added server profile: {newProfile.ServerUriText}");
+                
+                _logger.LogInformation("Successfully added server profile: {ServerUri}", newProfile.ServerUriText);
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"Error adding server profile: {ex}");
+                _logger.LogError(ex, "Failed to add server profile");
             }
         }
 
         [RelayCommand]
         private async Task LaunchProfile(ServerProfile serverProfile)
         {
+            _logger.LogInformation("Launching RCON connection to {ServerUri}", serverProfile.ServerUriText);
+            
             if (_showRconPageFuncAsync != null)
                 await _showRconPageFuncAsync(serverProfile);
         }
@@ -101,9 +117,15 @@ namespace CoralClientMobileApp.ViewModel
         {
             try
             {
+                _logger.LogInformation("Editing server profile: {ServerUri}", serverProfile.ServerUriText);
+                
                 var editedProfile = await GetServerProfileAsync();
 
-                if (editedProfile is null) return;
+                if (editedProfile is null) 
+                {
+                    _logger.LogInformation("Server profile edit cancelled by user");
+                    return;
+                }
 
                 // Update the existing profile instead of removing and adding
                 var existingProfile = await _serverProfileContext.ServerProfiles.FindAsync(serverProfile.Id);
@@ -118,12 +140,13 @@ namespace CoralClientMobileApp.ViewModel
                     
                     // Refresh the collection
                     await LoadServerProfilesAsync();
-                    System.Console.WriteLine($"Updated server profile: {existingProfile.ServerUriText}");
+                    
+                    _logger.LogInformation("Successfully updated server profile: {ServerUri}", existingProfile.ServerUriText);
                 }
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"Error editing server profile: {ex}");
+                _logger.LogError(ex, "Failed to edit server profile: {ServerUri}", serverProfile.ServerUriText);
             }
         }
 
@@ -132,15 +155,18 @@ namespace CoralClientMobileApp.ViewModel
         {
             try
             {
+                _logger.LogInformation("Deleting server profile: {ServerUri}", serverProfile.ServerUriText);
+                
                 _serverProfileContext.ServerProfiles.Remove(serverProfile);
                 await _serverProfileContext.SaveChangesAsync();
                 
                 ServerProfiles.Remove(serverProfile);
-                System.Console.WriteLine($"Deleted server profile: {serverProfile.ServerUriText}");
+                
+                _logger.LogInformation("Successfully deleted server profile: {ServerUri}", serverProfile.ServerUriText);
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"Error deleting server profile: {ex}");
+                _logger.LogError(ex, "Failed to delete server profile: {ServerUri}", serverProfile.ServerUriText);
             }
         }
 

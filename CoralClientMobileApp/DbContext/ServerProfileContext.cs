@@ -2,11 +2,14 @@
 using CoralClientMobileApp.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Maui.Storage;
+using Microsoft.Extensions.Logging;
 
 namespace CoralClientMobileApp.DbContext
 {
     public class ServerProfileContext : Microsoft.EntityFrameworkCore.DbContext
     {
+        private readonly ILogger<ServerProfileContext>? _logger;
+        
         public DbSet<ServerProfile> ServerProfiles { get; set; }
 
         public ServerProfileContext()
@@ -14,22 +17,37 @@ namespace CoralClientMobileApp.DbContext
             
         }
 
+        public ServerProfileContext(ILogger<ServerProfileContext> logger)
+        {
+            _logger = logger;
+        }
+
         public async Task InitializeDatabaseAsync()
         {
-            await Database.EnsureCreatedAsync();
+            try
+            {
+                await Database.EnsureCreatedAsync();
+                _logger?.LogInformation("Database initialized successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Failed to initialize database");
+                throw;
+            }
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             string dbPath = GetDatabasePath();
+            _logger?.LogInformation("Configuring database with path: {DbPath}", dbPath);
 
             optionsBuilder
                 .UseSqlite($"Filename={dbPath}")
                 .EnableSensitiveDataLogging() // For debugging
-                .LogTo(System.Console.WriteLine); // For debugging
+                .LogTo(msg => _logger.LogDebug(msg)); // For debugging
         }
 
-        private static string GetDatabasePath()
+        private string GetDatabasePath()
         {
             // Use Environment.GetFolderPath for cross-platform compatibility
             string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -47,7 +65,7 @@ namespace CoralClientMobileApp.DbContext
             }
             
             var dbPath = Path.Combine(appDataPath, "storage.db");
-            System.Console.WriteLine($"Database path: {dbPath}");
+            _logger?.LogInformation("Database path resolved to: {DbPath}", dbPath);
             return dbPath;
         }
     }
