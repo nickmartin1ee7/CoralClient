@@ -2,8 +2,9 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:CoralClientMobileApp.ViewModel"
-             x:Class="CoralClientMobileApp.View.RconPage">
-    <Grid>
+             x:Class="CoralClientMobileApp.View.RconPage"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}">
+    <Grid Margin="16">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -14,28 +15,39 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Grid x:Name="InfoGrid" Grid.Row="0">
+        <Grid x:Name="InfoGrid" Grid.Row="0" Margin="0,0,0,16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Label x:Name="ServerNameLabel" Grid.Column="0"  Grid.Row="0" Grid.ColumnSpan="2" HorizontalTextAlignment="Center"
+            <Label x:Name="ServerNameLabel" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" 
+                   HorizontalTextAlignment="Center"
+                   Style="{StaticResource SubHeadline}"
+                   Margin="0,0,0,8"
                    Text="{Binding ServerNameText}" />
 
-            <Label x:Name="ConnectionStatusLabel" Grid.Column="0"  Grid.Row="1" HorizontalTextAlignment="Center"
+            <Label x:Name="ConnectionStatusLabel" Grid.Column="0" Grid.Row="1" 
+                   HorizontalTextAlignment="Center"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"
                    Text="{Binding ConnectionStatusText}" />
 
-            <Label x:Name="OnlinePlayerLabel" Grid.Column="1"  Grid.Row="1" HorizontalTextAlignment="Center"
+            <Label x:Name="OnlinePlayerLabel" Grid.Column="1" Grid.Row="1" 
+                   HorizontalTextAlignment="Center"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
                    Text="{Binding OnlinePlayerText}" />
         </Grid>
 
-        <Grid x:Name="CommandGrid" Grid.Row="1">
+        <Grid x:Name="CommandGrid" Grid.Row="1" Margin="0,0,0,16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
@@ -46,14 +58,22 @@
             </Grid.RowDefinitions>
 
             <Frame Grid.Row="0"
-                   BorderColor="Black" />
+                   BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}"
+                   BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                   CornerRadius="8"
+                   Padding="8"
+                   Margin="0,0,0,8" />
 
             <Editor x:Name="CommandLogEditor" Grid.Row="0"
                     IsReadOnly="True"
                     FontSize="Small"
+                    FontFamily="CourierNew"
+                    BackgroundColor="Transparent"
+                    Margin="8"
                     Text="{Binding CommandLogText}" />
 
-            <Entry x:Name="CommandEntry" Grid.Row="1" Placeholder="Enter Command"
+            <Entry x:Name="CommandEntry" Grid.Row="1" 
+                   Placeholder="Enter Command"
                    IsSpellCheckEnabled="False"
                    IsTextPredictionEnabled="False"
                    IsEnabled="{Binding IsSendCommandEnabled}"
@@ -70,15 +90,17 @@
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <Button x:Name="RefreshButton" Grid.Column="0"
                     Command="{Binding RefreshCommand}"
+                    Margin="0,0,8,0"
                     Text="Refresh" />
 
             <Button x:Name="ToggleConnectionButton" Grid.Column="1"
                     Command="{Binding ToggleConnectionCommand}"
+                    Margin="8,0,0,0"
                     Text="{Binding ToggleConnectionButtonText}" />
 
         </Grid>
