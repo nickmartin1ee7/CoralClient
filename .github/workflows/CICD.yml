@@ -3,6 +3,11 @@ name: CI/CD
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  APP_VERSION: "1.0.0"  # Default version, can be overridden by secrets
 
 jobs:
   build:
@@ -10,36 +15,49 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       
     - name: Setup .NET
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 8.0.x
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Install .NET MAUI workload
+      run: dotnet workload install maui
 
     - name: Restore dependencies
-      run: nuget restore
+      run: dotnet restore CoralClientMobileApp/CoralClientMobileApp.csproj
       
     - name: Set Android version
       uses: damienaicheh/update-android-version-manifest-action@v1.0.0
       with:
-        android-manifest-path: ./CoralClient/CoralClient.Android/Properties/AndroidManifest.xml
-        version-name: ${{ secrets.APP_VERSION }}
+        android-manifest-path: ./CoralClientMobileApp/Platforms/Android/AndroidManifest.xml
+        version-name: ${{ secrets.APP_VERSION || env.APP_VERSION }}
         version-code: ${{ github.run_number }}
         
-    - name: Build
-      run: msbuild ./CoralClient/CoralClient.Android/CoralClient.Android.csproj /t:PackageForAndroid /t:SignAndroidPackage /p:Configuration=Release
+    - name: Build Android APK
+      run: dotnet publish CoralClientMobileApp/CoralClientMobileApp.csproj -c Release -f net8.0-android --no-restore
       
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v3.0.0
+      uses: actions/upload-artifact@v4
       with:
-        path: "**/bin/Release/*.apk"
+        name: android-apk
+        path: "**/bin/Release/net8.0-android/publish/*.apk"
+        retention-days: 30
     
     - name: Create GitHub Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v1      
       with:
-        tag_name: ${{ github.workflow }}
-        name: CoralClient v${{ secrets.APP_VERSION }} (Build ${{ github.run_number }})
+        tag_name: v${{ secrets.APP_VERSION || env.APP_VERSION }}-build${{ github.run_number }}
+        name: CoralClient v${{ secrets.APP_VERSION || env.APP_VERSION }} (Build ${{ github.run_number }})
         draft: false
         prerelease: false
-        files: "**/bin/Release/*-Signed.apk"
+        files: "**/bin/Release/net8.0-android/publish/*.apk"
+        generate_release_notes: true
