@@ -1,8 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
-using CoralClientMobileApp.DbContext;
+﻿using CoralClientMobileApp.DbContext;
+using CoralClientMobileApp.Model;
 using CoralClientMobileApp.View;
 using CoralClientMobileApp.ViewModel;
-using CoralClientMobileApp.Model;
+
+using DotNet.Meteor.HotReload.Plugin;
+
+using Microsoft.Extensions.Logging;
+
 using MinecraftRcon;
 
 namespace CoralClientMobileApp;
@@ -12,8 +16,12 @@ public static class MauiProgram
 	public static MauiApp CreateMauiApp()
 	{
 		var builder = MauiApp.CreateBuilder();
+
 		builder
 			.UseMauiApp<App>()
+#if DEBUG
+            .EnableHotReload()
+#endif
 			.ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
