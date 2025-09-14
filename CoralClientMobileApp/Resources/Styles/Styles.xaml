@@ -47,6 +47,26 @@
         <Setter Property="Margin" Value="0,0,0,16"/>
     </Style>
 
+    <Style x:Key="CommandEntry" TargetType="Entry">
+        <Setter Property="IsSpellCheckEnabled" Value="False"/>
+        <Setter Property="IsTextPredictionEnabled" Value="False"/>
+        <Setter Property="ClearButtonVisibility" Value="WhileEditing"/>
+        <Setter Property="ReturnType" Value="Send"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource Black}, Dark={DynamicResource White}}"/>
+        <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={DynamicResource CommandEntryPlaceholderColor}, Dark={DynamicResource CommandEntryPlaceholderColorDark}}"/>
+    </Style>
+
+    <!-- Editor Styles -->
+    <Style x:Key="CommandLogEditor" TargetType="Editor">
+        <Setter Property="IsReadOnly" Value="True"/>
+        <Setter Property="FontSize" Value="Small"/>
+        <Setter Property="FontFamily" Value="CourierNew"/>
+        <Setter Property="BackgroundColor" Value="Transparent"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource Black}, Dark={DynamicResource White}}"/>
+        <Setter Property="IsSpellCheckEnabled" Value="False"/>
+        <Setter Property="Margin" Value="8"/>
+    </Style>
+
     <!-- Label Styles -->
     <Style x:Key="LabelStyle" TargetType="Label">
         <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource PrimaryTextColor}, Dark={DynamicResource PrimaryTextColorDark}}" />
@@ -75,6 +95,26 @@
         <Setter Property="FontAttributes" Value="None"/>
     </Style>
 
+    <Style x:Key="SubHeadline" TargetType="Label">
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource Primary}, Dark={DynamicResource PrimaryLight}}" />
+    </Style>
+
+    <Style x:Key="StatusLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource StatusTextColor}, Dark={DynamicResource StatusTextColorDark}}" />
+        <Setter Property="HorizontalTextAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="PlayerCountLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource Primary}, Dark={DynamicResource PrimaryLight}}" />
+        <Setter Property="HorizontalTextAlignment" Value="Center"/>
+    </Style>
+
     <!-- Frame Styles -->
     <Style x:Key="CardFrameStyle" TargetType="Frame">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={DynamicResource White}, Dark={DynamicResource CardBackgroundColorDark}}" />
@@ -83,6 +123,14 @@
         <Setter Property="Padding" Value="0"/>
         <Setter Property="Margin" Value="16,8"/>
         <Setter Property="HasShadow" Value="True"/>
+    </Style>
+
+    <Style x:Key="CommandLogFrame" TargetType="Frame">
+        <Setter Property="BackgroundColor" Value="Transparent"/>
+        <Setter Property="BorderColor" Value="{AppThemeBinding Light={DynamicResource PrimaryLight}, Dark={DynamicResource Secondary}}"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="8"/>
+        <Setter Property="Margin" Value="0,0,0,8"/>
     </Style>
 
 </ResourceDictionary>

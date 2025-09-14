@@ -30,6 +30,12 @@
     <Color x:Key="PlaceholderTextColor">#999999</Color>
     <Color x:Key="PlaceholderTextColorDark">#888888</Color>
     
+    <!-- Additional Text Colors -->
+    <Color x:Key="StatusTextColor">#404040</Color>
+    <Color x:Key="StatusTextColorDark">#ACACAC</Color>
+    <Color x:Key="CommandEntryPlaceholderColor">#919191</Color>
+    <Color x:Key="CommandEntryPlaceholderColorDark">#6E6E6E</Color>
+    
     <!-- Status Colors -->
     <Color x:Key="SuccessColor">#28a745</Color>
     <Color x:Key="ErrorColor">#dc3545</Color>
