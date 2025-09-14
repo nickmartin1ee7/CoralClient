@@ -2,8 +2,17 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:CoralClientMobileApp.ViewModel"
+             xmlns:converters="clr-namespace:CoralClientMobileApp.Converters"
              x:Class="CoralClientMobileApp.View.RconPage"
              BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1f1f1f}">
+    
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Value Converters -->
+            <converters:IsNullConverter x:Key="IsNullConverter" />
+            <converters:IsNotNullConverter x:Key="IsNotNullConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
     
     <ScrollView>
         <Grid Margin="16">
@@ -140,8 +149,46 @@
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
                                     <Grid Padding="8">
-                                        <Label Text="{Binding Name}" 
-                                               Style="{DynamicResource LabelStyle}" />
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <!-- Avatar Image -->
+                                        <Frame Grid.Column="0" 
+                                               WidthRequest="32" 
+                                               HeightRequest="32" 
+                                               CornerRadius="4"
+                                               IsClippedToBounds="True"
+                                               Padding="0"
+                                               Margin="0,0,8,0">
+                                            <Grid>
+                                                <!-- Default avatar or loading indicator -->
+                                                <Label Text="👤" 
+                                                       FontSize="20"
+                                                       HorizontalTextAlignment="Center"
+                                                       VerticalTextAlignment="Center"
+                                                       IsVisible="{Binding AvatarUrl, Converter={StaticResource IsNullConverter}}" />
+                                                
+                                                <!-- Player avatar -->
+                                                <Image Source="{Binding AvatarUrl}"
+                                                       Aspect="AspectFill"
+                                                       IsVisible="{Binding AvatarUrl, Converter={StaticResource IsNotNullConverter}}" />
+                                                
+                                                <!-- Loading indicator -->
+                                                <ActivityIndicator IsRunning="{Binding IsLoadingAvatar}"
+                                                                   IsVisible="{Binding IsLoadingAvatar}"
+                                                                   Color="{AppThemeBinding Light=#007ACC, Dark=#00D4FF}"
+                                                                   WidthRequest="16"
+                                                                   HeightRequest="16" />
+                                            </Grid>
+                                        </Frame>
+                                        
+                                        <Label Grid.Column="1" 
+                                               Text="{Binding Name}" 
+                                               Style="{DynamicResource LabelStyle}"
+                                               VerticalTextAlignment="Center" />
                                     </Grid>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>

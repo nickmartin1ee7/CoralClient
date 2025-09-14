@@ -33,6 +33,7 @@ namespace CoralClientMobileApp.ViewModel
         private readonly ILogger<RconPageViewModel> _logger;
         private readonly MinecraftQueryService _queryService;
         private readonly ICustomCommandService _customCommandService;
+        private readonly IPlayerAvatarService _playerAvatarService;
         private readonly StringBuilder _commandLogBuffer = new StringBuilder();
         private readonly CancellationTokenSource _cancellationTokenSource = new();
         private State _currentState;
@@ -105,13 +106,14 @@ namespace CoralClientMobileApp.ViewModel
 
         public ServerProfile ServerProfile => _serverProfile;
 
-        public RconPageViewModel(ServerProfile serverProfile, RconClient rcon, ILogger<RconPageViewModel> logger, MinecraftQueryService queryService, ICustomCommandService customCommandService)
+        public RconPageViewModel(ServerProfile serverProfile, RconClient rcon, ILogger<RconPageViewModel> logger, MinecraftQueryService queryService, ICustomCommandService customCommandService, IPlayerAvatarService playerAvatarService)
         {
             _serverProfile = serverProfile ?? throw new ArgumentNullException(nameof(serverProfile));
             _rcon = rcon ?? throw new ArgumentNullException(nameof(rcon));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _queryService = queryService ?? throw new ArgumentNullException(nameof(queryService));
             _customCommandService = customCommandService ?? throw new ArgumentNullException(nameof(customCommandService));
+            _playerAvatarService = playerAvatarService ?? throw new ArgumentNullException(nameof(playerAvatarService));
             ServerNameText = serverProfile.ServerUriText;
 
             // Load custom commands
@@ -945,6 +947,9 @@ namespace CoralClientMobileApp.ViewModel
                         // Create new player
                         var newPlayer = new Player(playerName);
                         OnlinePlayers.Add(newPlayer);
+                        
+                        // Load avatar asynchronously (fire and forget)
+                        _ = Task.Run(async () => await _playerAvatarService.LoadPlayerAvatarAsync(newPlayer));
                     }
                 }
             }

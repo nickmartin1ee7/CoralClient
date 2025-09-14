@@ -43,7 +43,8 @@ public static class MauiProgram
 				serviceProvider.GetRequiredService<RconClient>(),
 				serviceProvider.GetRequiredService<ILogger<RconPageViewModel>>(),
 				serviceProvider.GetRequiredService<MinecraftQueryService>(),
-				serviceProvider.GetRequiredService<ICustomCommandService>()));
+				serviceProvider.GetRequiredService<ICustomCommandService>(),
+				serviceProvider.GetRequiredService<IPlayerAvatarService>()));
 
 		// Database
 		builder.Services.AddDbContext<ServerProfileContext>();
@@ -59,6 +60,10 @@ public static class MauiProgram
 		builder.Services.AddTransient<RconClient>();
 		builder.Services.AddTransient<MinecraftQueryService>();
 		builder.Services.AddTransient<ICustomCommandService, CustomCommandService>();
+		
+		// Add HttpClient and Player Avatar Service
+		builder.Services.AddHttpClient();
+		builder.Services.AddTransient<IPlayerAvatarService, PlayerAvatarService>();
 
 #if DEBUG
 		builder.Logging.AddDebug();

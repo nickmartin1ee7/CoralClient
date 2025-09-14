@@ -12,6 +12,8 @@
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
             <converters:StatusColorConverter x:Key="StatusColorConverter" />
             <converters:GreaterThanZeroConverter x:Key="GreaterThanZeroConverter" />
+            <converters:IsNullConverter x:Key="IsNullConverter" />
+            <converters:IsNotNullConverter x:Key="IsNotNullConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
 
