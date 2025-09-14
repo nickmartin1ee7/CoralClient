@@ -37,7 +37,8 @@ public static class MauiProgram
 		builder.Services.AddTransient<Func<ServerProfile, RconPageViewModel>>(serviceProvider =>
 			serverProfile => new RconPageViewModel(serverProfile, 
 				serviceProvider.GetRequiredService<RconClient>(),
-				serviceProvider.GetRequiredService<ILogger<RconPageViewModel>>()));
+				serviceProvider.GetRequiredService<ILogger<RconPageViewModel>>(),
+				serviceProvider.GetRequiredService<MinecraftQueryService>()));
 
 		// Register services
 		builder.Services.AddDbContext<ServerProfileContext>();

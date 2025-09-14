@@ -129,23 +129,15 @@
         <Grid x:Name="OptionsGrid" Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Button x:Name="RefreshButton" Grid.Column="0"
-                    Command="{Binding RefreshCommand}"
-                    Style="{StaticResource SecondaryButton}"
-                    Margin="0,0,8,0"
-                    Text="Refresh" />
-
-            <Button x:Name="ToggleConnectionButton" Grid.Column="1"
+            <Button x:Name="ToggleConnectionButton" Grid.Column="0"
                     Command="{Binding ToggleConnectionCommand}"
                     Style="{StaticResource PrimaryButton}"
-                    Margin="8,0,0,0"
                     Text="{Binding ToggleConnectionButtonText}" />
 
         </Grid>

@@ -3,9 +3,11 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using CoralClientMobileApp.Helpers;
 using CoralClientMobileApp.Model;
+using CoralClientMobileApp.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MinecraftRcon;
@@ -26,8 +28,11 @@ namespace CoralClientMobileApp.ViewModel
         private readonly ServerProfile _serverProfile;
         private readonly RconClient _rcon;
         private readonly ILogger<RconPageViewModel> _logger;
+        private readonly MinecraftQueryService _queryService;
         private readonly StringBuilder _commandLogBuffer = new StringBuilder();
+        private readonly CancellationTokenSource _cancellationTokenSource = new();
         private State _currentState;
+        private Timer? _queryTimer;
 
         [ObservableProperty]
         private string _serverNameText = "Server URI";
@@ -62,11 +67,12 @@ namespace CoralClientMobileApp.ViewModel
             }
         }
 
-        public RconPageViewModel(ServerProfile serverProfile, RconClient rcon, ILogger<RconPageViewModel> logger)
+        public RconPageViewModel(ServerProfile serverProfile, RconClient rcon, ILogger<RconPageViewModel> logger, MinecraftQueryService queryService)
         {
             _serverProfile = serverProfile ?? throw new ArgumentNullException(nameof(serverProfile));
             _rcon = rcon ?? throw new ArgumentNullException(nameof(rcon));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _queryService = queryService ?? throw new ArgumentNullException(nameof(queryService));
             ServerNameText = serverProfile.ServerUriText;
 
             _logger.LogInformation("Initializing RconPageViewModel for server: {ServerUri}", serverProfile.ServerUriText);
@@ -75,38 +81,12 @@ namespace CoralClientMobileApp.ViewModel
             _rcon.Connected += (o, e) => CurrentState = State.CONNECTED;
             _rcon.MessageReceived += (o, e) =>
                 WriteToCommandLog("Server", e.Body);
-            _rcon.MessageReceived += (o, e) => // Auto update player count on any list commands
-            {
-                if (string.IsNullOrWhiteSpace(e.Body))
-                {
-                    return;
-                }
-
-                var playerText = e.Body.RemoveColorCodes();
-
-                // Ex: There are 0 of a max of 20 players online:
-                int currentPlayers = 0;
-                int maxPlayers = 0;
-
-                var match = Regex.Match(playerText, $"There are (?<{nameof(currentPlayers)}>\\d+) of a max of (?<{nameof(maxPlayers)}>\\d+) players online:");
-
-                if (!match.Success
-                    || match.Groups.Count == 0)
-                {
-                    return;
-                }
-
-                var currentPlayersGroup = match.Groups[nameof(currentPlayers)];
-                var maxPlayersGroup = match.Groups[nameof(maxPlayers)];
-
-                int.TryParse(currentPlayersGroup?.Value, out currentPlayers);
-                int.TryParse(maxPlayersGroup?.Value, out maxPlayers);
-
-                OnlinePlayerText = $"Players: {currentPlayers}/{maxPlayers}";
-            };
 
             StateChange += UiStateChangeLogic;
             StateChange += ConnectedLogic;
+            
+            // Start polling for server status
+            StartStatusPolling();
         }
 
         [RelayCommand]
@@ -156,33 +136,11 @@ namespace CoralClientMobileApp.ViewModel
             }
         }
 
-        [RelayCommand]
-        private async Task Refresh()
-        {
-            if (CurrentState != State.CONNECTED) 
-            {
-                _logger.LogWarning("Cannot refresh - not connected to server");
-                return;
-            }
-
-            _logger.LogInformation("Refreshing server info");
-
-            try
-            {
-                await GetServerInfo();
-                WriteToCommandLog("Info", "Refreshed server info");
-                _logger.LogInformation("Server info refreshed successfully");
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Failed to refresh server info");
-                WriteToCommandLog("Error", $"Failed to refresh server info! {e.Message}");
-                await ConnectAsync();
-            }
-        }
-
         public void Dispose()
         {
+            _queryTimer?.Dispose();
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
             _rcon?.Dispose();
         }
 
@@ -193,21 +151,12 @@ namespace CoralClientMobileApp.ViewModel
             try
             {
                 await _rcon.AuthenticateAsync(_serverProfile.Password);
-
                 WriteToCommandLog("Info", "Authenticated successfully");
-
-                await GetServerInfo();
             }
             catch (Exception e)
             {
                 WriteToCommandLog("Error", $"Failed to authenticate! {e.Message}");
             }
-        }
-
-        private async Task GetServerInfo()
-        {
-            if (CurrentState != State.CONNECTED) return;
-            await _rcon.SendCommandAsync("list");
         }
 
         private void UiStateChangeLogic(object? sender, EventArgs e)
@@ -290,6 +239,36 @@ namespace CoralClientMobileApp.ViewModel
             _logger.LogInformation("Disconnecting from RCON server");
             await _rcon.DisconnectAsync();
             _logger.LogInformation("Successfully disconnected from RCON server");
+        }
+
+        private void StartStatusPolling()
+        {
+            _queryTimer = new Timer(async _ => await PollServerStatus(), null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+        }
+
+        private async Task PollServerStatus()
+        {
+            if (_cancellationTokenSource.Token.IsCancellationRequested)
+                return;
+
+            try
+            {
+                var status = await _queryService.QueryServerAsync(_serverProfile.Uri, _serverProfile.MinecraftPort);
+                
+                if (status.IsOnline)
+                {
+                    OnlinePlayerText = $"Players: {status.OnlinePlayers}/{status.MaxPlayers}";
+                }
+                else
+                {
+                    OnlinePlayerText = "Players: ?/?";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(ex, "Failed to query server status during polling");
+                OnlinePlayerText = "Players: ?/?";
+            }
         }
     }
 }
