@@ -212,32 +212,49 @@
                                         
                                         <CollectionView ItemsSource="{Binding Commands}">
                                             <CollectionView.ItemsLayout>
-                                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="2" />
+                                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="4" />
                                             </CollectionView.ItemsLayout>
                                             <CollectionView.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Grid>
+                                                    <Grid Padding="4">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*" />
                                                             <ColumnDefinition Width="Auto" />
                                                         </Grid.ColumnDefinitions>
-                                                        
-                                                        <Button Grid.Column="0" 
-                                                                Text="{Binding Name}"
-                                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ExecuteCustomCommandCommand}"
-                                                                CommandParameter="{Binding .}"
-                                                                Style="{DynamicResource SecondaryButton}"
-                                                                FontSize="10" 
-                                                                Margin="1" />
-                                                        
-                                                        <Button Grid.Column="1" 
-                                                                Text="Edit"
-                                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditCustomCommandCommand}"
-                                                                CommandParameter="{Binding .}"
-                                                                Style="{DynamicResource SecondaryButton}"
-                                                                FontSize="10" 
-                                                                WidthRequest="60"
-                                                                Margin="1" />
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="Auto" />
+                                                        </Grid.RowDefinitions>
+
+                                                        <Label Grid.Column="0" Grid.Row="0" 
+                                                               Text="{Binding Name}" 
+                                                               Style="{DynamicResource LabelStyle}" 
+                                                               FontSize="12" />
+
+                                                        <Label Grid.Column="0" Grid.Row="1" 
+                                                               Text="{Binding Description}" 
+                                                               Style="{DynamicResource SecondaryLabelStyle}" 
+                                                               FontSize="10" />
+
+                                                        <StackLayout Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" 
+                                                                     Orientation="Horizontal" 
+                                                                     VerticalOptions="Center">
+                                                            <Button Text="Run"
+                                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ExecuteCustomCommandCommand}"
+                                                                    CommandParameter="{Binding .}"
+                                                                    Style="{DynamicResource PrimaryButton}"
+                                                                    FontSize="10" 
+                                                                    WidthRequest="60"
+                                                                    Margin="2,0" />
+                                                            
+                                                            <Button Text="Edit"
+                                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditCustomCommandCommand}"
+                                                                    CommandParameter="{Binding .}"
+                                                                    Style="{DynamicResource SecondaryButton}"
+                                                                    FontSize="10" 
+                                                                    WidthRequest="60"
+                                                                    Margin="2,0" />
+                                                        </StackLayout>
                                                     </Grid>
                                                 </DataTemplate>
                                             </CollectionView.ItemTemplate>
@@ -301,7 +318,7 @@
                                                         <Button Text="Run"
                                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ExecuteCustomCommandCommand}"
                                                                 CommandParameter="{Binding .}"
-                                                                Style="{DynamicResource DangerButton}"
+                                                                Style="{DynamicResource PrimaryButton}"
                                                                 FontSize="10" 
                                                                 WidthRequest="60"
                                                                 Margin="2,0" />
