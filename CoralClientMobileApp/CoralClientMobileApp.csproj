@@ -90,6 +90,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\MinecraftRcon\MinecraftRcon.csproj" />
+		<ProjectReference Include="..\MinecraftQuery\MinecraftQuery.csproj" />
 	</ItemGroup>
 
 </Project>
