@@ -81,6 +81,7 @@ namespace CoralClientMobileApp.ViewModel
             _rcon.Connected += (o, e) => CurrentState = State.CONNECTED;
             _rcon.MessageReceived += (o, e) =>
                 WriteToCommandLog("Server", e.Body);
+            _rcon.AuthenticationCompleted += OnAuthenticationCompleted;
 
             StateChange += UiStateChangeLogic;
             StateChange += ConnectedLogic;
@@ -95,6 +96,13 @@ namespace CoralClientMobileApp.ViewModel
             if (CurrentState != State.CONNECTED) 
             {
                 _logger.LogWarning("Cannot send command - not connected to server");
+                return;
+            }
+
+            if (!_rcon.IsAuthenticated)
+            {
+                _logger.LogWarning("Cannot send command - not authenticated");
+                WriteToCommandLog("Error", "Not authenticated - cannot send command");
                 return;
             }
             
@@ -150,12 +158,35 @@ namespace CoralClientMobileApp.ViewModel
 
             try
             {
+                WriteToCommandLog("Info", "Attempting to authenticate...");
                 await _rcon.AuthenticateAsync(_serverProfile.Password);
-                WriteToCommandLog("Info", "Authenticated successfully");
+                // Authentication result will be handled by OnAuthenticationCompleted
             }
             catch (Exception e)
             {
-                WriteToCommandLog("Error", $"Failed to authenticate! {e.Message}");
+                _logger.LogError(e, "Failed to send authentication request");
+                WriteToCommandLog("Error", $"Failed to send authentication request! {e.Message}");
+            }
+        }
+
+        private void OnAuthenticationCompleted(object? sender, bool success)
+        {
+            if (success)
+            {
+                _logger.LogInformation("Authentication successful");
+                WriteToCommandLog("Info", "Authentication successful");
+                // Enable command sending now that we're authenticated
+                if (CurrentState == State.CONNECTED)
+                {
+                    IsSendCommandEnabled = true;
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Authentication failed - invalid password");
+                WriteToCommandLog("Error", "Authentication failed - invalid password");
+                // Disconnect on authentication failure
+                _ = Task.Run(async () => await DisconnectAsync());
             }
         }
 
@@ -176,8 +207,15 @@ namespace CoralClientMobileApp.ViewModel
                 case State.CONNECTED:
                 {
                     WriteToCommandLog("Info", "Connection established");
-                    IsSendCommandEnabled = true;
+                    // Only enable command sending if authenticated
+                    IsSendCommandEnabled = _rcon.IsAuthenticated;
                     ToggleConnectionButtonText = "Disconnect";
+                }
+                break;
+                case State.CONNECTING:
+                {
+                    IsSendCommandEnabled = false;
+                    ToggleConnectionButtonText = "Connecting...";
                 }
                 break;
             }

@@ -13,12 +13,15 @@ namespace MinecraftRcon
         private NetworkStream _networkStream;
         private int _lastId;
         private bool _isDisposed;
+        private int? _pendingAuthId;
 
         public event EventHandler Connected;
         public event EventHandler Disconnected;
         public event EventHandler<Message> MessageReceived;
+        public event EventHandler<bool> AuthenticationCompleted; // bool indicates success
 
         public bool IsConnected => _tcpClient?.Connected ?? false;
+        public bool IsAuthenticated  { get; private set; }
         
         public void Dispose()
         {
@@ -26,6 +29,8 @@ namespace MinecraftRcon
 
             _networkStream?.Dispose();
             _tcpClient?.Dispose();
+            IsAuthenticated = false;
+            _pendingAuthId = null;
 
             _isDisposed = true;
         }
@@ -58,15 +63,21 @@ namespace MinecraftRcon
             }
             finally
             {
+                IsAuthenticated = false;
+                _pendingAuthId = null;
                 Disconnected?.Invoke(this, EventArgs.Empty);
             }
         }
 
         public Task AuthenticateAsync(string password)
         {
+            IsAuthenticated = false;
+            var authId = Interlocked.Increment(ref _lastId);
+            _pendingAuthId = authId;
+            
             return SendMessageAsync(new Message(
                 password.Length + Encoder.HEADER_LENGTH,
-                Interlocked.Increment(ref _lastId),
+                authId,
                 MessageType.Authenticate,
                 password));
         }
@@ -109,7 +120,16 @@ namespace MinecraftRcon
                     if (bytesRead > 0)
                     {
                         Array.Resize(ref respBytes, bytesRead);
-                        MessageReceived?.Invoke(this, Encoder.DecodeMessage(respBytes));
+                        var message = Encoder.DecodeMessage(respBytes);
+                        
+                        // Handle authentication response according to protocol
+                        if (_pendingAuthId.HasValue && HandleAuthenticationResponse(message))
+                        {
+                            // Authentication response was handled, don't forward to general handler
+                            continue;
+                        }
+                        
+                        MessageReceived?.Invoke(this, message);
                     }
 #if DEBUG
                     else
@@ -125,6 +145,37 @@ namespace MinecraftRcon
                     MessageReceived?.Invoke(this, new Message(body.Length, -1, MessageType._, body));
                 }
             }
+        }
+
+        private bool HandleAuthenticationResponse(Message message)
+        {
+            if (!_pendingAuthId.HasValue)
+                return false;
+
+            // According to protocol: server responds with empty RESPONSE_VALUE followed by AUTH_RESPONSE
+            // The AUTH_RESPONSE (type 2) packet ID indicates success/failure
+            if (message.Type == MessageType.AuthResponse && string.IsNullOrEmpty(message.Body))
+            {
+                // Check if this is an auth response by looking at the ID
+                if (message.Id == _pendingAuthId.Value)
+                {
+                    // Successful authentication
+                    IsAuthenticated = true;
+                    _pendingAuthId = null;
+                    AuthenticationCompleted?.Invoke(this, true);
+                    return true;
+                }
+                else if (message.Id == -1)
+                {
+                    // Failed authentication (ID = -1)
+                    IsAuthenticated = false;
+                    _pendingAuthId = null;
+                    AuthenticationCompleted?.Invoke(this, false);
+                    return true;
+                }
+            }
+            
+            return false;
         }
     }
 }
