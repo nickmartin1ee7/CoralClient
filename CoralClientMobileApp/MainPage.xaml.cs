@@ -18,7 +18,7 @@ public partial class MainPage : ContentPage, IDisposable
 
 		// Set dependencies that need the Page context
 		_viewModel.Initialize(
-			(title, message) => DisplayPromptAsync(title, message),
+			(existingProfile) => ShowServerProfileEditModal(existingProfile),
 			(serverProfile) => NavigateToRconPage(serverProfile)
 		);
 
@@ -33,6 +33,13 @@ public partial class MainPage : ContentPage, IDisposable
 		
 		// Initialize the ViewModel and load data when the page appears
 		await _viewModel.InitializeAsync();
+	}
+
+	private async Task<ServerProfile?> ShowServerProfileEditModal(ServerProfile? existingProfile)
+	{
+		var editPage = _serviceProvider.GetRequiredService<ServerProfileEditPage>();
+		await Navigation.PushModalAsync(editPage);
+		return await editPage.ShowAsync(existingProfile);
 	}
 
 	private async Task NavigateToRconPage(ServerProfile serverProfile)

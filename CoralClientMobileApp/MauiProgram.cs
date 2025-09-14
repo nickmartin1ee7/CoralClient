@@ -30,6 +30,7 @@ public static class MauiProgram
 		builder.Services.AddSingleton<AppShell>();
 		builder.Services.AddSingleton<MainPage>();
 		builder.Services.AddTransient<RconPage>();
+		builder.Services.AddTransient<ServerProfileEditPage>();
 
 		// Register ViewModels
 		builder.Services.AddSingleton<MainPageViewModel>();

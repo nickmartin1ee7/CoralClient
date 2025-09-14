@@ -21,7 +21,7 @@ namespace CoralClientMobileApp.ViewModel
         private readonly MinecraftQueryService _queryService;
         private readonly CancellationTokenSource _cancellationTokenSource = new();
         private readonly Dictionary<Guid, Timer> _serverQueryTimers = new();
-        private Func<string, string, Task<string>>? _promptUserFuncAsync;
+        private Func<ServerProfile?, Task<ServerProfile?>>? _showServerProfileEditModalFuncAsync;
         private Func<ServerProfile, Task>? _showRconPageFuncAsync;
 
         public ObservableCollection<ServerProfileViewModel> ServerProfiles { get; } = [];
@@ -186,10 +186,10 @@ namespace CoralClientMobileApp.ViewModel
         }
 
         public void Initialize(
-            Func<string, string, Task<string>> promptUserFunc,
+            Func<ServerProfile?, Task<ServerProfile?>> showServerProfileEditModalFunc,
             Func<ServerProfile, Task> showRconPageFuncAsync)
         {
-            _promptUserFuncAsync = promptUserFunc;
+            _showServerProfileEditModalFuncAsync = showServerProfileEditModalFunc;
             _showRconPageFuncAsync = showRconPageFuncAsync;
         }
 
@@ -241,7 +241,7 @@ namespace CoralClientMobileApp.ViewModel
             {
                 _logger.LogInformation("Editing server profile: {ServerUri}", serverProfileViewModel.ServerProfile.ServerUriText);
                 
-                var editedProfile = await GetServerProfileAsync();
+                var editedProfile = await GetServerProfileAsync(serverProfileViewModel.ServerProfile);
 
                 if (editedProfile is null) 
                 {
@@ -300,45 +300,11 @@ namespace CoralClientMobileApp.ViewModel
             }
         }
 
-        private async Task<ServerProfile?> GetServerProfileAsync()
+        private async Task<ServerProfile?> GetServerProfileAsync(ServerProfile? existingProfile = null)
         {
-            if (_promptUserFuncAsync == null) return null;
+            if (_showServerProfileEditModalFuncAsync == null) return null;
 
-            var serverUri = await _promptUserFuncAsync("Server URI", "Enter the server URI or IP address.");
-
-            if (string.IsNullOrWhiteSpace(serverUri))
-            {
-                return null;
-            }
-
-            var serverMinecraftPort = await _promptUserFuncAsync("Server Minecraft Port", "Enter the Minecraft port (25565).");
-
-            if (!ushort.TryParse(serverMinecraftPort, out var serverMinecraftPortParsed))
-            {
-                serverMinecraftPortParsed = 25565;
-            }
-            
-            var serverRconPort = await _promptUserFuncAsync("Server RCON Port", "Enter the RCON port (25575).");
-
-            if (!ushort.TryParse(serverRconPort, out var serverRconPortParsed))
-            {
-                serverRconPortParsed = 25575;
-            }
-
-            var serverRconPassword = await _promptUserFuncAsync("Server RCON Password", "Enter the RCON password.");
-
-            if (string.IsNullOrWhiteSpace(serverRconPassword))
-            {
-                return null;
-            }
-
-            return new ServerProfile
-            {
-                Uri = serverUri.ToLower(),
-                MinecraftPort = serverMinecraftPortParsed,
-                RconPort = serverRconPortParsed,
-                Password = serverRconPassword
-            };
+            return await _showServerProfileEditModalFuncAsync(existingProfile);
         }
 
         public void Dispose()

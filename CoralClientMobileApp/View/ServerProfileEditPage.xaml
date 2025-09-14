@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CoralClientMobileApp.View.ServerProfileEditPage"
+             Title="Server Profile"
+             BackgroundColor="{AppThemeBinding Light={DynamicResource PageBackgroundColor}, Dark={DynamicResource PageBackgroundColorDark}}">
+
+    <ScrollView>
+        <StackLayout Padding="24" Spacing="20">
+            <!-- Header -->
+            <Label Text="Server Profile Details" 
+                   Style="{DynamicResource HeaderLabelStyle}" />
+
+            <!-- Server URI -->
+            <StackLayout>
+                <Label Text="Server URI or IP Address" Style="{DynamicResource LabelStyle}" />
+                <Entry x:Name="ServerUriEntry" 
+                       Text="{Binding ServerUri}"
+                       Placeholder="e.g., minecraft.server.com or 192.168.1.100"
+                       Style="{DynamicResource EntryStyle}" />
+            </StackLayout>
+
+            <!-- Minecraft Port -->
+            <StackLayout>
+                <Label Text="Minecraft Port" Style="{DynamicResource LabelStyle}" />
+                <Entry x:Name="MinecraftPortEntry" 
+                       Text="{Binding MinecraftPort}"
+                       Placeholder="25565"
+                       Keyboard="Numeric"
+                       Style="{DynamicResource EntryStyle}" />
+            </StackLayout>
+
+            <!-- RCON Port -->
+            <StackLayout>
+                <Label Text="RCON Port" Style="{DynamicResource LabelStyle}" />
+                <Entry x:Name="RconPortEntry" 
+                       Text="{Binding RconPort}"
+                       Placeholder="25575"
+                       Keyboard="Numeric"
+                       Style="{DynamicResource EntryStyle}" />
+            </StackLayout>
+
+            <!-- RCON Password -->
+            <StackLayout>
+                <Label Text="RCON Password" Style="{DynamicResource LabelStyle}" />
+                <Entry x:Name="RconPasswordEntry" 
+                       Text="{Binding RconPassword}"
+                       Placeholder="Enter RCON password"
+                       IsPassword="True"
+                       Style="{DynamicResource EntryStyle}" />
+            </StackLayout>
+
+            <!-- Buttons -->
+            <Grid Margin="0,20,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Button Grid.Column="0"
+                        Text="Cancel"
+                        Style="{DynamicResource SecondaryButton}"
+                        Clicked="OnCancelClicked"
+                        Margin="0,0,8,0" />
+
+                <Button Grid.Column="1"
+                        Text="Save"
+                        Style="{DynamicResource PrimaryButton}"
+                        Clicked="OnSaveClicked"
+                        Margin="8,0,0,0" />
+            </Grid>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

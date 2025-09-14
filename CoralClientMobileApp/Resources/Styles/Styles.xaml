@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Base Button Style -->
+    <Style x:Key="BaseButton" TargetType="Button">
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="BorderWidth" Value="0"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="16,12"/>
+        <Setter Property="MinimumHeightRequest" Value="44"/>
+        <Setter Property="MinimumWidthRequest" Value="44"/>
+    </Style>
+
+    <!-- Primary Button Style -->
+    <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource White}, Dark={DynamicResource Black}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={DynamicResource Primary}, Dark={DynamicResource PrimaryLight}}" />
+        <Setter Property="FontAttributes" Value="Bold"/>
+    </Style>
+
+    <!-- Secondary Button Style -->
+    <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource Primary}, Dark={DynamicResource PrimaryLight}}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource Transparent}" />
+        <Setter Property="BorderColor" Value="{AppThemeBinding Light={DynamicResource Primary}, Dark={DynamicResource PrimaryLight}}" />
+        <Setter Property="BorderWidth" Value="2"/>
+    </Style>
+
+    <!-- Danger Button Style -->
+    <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+        <Setter Property="TextColor" Value="{DynamicResource White}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={DynamicResource PrimaryDark}, Dark={DynamicResource Secondary}}" />
+    </Style>
+
+    <!-- Entry Styles -->
+    <Style x:Key="EntryStyle" TargetType="Entry">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={DynamicResource CardBackgroundColor}, Dark={DynamicResource CardBackgroundColorDark}}" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource PrimaryTextColor}, Dark={DynamicResource PrimaryTextColorDark}}" />
+        <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={DynamicResource PlaceholderTextColor}, Dark={DynamicResource PlaceholderTextColorDark}}" />
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="HeightRequest" Value="44"/>
+        <Setter Property="Margin" Value="0,0,0,16"/>
+    </Style>
+
+    <!-- Label Styles -->
+    <Style x:Key="LabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource PrimaryTextColor}, Dark={DynamicResource PrimaryTextColorDark}}" />
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="Margin" Value="0,0,0,8"/>
+    </Style>
+
+    <Style x:Key="HeaderLabelStyle" TargetType="Label" BasedOn="{StaticResource LabelStyle}">
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource Primary}, Dark={DynamicResource PrimaryLight}}" />
+        <Setter Property="HorizontalOptions" Value="Center"/>
+        <Setter Property="Margin" Value="0,0,0,20"/>
+    </Style>
+
+    <Style x:Key="SecondaryLabelStyle" TargetType="Label" BasedOn="{StaticResource LabelStyle}">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource SecondaryTextColor}, Dark={DynamicResource SecondaryTextColorDark}}" />
+        <Setter Property="FontAttributes" Value="None"/>
+    </Style>
+
+    <Style x:Key="TertiaryLabelStyle" TargetType="Label" BasedOn="{StaticResource LabelStyle}">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource TertiaryTextColor}, Dark={DynamicResource TertiaryTextColorDark}}" />
+        <Setter Property="FontAttributes" Value="None"/>
+    </Style>
+
+    <!-- Frame Styles -->
+    <Style x:Key="CardFrameStyle" TargetType="Frame">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={DynamicResource White}, Dark={DynamicResource CardBackgroundColorDark}}" />
+        <Setter Property="BorderColor" Value="{DynamicResource Transparent}" />
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="16,8"/>
+        <Setter Property="HasShadow" Value="True"/>
+    </Style>
+
+</ResourceDictionary>

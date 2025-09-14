@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:CoralClientMobileApp.ViewModel"
              xmlns:converters="clr-namespace:CoralClientMobileApp.Converters"
              x:Class="CoralClientMobileApp.MainPage"
-             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1f1f1f}">
+             BackgroundColor="{AppThemeBinding Light={DynamicResource PageBackgroundColor}, Dark={DynamicResource PageBackgroundColorDark}}">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -12,45 +12,6 @@
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
             <converters:StatusColorConverter x:Key="StatusColorConverter" />
             <converters:GreaterThanZeroConverter x:Key="GreaterThanZeroConverter" />
-            
-            <!-- Inline Button Styles -->
-            <Style x:Key="PrimaryButton" TargetType="Button">
-                <Setter Property="TextColor" Value="{AppThemeBinding Light=#FFFFFF, Dark=#000000}" />
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}" />
-                <Setter Property="FontFamily" Value="OpenSansRegular"/>
-                <Setter Property="FontSize" Value="14"/>
-                <Setter Property="FontAttributes" Value="Bold"/>
-                <Setter Property="BorderWidth" Value="0"/>
-                <Setter Property="CornerRadius" Value="8"/>
-                <Setter Property="Padding" Value="16,12"/>
-                <Setter Property="MinimumHeightRequest" Value="44"/>
-                <Setter Property="MinimumWidthRequest" Value="44"/>
-            </Style>
-
-            <Style x:Key="SecondaryButton" TargetType="Button">
-                <Setter Property="TextColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}" />
-                <Setter Property="BackgroundColor" Value="Transparent" />
-                <Setter Property="BorderColor" Value="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}" />
-                <Setter Property="BorderWidth" Value="2"/>
-                <Setter Property="FontFamily" Value="OpenSansRegular"/>
-                <Setter Property="FontSize" Value="14"/>
-                <Setter Property="CornerRadius" Value="8"/>
-                <Setter Property="Padding" Value="16,12"/>
-                <Setter Property="MinimumHeightRequest" Value="44"/>
-                <Setter Property="MinimumWidthRequest" Value="44"/>
-            </Style>
-
-            <Style x:Key="DangerButton" TargetType="Button">
-                <Setter Property="TextColor" Value="{AppThemeBinding Light=#FFFFFF, Dark=#FFFFFF}" />
-                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#C71585, Dark=#8B4B8C}" />
-                <Setter Property="FontFamily" Value="OpenSansRegular"/>
-                <Setter Property="FontSize" Value="14"/>
-                <Setter Property="BorderWidth" Value="0"/>
-                <Setter Property="CornerRadius" Value="8"/>
-                <Setter Property="Padding" Value="16,12"/>
-                <Setter Property="MinimumHeightRequest" Value="44"/>
-                <Setter Property="MinimumWidthRequest" Value="44"/>
-            </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -72,8 +33,8 @@
                 <CarouselView.ItemTemplate>
                     <DataTemplate>
                         <Grid Padding="20">
-                            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#2d2d2d}"
-                                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#404040}"
+                            <Frame BackgroundColor="{AppThemeBinding Light={DynamicResource FrameBackgroundColor}, Dark={DynamicResource FrameBackgroundColorDark}}"
+                                   BorderColor="{AppThemeBinding Light={DynamicResource BorderColor}, Dark={DynamicResource BorderColorDark}}"
                                    CornerRadius="16"
                                    HasShadow="True"
                                    Padding="0">
@@ -87,7 +48,7 @@
                                     </Grid.RowDefinitions>
 
                                     <!-- Header with server address -->
-                                    <Grid Grid.Row="0" BackgroundColor="{AppThemeBinding Light=#FF69B4, Dark=#8B4B8C}" Padding="16,12">
+                                    <Grid Grid.Row="0" BackgroundColor="{AppThemeBinding Light={DynamicResource Primary}, Dark={DynamicResource Secondary}}" Padding="16,12">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
@@ -114,7 +75,7 @@
                                         <!-- Loading indicator -->
                                         <ActivityIndicator IsRunning="{Binding IsLoading}"
                                                          IsVisible="{Binding IsLoading}"
-                                                         Color="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}"
+                                                         Color="{AppThemeBinding Light={DynamicResource Primary}, Dark={DynamicResource PrimaryLight}}"
                                                          HorizontalOptions="Center" />
                                         
                                         <!-- Server status when not loading -->
@@ -139,14 +100,14 @@
                                                      Text="{Binding StatusText}"
                                                      FontSize="14"
                                                      FontAttributes="Bold"
-                                                     TextColor="{AppThemeBinding Light=#333333, Dark=#CCCCCC}"
+                                                     TextColor="{AppThemeBinding Light={DynamicResource PrimaryTextColor}, Dark={DynamicResource PrimaryTextColorDark}}"
                                                      VerticalOptions="Center" />
                                             </Grid>
 
                                             <!-- Version info -->
                                             <Label Text="{Binding VersionText}"
                                                  FontSize="12"
-                                                 TextColor="{AppThemeBinding Light=#666666, Dark=#AAAAAA}"
+                                                 TextColor="{AppThemeBinding Light={DynamicResource SecondaryTextColor}, Dark={DynamicResource SecondaryTextColorDark}}"
                                                  IsVisible="{Binding IsOnline}"
                                                  LineBreakMode="WordWrap" />
                                             
@@ -154,7 +115,7 @@
                                             <Label Text="{Binding MotdText}"
                                                  FontSize="12"
                                                  FontAttributes="Italic"
-                                                 TextColor="{AppThemeBinding Light=#666666, Dark=#AAAAAA}"
+                                                 TextColor="{AppThemeBinding Light={DynamicResource SecondaryTextColor}, Dark={DynamicResource SecondaryTextColorDark}}"
                                                  IsVisible="{Binding IsOnline}"
                                                  LineBreakMode="WordWrap"
                                                  Margin="0,4,0,0" />
@@ -162,7 +123,7 @@
                                             <!-- Detailed server info (Game type, Map, etc.) -->
                                             <Label Text="{Binding DetailedServerInfo}"
                                                  FontSize="11"
-                                                 TextColor="{AppThemeBinding Light=#888888, Dark=#999999}"
+                                                 TextColor="{AppThemeBinding Light={DynamicResource TertiaryTextColor}, Dark={DynamicResource TertiaryTextColorDark}}"
                                                  IsVisible="{Binding IsOnline}"
                                                  LineBreakMode="WordWrap"
                                                  Margin="0,4,0,0" />
@@ -170,7 +131,7 @@
                                             <!-- Plugins info -->
                                             <Label Text="{Binding PluginsText}"
                                                  FontSize="11"
-                                                 TextColor="{AppThemeBinding Light=#888888, Dark=#999999}"
+                                                 TextColor="{AppThemeBinding Light={DynamicResource TertiaryTextColor}, Dark={DynamicResource TertiaryTextColorDark}}"
                                                  IsVisible="{Binding IsOnline}"
                                                  LineBreakMode="WordWrap"
                                                  Margin="0,2,0,0" />
@@ -178,7 +139,7 @@
                                             <!-- Player list (if available) -->
                                             <Label Text="{Binding PlayerListText}"
                                                  FontSize="11"
-                                                 TextColor="{AppThemeBinding Light=#888888, Dark=#999999}"
+                                                 TextColor="{AppThemeBinding Light={DynamicResource TertiaryTextColor}, Dark={DynamicResource TertiaryTextColorDark}}"
                                                  IsVisible="{Binding HasPlayerList}"
                                                  LineBreakMode="WordWrap"
                                                  Margin="0,4,0,0" />
@@ -200,14 +161,14 @@
                                         <Button Grid.Row="0" Grid.Column="0"
                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=EditProfileCommand}"
                                                 CommandParameter="{Binding}"
-                                                Style="{StaticResource SecondaryButton}"
+                                                Style="{DynamicResource SecondaryButton}"
                                                 Text="Edit"
                                                 Margin="0,0,4,8" />
 
                                         <Button Grid.Row="0" Grid.Column="1"
                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=DeleteProfileCommand}"
                                                 CommandParameter="{Binding}"
-                                                Style="{StaticResource DangerButton}"
+                                                Style="{DynamicResource DangerButton}"
                                                 Text="Delete"
                                                 Margin="4,0,0,8" />
 
@@ -215,7 +176,7 @@
                                         <Button Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=LaunchProfileCommand}"
                                                 CommandParameter="{Binding}"
-                                                Style="{StaticResource PrimaryButton}"
+                                                Style="{DynamicResource PrimaryButton}"
                                                 Text="Connect" />
                                     </Grid>
                                 </Grid>
@@ -228,8 +189,8 @@
             <!-- Carousel indicator -->
             <IndicatorView x:Name="indicatorView"
                            Grid.Row="1"
-                           IndicatorColor="{AppThemeBinding Light=#E0E0E0, Dark=#404040}"
-                           SelectedIndicatorColor="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}"
+                           IndicatorColor="{AppThemeBinding Light={DynamicResource BorderColor}, Dark={DynamicResource BorderColorDark}}"
+                           SelectedIndicatorColor="{AppThemeBinding Light={DynamicResource Primary}, Dark={DynamicResource PrimaryLight}}"
                            VerticalOptions="End"
                            HorizontalOptions="Center"
                            Margin="0,10,0,0" />
@@ -237,7 +198,7 @@
             <Button x:Name="AddServerProfileButton"
                     Grid.Row="1"
                     Command="{Binding AddServerProfileCommand}"
-                    Style="{StaticResource PrimaryButton}"
+                    Style="{DynamicResource PrimaryButton}"
                     Margin="0,16,0,0"
                     Text="Add Server" />
         </Grid>
