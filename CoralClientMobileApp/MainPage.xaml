@@ -30,7 +30,8 @@
             <CarouselView Grid.Row="0"
                           ItemsSource="{Binding ServerProfiles}"
                           IndicatorView="indicatorView"
-                          PeekAreaInsets="60">
+                          PeekAreaInsets="60"
+                          Loop="False">
                 <CarouselView.ItemTemplate>
                     <DataTemplate>
                         <Grid Padding="20">
