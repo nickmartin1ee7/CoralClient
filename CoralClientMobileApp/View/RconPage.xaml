@@ -165,54 +165,8 @@
                         </CollectionView>
                     </Frame>
 
-                    <!-- Player Action Buttons -->
-                    <Grid Grid.Row="2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <!-- Standard Player Commands -->
-                        <Button Grid.Column="0" Grid.Row="0" Text="Kick"
-                                Command="{Binding KickPlayerCommand}"
-                                Style="{DynamicResource DangerButton}"
-                                FontSize="12" Margin="2" />
-
-                        <Button Grid.Column="1" Grid.Row="0" Text="Ban"
-                                Command="{Binding BanPlayerCommand}"
-                                Style="{DynamicResource DangerButton}"
-                                FontSize="12" Margin="2" />
-
-                        <Button Grid.Column="2" Grid.Row="0" Text="Op"
-                                Command="{Binding OpPlayerCommand}"
-                                Style="{DynamicResource SecondaryButton}"
-                                FontSize="12" Margin="2" />
-
-                        <Button Grid.Column="0" Grid.Row="1" Text="Creative"
-                                Command="{Binding SetCreativeCommand}"
-                                Style="{DynamicResource SecondaryButton}"
-                                FontSize="12" Margin="2" />
-
-                        <Button Grid.Column="1" Grid.Row="1" Text="Survival"
-                                Command="{Binding SetSurvivalCommand}"
-                                Style="{DynamicResource SecondaryButton}"
-                                FontSize="12" Margin="2" />
-
-                        <Button Grid.Column="2" Grid.Row="1" Text="Spectator"
-                                Command="{Binding SetSpectatorCommand}"
-                                Style="{DynamicResource SecondaryButton}"
-                                FontSize="12" Margin="2" />
-
-                        <!-- Custom Player Commands -->
-                        <CollectionView Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" 
-                                        ItemsSource="{Binding PlayerCommandGroups}"
-                                        Margin="0,8,0,0">
+                    <!-- Player Commands -->
+                    <CollectionView Grid.Row="2" ItemsSource="{Binding PlayerCommandGroups}" Margin="0,8,0,0">
                             <CollectionView.ItemsLayout>
                                 <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
                             </CollectionView.ItemsLayout>
@@ -263,157 +217,16 @@
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
                         </CollectionView>
-                    </Grid>
                 </Grid>
 
                 <!-- Server Tab -->
                 <Grid IsVisible="{Binding IsServerTabVisible}">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <!-- Server Controls -->
-                    <Grid Grid.Row="0" Margin="0,0,0,16">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <Button Grid.Column="0" Grid.Row="0" Text="Stop Server"
-                                Command="{Binding StopServerCommand}"
-                                Style="{DynamicResource DangerButton}"
-                                Margin="2" />
-
-                        <Button Grid.Column="1" Grid.Row="0" Text="Save World"
-                                Command="{Binding SaveWorldCommand}"
-                                Style="{DynamicResource PrimaryButton}"
-                                Margin="2" />
-
-                        <Button Grid.Column="0" Grid.Row="1" Text="Reload"
-                                Command="{Binding ReloadServerCommand}"
-                                Style="{DynamicResource SecondaryButton}"
-                                Margin="2" />
-
-                        <Button Grid.Column="1" Grid.Row="1" 
-                                Command="{Binding ToggleWhitelistCommand}"
-                                Style="{DynamicResource SecondaryButton}"
-                                Text="{Binding WhitelistButtonText}"
-                                Margin="2" />
-                    </Grid>
-
-                    <!-- Weather & Time Controls -->
-                    <Frame Grid.Row="1" Style="{DynamicResource CardFrameStyle}" Margin="0,0,0,8">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
-                            <Label Grid.Row="0" Text="Weather &amp; Time" 
-                                   Style="{DynamicResource LabelStyle}" 
-                                   HorizontalTextAlignment="Center" />
-
-                            <Grid Grid.Row="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-
-                                <Button Grid.Column="0" Grid.Row="0" Text="Clear"
-                                        Command="{Binding SetWeatherClearCommand}"
-                                        Style="{DynamicResource SecondaryButton}"
-                                        FontSize="12" Margin="2" />
-
-                                <Button Grid.Column="1" Grid.Row="0" Text="Rain"
-                                        Command="{Binding SetWeatherRainCommand}"
-                                        Style="{DynamicResource SecondaryButton}"
-                                        FontSize="12" Margin="2" />
-
-                                <Button Grid.Column="2" Grid.Row="0" Text="Thunder"
-                                        Command="{Binding SetWeatherThunderCommand}"
-                                        Style="{DynamicResource SecondaryButton}"
-                                        FontSize="12" Margin="2" />
-
-                                <Button Grid.Column="0" Grid.Row="1" Text="Day"
-                                        Command="{Binding SetTimeDayCommand}"
-                                        Style="{DynamicResource SecondaryButton}"
-                                        FontSize="12" Margin="2" />
-
-                                <Button Grid.Column="1" Grid.Row="1" Text="Night"
-                                        Command="{Binding SetTimeNightCommand}"
-                                        Style="{DynamicResource SecondaryButton}"
-                                        FontSize="12" Margin="2" />
-
-                                <Button Grid.Column="2" Grid.Row="1" Text="Noon"
-                                        Command="{Binding SetTimeNoonCommand}"
-                                        Style="{DynamicResource SecondaryButton}"
-                                        FontSize="12" Margin="2" />
-                            </Grid>
-                        </Grid>
-                    </Frame>
-
-                    <!-- Difficulty & Game Rules -->
-                    <Frame Grid.Row="2" Style="{DynamicResource CardFrameStyle}" Margin="0,0,0,8">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
-                            <Label Grid.Row="0" Text="Difficulty &amp; Rules" 
-                                   Style="{DynamicResource LabelStyle}" 
-                                   HorizontalTextAlignment="Center" />
-
-                            <Grid Grid.Row="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-
-                                <Button Grid.Column="0" Text="Peaceful"
-                                        Command="{Binding SetDifficultyPeacefulCommand}"
-                                        Style="{DynamicResource SecondaryButton}"
-                                        FontSize="10" Margin="1" />
-
-                                <Button Grid.Column="1" Text="Easy"
-                                        Command="{Binding SetDifficultyEasyCommand}"
-                                        Style="{DynamicResource SecondaryButton}"
-                                        FontSize="10" Margin="1" />
-
-                                <Button Grid.Column="2" Text="Normal"
-                                        Command="{Binding SetDifficultyNormalCommand}"
-                                        Style="{DynamicResource SecondaryButton}"
-                                        FontSize="10" Margin="1" />
-
-                                <Button Grid.Column="3" Text="Hard"
-                                        Command="{Binding SetDifficultyHardCommand}"
-                                        Style="{DynamicResource SecondaryButton}"
-                                        FontSize="10" Margin="1" />
-                            </Grid>
-                        </Grid>
-                    </Frame>
-
-                    <!-- Custom Server Commands
-                    <Label Text="Custom Commands" 
-                        Style="{DynamicResource LabelStyle}" 
-                        HorizontalTextAlignment="Center" />
-                         -->
-
-                    <CollectionView Grid.Row="3" ItemsSource="{Binding ServerCommandGroups}" Margin="0,8,0,0">
+                    <!-- Server Commands -->
+                    <CollectionView Grid.Row="0" ItemsSource="{Binding ServerCommandGroups}" Margin="0,8,0,0">
                         <CollectionView.ItemsLayout>
                             <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
                         </CollectionView.ItemsLayout>
