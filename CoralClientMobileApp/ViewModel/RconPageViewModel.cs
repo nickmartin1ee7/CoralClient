@@ -51,10 +51,10 @@ namespace CoralClientMobileApp.ViewModel
         private string _serverVersionText = "Version: Unknown";
 
         [ObservableProperty]
-        private string _uptimeText = "Uptime: Unknown";
+        private string _serverMotdText = "Welcome to the server!";
 
         [ObservableProperty]
-        private string _serverMotdText = "Welcome to the server!";
+        private string _uptimeText = "Uptime: Unknown";
 
         [ObservableProperty]
         private string _toggleConnectionButtonText = "Connect";
@@ -91,6 +91,8 @@ namespace CoralClientMobileApp.ViewModel
         public ObservableCollection<Player> OnlinePlayers { get; } = new();
         public ObservableCollection<CustomCommand> PlayerCustomCommands { get; } = new();
         public ObservableCollection<CustomCommand> ServerCustomCommands { get; } = new();
+        public ObservableCollection<CommandGroup> PlayerCommandGroups { get; } = new();
+        public ObservableCollection<CommandGroup> ServerCommandGroups { get; } = new();
 
         public event EventHandler? StateChange;
 
@@ -423,7 +425,59 @@ namespace CoralClientMobileApp.ViewModel
                 
                 PlayerCustomCommands.Clear();
                 ServerCustomCommands.Clear();
+                PlayerCommandGroups.Clear();
+                ServerCommandGroups.Clear();
                 
+                // Create default player commands
+                var defaultPlayerCommands = CreateDefaultPlayerCommands();
+                var defaultPlayerGroup = new CommandGroup 
+                { 
+                    CategoryName = "Default",
+                    Commands = new ObservableCollection<CustomCommand>(defaultPlayerCommands)
+                };
+                PlayerCommandGroups.Add(defaultPlayerGroup);
+                
+                // Create default server commands  
+                var defaultServerCommands = CreateDefaultServerCommands();
+                var defaultServerGroup = new CommandGroup 
+                { 
+                    CategoryName = "Default",
+                    Commands = new ObservableCollection<CustomCommand>(defaultServerCommands)
+                };
+                ServerCommandGroups.Add(defaultServerGroup);
+                
+                // Group custom commands by category
+                var playerGroups = allCommands
+                    .Where(c => c.Target == CommandTarget.Player)
+                    .GroupBy(c => string.IsNullOrEmpty(c.Category) ? "Custom" : c.Category)
+                    .OrderBy(g => g.Key);
+                    
+                var serverGroups = allCommands
+                    .Where(c => c.Target == CommandTarget.Server)
+                    .GroupBy(c => string.IsNullOrEmpty(c.Category) ? "Custom" : c.Category)
+                    .OrderBy(g => g.Key);
+                
+                foreach (var group in playerGroups)
+                {
+                    var commandGroup = new CommandGroup
+                    {
+                        CategoryName = group.Key,
+                        Commands = new ObservableCollection<CustomCommand>(group.OrderBy(c => c.Name))
+                    };
+                    PlayerCommandGroups.Add(commandGroup);
+                }
+                
+                foreach (var group in serverGroups)
+                {
+                    var commandGroup = new CommandGroup
+                    {
+                        CategoryName = group.Key,
+                        Commands = new ObservableCollection<CustomCommand>(group.OrderBy(c => c.Name))
+                    };
+                    ServerCommandGroups.Add(commandGroup);
+                }
+                
+                // Keep the flat collections for backward compatibility
                 foreach (var command in allCommands)
                 {
                     if (command.Target == CommandTarget.Player)
@@ -436,13 +490,207 @@ namespace CoralClientMobileApp.ViewModel
                     }
                 }
                 
-                _logger.LogInformation("Loaded {PlayerCommands} player commands and {ServerCommands} server commands", 
-                    PlayerCustomCommands.Count, ServerCustomCommands.Count);
+                _logger.LogInformation("Loaded {PlayerGroups} player command groups and {ServerGroups} server command groups", 
+                    PlayerCommandGroups.Count, ServerCommandGroups.Count);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to load custom commands");
             }
+        }
+        
+        private List<CustomCommand> CreateDefaultPlayerCommands()
+        {
+            return new List<CustomCommand>
+            {
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Kick",
+                    Description = "Kick player from server",
+                    Command = "kick {player}",
+                    Category = "Default",
+                    Target = CommandTarget.Player,
+                    RequiresPlayerName = true,
+                    ServerProfileId = _serverProfile.Id,
+                    IsDefault = true
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Ban",
+                    Description = "Ban player from server",
+                    Command = "ban {player}",
+                    Category = "Default",
+                    Target = CommandTarget.Player,
+                    RequiresPlayerName = true,
+                    ServerProfileId = _serverProfile.Id,
+                    IsDefault = true
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Op",
+                    Description = "Give player operator privileges",
+                    Command = "op {player}",
+                    Category = "Default",
+                    Target = CommandTarget.Player,
+                    RequiresPlayerName = true,
+                    ServerProfileId = _serverProfile.Id,
+                    IsDefault = true
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Creative",
+                    Description = "Set player to creative mode",
+                    Command = "gamemode creative {player}",
+                    Category = "Default",
+                    Target = CommandTarget.Player,
+                    RequiresPlayerName = true,
+                    ServerProfileId = _serverProfile.Id,
+                    IsDefault = true
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Survival",
+                    Description = "Set player to survival mode",
+                    Command = "gamemode survival {player}",
+                    Category = "Default",
+                    Target = CommandTarget.Player,
+                    RequiresPlayerName = true,
+                    ServerProfileId = _serverProfile.Id,
+                    IsDefault = true
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Spectator",
+                    Description = "Set player to spectator mode",
+                    Command = "gamemode spectator {player}",
+                    Category = "Default",
+                    Target = CommandTarget.Player,
+                    RequiresPlayerName = true,
+                    ServerProfileId = _serverProfile.Id,
+                    IsDefault = true
+                }
+            };
+        }
+        
+        private List<CustomCommand> CreateDefaultServerCommands()
+        {
+            return new List<CustomCommand>
+            {
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Stop Server",
+                    Description = "Stop the Minecraft server",
+                    Command = "stop",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = _serverProfile.Id,
+                    IsDefault = true
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Save World",
+                    Description = "Save the current world",
+                    Command = "save-all",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = _serverProfile.Id,
+                    IsDefault = true
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Reload",
+                    Description = "Reload server configuration",
+                    Command = "reload",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = _serverProfile.Id,
+                    IsDefault = true
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Clear Weather",
+                    Description = "Set weather to clear",
+                    Command = "weather clear",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = _serverProfile.Id,
+                    IsDefault = true
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Rain",
+                    Description = "Set weather to rain",
+                    Command = "weather rain",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = _serverProfile.Id,
+                    IsDefault = true
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Thunder",
+                    Description = "Set weather to thunder",
+                    Command = "weather thunder",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = _serverProfile.Id,
+                    IsDefault = true
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Day",
+                    Description = "Set time to day",
+                    Command = "time set day",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = _serverProfile.Id,
+                    IsDefault = true
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Night",
+                    Description = "Set time to night",
+                    Command = "time set night",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = _serverProfile.Id,
+                    IsDefault = true
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Noon",
+                    Description = "Set time to noon",
+                    Command = "time set noon",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = _serverProfile.Id,
+                    IsDefault = true
+                }
+            };
         }
 
         private void SetActiveTab(string tabName)
@@ -655,11 +903,6 @@ namespace CoralClientMobileApp.ViewModel
                         ServerMotdText = status.Motd.RemoveColorCodes();
                     }
                     
-                    if (CurrentState == State.CONNECTED)
-                    {
-                        UptimeText = "Uptime: Connected";
-                    }
-                    
                     // Update player list if we have player names
                     if (status.PlayerList?.Any() == true)
                     {
@@ -674,7 +917,6 @@ namespace CoralClientMobileApp.ViewModel
                 {
                     OnlinePlayerText = "Players: ?/?";
                     ServerVersionText = "Version: Server Offline";
-                    UptimeText = "Uptime: Offline";
                     OnlinePlayers.Clear();
                 }
             }
@@ -683,7 +925,6 @@ namespace CoralClientMobileApp.ViewModel
                 _logger.LogDebug(ex, "Failed to query server status during polling");
                 OnlinePlayerText = "Players: ?/?";
                 ServerVersionText = "Version: Query Failed";
-                UptimeText = "Uptime: Unknown";
             }
         }
 

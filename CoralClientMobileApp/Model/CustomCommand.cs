@@ -37,6 +37,11 @@ namespace CoralClientMobileApp.Model
         [ObservableProperty]
         private Guid _serverProfileId;
 
+        [ObservableProperty]
+        private bool _isDefault = false;
+
+        public bool IsCustomCommand => !IsDefault;
+
         public CustomCommand()
         {
         }

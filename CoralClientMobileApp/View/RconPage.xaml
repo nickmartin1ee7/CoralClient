@@ -25,7 +25,6 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <Label Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" 
@@ -46,15 +45,14 @@
 
                     <Label Grid.Column="0" Grid.Row="2" 
                            Style="{DynamicResource SecondaryLabelStyle}"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="End"
                            Text="{Binding ServerVersionText}" />
 
                     <Label Grid.Column="1" Grid.Row="2" 
-                           Style="{DynamicResource SecondaryLabelStyle}"
-                           Text="{Binding UptimeText}" />
-
-                    <Label Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2"
                            Style="{DynamicResource TertiaryLabelStyle}"
                            HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="End"
                            Text="{Binding ServerMotdText}" />
                 </Grid>
             </Frame>
@@ -213,36 +211,55 @@
 
                         <!-- Custom Player Commands -->
                         <CollectionView Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" 
-                                        ItemsSource="{Binding PlayerCustomCommands}"
+                                        ItemsSource="{Binding PlayerCommandGroups}"
                                         Margin="0,8,0,0">
                             <CollectionView.ItemsLayout>
-                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="4" />
+                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
                             </CollectionView.ItemsLayout>
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
+                                    <StackLayout>
+                                        <Label Text="{Binding CategoryName}" 
+                                               Style="{DynamicResource LabelStyle}" 
+                                               FontSize="12" 
+                                               FontAttributes="Bold"
+                                               HorizontalTextAlignment="Center"
+                                               Margin="0,4,0,4" />
                                         
-                                        <Button Grid.Column="0" 
-                                                Text="{Binding Name}"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ExecuteCustomCommandCommand}"
-                                                CommandParameter="{Binding .}"
-                                                Style="{DynamicResource SecondaryButton}"
-                                                FontSize="10" 
-                                                Margin="1" />
-                                        
-                                        <Button Grid.Column="1" 
-                                                Text="✏️"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditCustomCommandCommand}"
-                                                CommandParameter="{Binding .}"
-                                                Style="{DynamicResource SecondaryButton}"
-                                                FontSize="10" 
-                                                WidthRequest="30"
-                                                Margin="1" />
-                                    </Grid>
+                                        <CollectionView ItemsSource="{Binding Commands}">
+                                            <CollectionView.ItemsLayout>
+                                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="2" />
+                                            </CollectionView.ItemsLayout>
+                                            <CollectionView.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        
+                                                        <Button Grid.Column="0" 
+                                                                Text="{Binding Name}"
+                                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ExecuteCustomCommandCommand}"
+                                                                CommandParameter="{Binding .}"
+                                                                Style="{DynamicResource SecondaryButton}"
+                                                                FontSize="10" 
+                                                                Margin="1" />
+                                                        
+                                                        <Button Grid.Column="1" 
+                                                                Text="✏️"
+                                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditCustomCommandCommand}"
+                                                                CommandParameter="{Binding .}"
+                                                                Style="{DynamicResource SecondaryButton}"
+                                                                FontSize="10" 
+                                                                WidthRequest="30"
+                                                                Margin="1"
+                                                                IsVisible="{Binding IsCustomCommand}" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </CollectionView.ItemTemplate>
+                                        </CollectionView>
+                                    </StackLayout>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
                         </CollectionView>
@@ -391,57 +408,76 @@
                     </Frame>
 
                     <!-- Custom Server Commands
-                    <Label Grid.Row="0" Text="Custom Commands" 
+                    <Label Text="Custom Commands" 
                         Style="{DynamicResource LabelStyle}" 
                         HorizontalTextAlignment="Center" />
                          -->
 
-                    <CollectionView Grid.Row="3" ItemsSource="{Binding ServerCustomCommands}" Margin="0,8,0,0">
+                    <CollectionView Grid.Row="3" ItemsSource="{Binding ServerCommandGroups}" Margin="0,8,0,0">
                         <CollectionView.ItemsLayout>
-                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="4" />
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
                         </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Grid Padding="4">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <Label Grid.Column="0" Grid.Row="0" 
-                                           Text="{Binding Name}" 
+                                <StackLayout>
+                                    <Label Text="{Binding CategoryName}" 
                                            Style="{DynamicResource LabelStyle}" 
-                                           FontSize="12" />
+                                           FontSize="12" 
+                                           FontAttributes="Bold"
+                                           HorizontalTextAlignment="Center"
+                                           Margin="0,4,0,4" />
+                                    
+                                    <CollectionView ItemsSource="{Binding Commands}">
+                                        <CollectionView.ItemsLayout>
+                                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="4" />
+                                        </CollectionView.ItemsLayout>
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Padding="4">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
 
-                                    <Label Grid.Column="0" Grid.Row="1" 
-                                           Text="{Binding Description}" 
-                                           Style="{DynamicResource SecondaryLabelStyle}" 
-                                           FontSize="10" />
+                                                    <Label Grid.Column="0" Grid.Row="0" 
+                                                           Text="{Binding Name}" 
+                                                           Style="{DynamicResource LabelStyle}" 
+                                                           FontSize="12" />
 
-                                    <StackLayout Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" 
-                                                 Orientation="Horizontal" 
-                                                 VerticalOptions="Center">
-                                        <Button Text="Run"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ExecuteCustomCommandCommand}"
-                                                CommandParameter="{Binding .}"
-                                                Style="{DynamicResource PrimaryButton}"
-                                                FontSize="10" 
-                                                WidthRequest="60"
-                                                Margin="2,0" />
-                                        
-                                        <Button Text="Edit"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditCustomCommandCommand}"
-                                                CommandParameter="{Binding .}"
-                                                Style="{DynamicResource SecondaryButton}"
-                                                FontSize="10" 
-                                                WidthRequest="60"
-                                                Margin="2,0" />
-                                    </StackLayout>
-                                </Grid>
+                                                    <Label Grid.Column="0" Grid.Row="1" 
+                                                           Text="{Binding Description}" 
+                                                           Style="{DynamicResource SecondaryLabelStyle}" 
+                                                           FontSize="10" />
+
+                                                    <StackLayout Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" 
+                                                                 Orientation="Horizontal" 
+                                                                 VerticalOptions="Center">
+                                                        <Button Text="Run"
+                                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ExecuteCustomCommandCommand}"
+                                                                CommandParameter="{Binding .}"
+                                                                Style="{DynamicResource PrimaryButton}"
+                                                                FontSize="10" 
+                                                                WidthRequest="60"
+                                                                Margin="2,0" />
+                                                        
+                                                        <Button Text="Edit"
+                                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditCustomCommandCommand}"
+                                                                CommandParameter="{Binding .}"
+                                                                Style="{DynamicResource SecondaryButton}"
+                                                                FontSize="10" 
+                                                                WidthRequest="60"
+                                                                Margin="2,0"
+                                                                IsVisible="{Binding IsCustomCommand}" />
+                                                    </StackLayout>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                </StackLayout>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>

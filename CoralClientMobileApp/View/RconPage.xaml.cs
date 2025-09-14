@@ -20,6 +20,12 @@ namespace CoralClientMobileApp.View
             _vm = _rconViewModelFactory(serverProfile);
             _vm.OpenEditorRequested += OnOpenEditorRequested;
             BindingContext = _vm;
+
+            // Auto-connect
+            if (_vm.CurrentState == RconPageViewModel.State.DISCONNECTED)
+            {
+                _vm.ToggleConnectionCommand.Execute(null);
+            }
         }
 
         private async void OnOpenEditorRequested(object? sender, CustomCommand? command)
