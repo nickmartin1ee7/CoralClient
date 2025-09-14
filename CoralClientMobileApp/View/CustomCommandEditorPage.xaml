@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:CoralClientMobileApp.Converters"
+             x:Class="CoralClientMobileApp.View.CustomCommandEditorPage"
+             Title="Custom Command Editor"
+             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1f1f1f}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Value Converters -->
+            <converters:BoolToEditCreateTextConverter x:Key="BoolToEditCreateTextConverter" />
+            <converters:BoolToSaveUpdateTextConverter x:Key="BoolToSaveUpdateTextConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
+    <ScrollView>
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Label Grid.Row="0" 
+                   Text="{Binding IsEditMode, Converter={StaticResource BoolToEditCreateTextConverter}}"
+                   Style="{DynamicResource HeaderLabelStyle}"
+                   HorizontalTextAlignment="Center"
+                   Margin="0,0,0,24" />
+
+            <!-- Form Fields -->
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Name -->
+                <Label Grid.Row="0" Text="Command Name" Style="{DynamicResource LabelStyle}" />
+                <Entry Grid.Row="1" 
+                       Text="{Binding CommandName}"
+                       Placeholder="Enter command name"
+                       Style="{DynamicResource EntryStyle}" />
+
+                <!-- Description -->
+                <Label Grid.Row="2" Text="Description" Style="{DynamicResource LabelStyle}" />
+                <Entry Grid.Row="3" 
+                       Text="{Binding CommandDescription}"
+                       Placeholder="Enter command description"
+                       Style="{DynamicResource EntryStyle}" />
+
+                <!-- Command -->
+                <Label Grid.Row="4" Text="Command (use {player} for player placeholder)" Style="{DynamicResource LabelStyle}" />
+                <Editor Grid.Row="5" 
+                        Text="{Binding CommandText}"
+                        Placeholder="Enter the Minecraft command"
+                        HeightRequest="80"
+                        Style="{DynamicResource EntryStyle}" />
+
+                <!-- Target and Category -->
+                <Grid Grid.Row="6" Margin="0,16,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Column="0" Grid.Row="0" Text="Target" Style="{DynamicResource LabelStyle}" />
+                    <Picker Grid.Column="0" Grid.Row="1" 
+                            ItemsSource="{Binding TargetOptions}"
+                            SelectedItem="{Binding SelectedTarget}"
+                            Style="{DynamicResource EntryStyle}" />
+
+                    <Label Grid.Column="1" Grid.Row="0" Text="Category" Style="{DynamicResource LabelStyle}" />
+                    <Entry Grid.Column="1" Grid.Row="1" 
+                           Text="{Binding CommandCategory}"
+                           Placeholder="Category"
+                           Style="{DynamicResource EntryStyle}" />
+                </Grid>
+
+                <!-- Requires Player Name -->
+                <Grid Grid.Row="7">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <Label Grid.Column="0" 
+                           Text="Requires Player Selection" 
+                           Style="{DynamicResource LabelStyle}"
+                           VerticalOptions="Center" />
+                    <CheckBox Grid.Column="1" 
+                              IsChecked="{Binding RequiresPlayerName}"
+                              VerticalOptions="Center" />
+                </Grid>
+            </Grid>
+
+            <!-- Action Buttons -->
+            <Grid Grid.Row="2" Margin="0,24,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" 
+                        Text="Cancel"
+                        Command="{Binding CancelCommand}"
+                        Style="{DynamicResource SecondaryButton}"
+                        Margin="2" />
+
+                <Button Grid.Column="1" 
+                        Text="Delete"
+                        Command="{Binding DeleteCommand}"
+                        Style="{DynamicResource DangerButton}"
+                        IsVisible="{Binding IsEditMode}"
+                        Margin="2" />
+
+                <Button Grid.Column="2" 
+                        Text="{Binding IsEditMode, Converter={StaticResource BoolToSaveUpdateTextConverter}}"
+                        Command="{Binding SaveCommand}"
+                        Style="{DynamicResource PrimaryButton}"
+                        Margin="2" />
+            </Grid>
+        </Grid>
+    </ScrollView>
+</ContentPage>

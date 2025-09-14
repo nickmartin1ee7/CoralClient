@@ -57,4 +57,38 @@ namespace CoralClientMobileApp.Converters
             throw new NotImplementedException();
         }
     }
+
+    public class BoolToEditCreateTextConverter : IValueConverter
+    {
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            if (value is bool isEditMode)
+            {
+                return isEditMode ? "Edit Custom Command" : "Create Custom Command";
+            }
+            return "Custom Command";
+        }
+
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class BoolToSaveUpdateTextConverter : IValueConverter
+    {
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            if (value is bool isEditMode)
+            {
+                return isEditMode ? "Update" : "Save";
+            }
+            return "Save";
+        }
+
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

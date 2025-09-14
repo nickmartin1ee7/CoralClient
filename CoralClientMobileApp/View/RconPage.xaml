@@ -5,82 +5,454 @@
              x:Class="CoralClientMobileApp.View.RconPage"
              BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1f1f1f}">
     
-    <Grid Margin="16">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-
-        <Grid x:Name="InfoGrid" Grid.Row="0" Margin="0,0,0,16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
+    <ScrollView>
+        <Grid Margin="16">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />  <!-- Server Info Header -->
+                <RowDefinition Height="Auto" />  <!-- Control Tabs -->
+                <RowDefinition Height="*" />     <!-- Main Content Area -->
+                <RowDefinition Height="Auto" />  <!-- Connection Controls -->
             </Grid.RowDefinitions>
 
-            <Label x:Name="ServerNameLabel" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" 
-                   HorizontalTextAlignment="Center"
-                   Style="{DynamicResource SubHeadline}"
-                   Margin="0,0,0,8"
-                   Text="{Binding ServerNameText}" />
+            <!-- Server Info Header -->
+            <Frame Grid.Row="0" Style="{DynamicResource CardFrameStyle}" Margin="0,0,0,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-            <Label x:Name="ConnectionStatusLabel" Grid.Column="0" Grid.Row="1" 
-                   Style="{DynamicResource StatusLabel}"
-                   Text="{Binding ConnectionStatusText}" />
+                    <Label Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" 
+                           HorizontalTextAlignment="Center"
+                           Style="{DynamicResource SubHeadline}"
+                           Margin="0,8,0,8"
+                           Text="{Binding ServerNameText}" />
 
-            <Label x:Name="OnlinePlayerLabel" Grid.Column="1" Grid.Row="1" 
-                   Style="{DynamicResource PlayerCountLabel}"
-                   Text="{Binding OnlinePlayerText}" />
-        </Grid>
+                    <Label Grid.Column="0" Grid.Row="1" 
+                           Style="{DynamicResource StatusLabel}"
+                           FontSize="14"
+                           Text="{Binding ConnectionStatusText}" />
 
-        <Grid x:Name="CommandGrid" Grid.Row="1" Margin="0,0,0,16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+                    <Label Grid.Column="1" Grid.Row="1" 
+                           Style="{DynamicResource PlayerCountLabel}"
+                           FontSize="14"
+                           Text="{Binding OnlinePlayerText}" />
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+                    <Label Grid.Column="0" Grid.Row="2" 
+                           Style="{DynamicResource SecondaryLabelStyle}"
+                           Text="{Binding ServerVersionText}" />
 
-            <Frame Grid.Row="0"
-                   Style="{DynamicResource CommandLogFrame}" />
+                    <Label Grid.Column="1" Grid.Row="2" 
+                           Style="{DynamicResource SecondaryLabelStyle}"
+                           Text="{Binding UptimeText}" />
 
-            <Editor x:Name="CommandLogEditor" Grid.Row="0"
-                    Style="{DynamicResource CommandLogEditor}"
-                    Text="{Binding CommandLogText}" />
+                    <Label Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2"
+                           Style="{DynamicResource TertiaryLabelStyle}"
+                           HorizontalTextAlignment="Center"
+                           Text="{Binding ServerMotdText}" />
+                </Grid>
+            </Frame>
 
-            <Entry x:Name="CommandEntry" Grid.Row="1" 
-                   Placeholder="Enter Command"
-                   Style="{DynamicResource CommandEntry}"
-                   IsEnabled="{Binding IsSendCommandEnabled}"
-                   ReturnCommand="{Binding SendCommandCommand}"
-                   Text="{Binding CommandEntryText}" />
-        </Grid>
+            <!-- Control Tabs -->
+            <Grid Grid.Row="1" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-        <Grid x:Name="OptionsGrid" Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Text="Console" 
+                        Command="{Binding ShowConsoleTabCommand}"
+                        Style="{DynamicResource PrimaryButton}"
+                        FontSize="12" Margin="2" />
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+                <Button Grid.Column="1" Text="Players" 
+                        Command="{Binding ShowPlayersTabCommand}"
+                        Style="{DynamicResource PrimaryButton}"
+                        FontSize="12" Margin="2" />
 
-            <Button x:Name="ToggleConnectionButton" Grid.Column="0"
+                <Button Grid.Column="2" Text="Server" 
+                        Command="{Binding ShowServerTabCommand}"
+                        Style="{DynamicResource PrimaryButton}"
+                        FontSize="12" Margin="2" />
+
+                <Button Grid.Column="3" Text="Editor" 
+                        Command="{Binding ShowCustomTabCommand}"
+                        Style="{DynamicResource SecondaryButton}"
+                        FontSize="12" Margin="2" />
+            </Grid>
+
+            <!-- Main Content Area -->
+            <Grid Grid.Row="2" Margin="0,0,0,16">
+                
+                <!-- Console Tab -->
+                <Grid IsVisible="{Binding IsConsoleTabVisible}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Frame Grid.Row="0" Style="{DynamicResource CommandLogFrame}">
+                        <Editor x:Name="CommandLogEditor"
+                                Style="{DynamicResource CommandLogEditor}"
+                                Text="{Binding CommandLogText}" />
+                    </Frame>
+
+                    <Entry Grid.Row="1" 
+                           Placeholder="Enter Command"
+                           Style="{DynamicResource CommandEntry}"
+                           IsEnabled="{Binding IsSendCommandEnabled}"
+                           ReturnCommand="{Binding SendCommandCommand}"
+                           MaximumHeightRequest="800"
+                           Text="{Binding CommandEntryText}" />
+                </Grid>
+
+                <!-- Players Tab -->
+                <Grid IsVisible="{Binding IsPlayersTabVisible}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Player Controls Header -->
+                    <Grid Grid.Row="0" Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Entry Grid.Column="0" 
+                               Placeholder="Player Name"
+                               Text="{Binding SelectedPlayerName}"
+                               Style="{DynamicResource EntryStyle}" />
+                    </Grid>
+
+                    <!-- Player List -->
+                    <Frame Grid.Row="1" Style="{DynamicResource CardFrameStyle}" Margin="0,0,0,8">
+                        <CollectionView ItemsSource="{Binding OnlinePlayers}" 
+                                        SelectionMode="Single"
+                                        SelectedItem="{Binding SelectedPlayer}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Text="{Binding Name}" 
+                                               Style="{DynamicResource LabelStyle}" />
+                                        <Label Grid.Column="1" Text="{Binding GameMode}" 
+                                               Style="{DynamicResource SecondaryLabelStyle}" 
+                                               FontSize="10" />
+                                        <Label Grid.Column="2" Text="OP" 
+                                               IsVisible="{Binding IsOperator}"
+                                               Style="{DynamicResource LabelStyle}" 
+                                               TextColor="Orange" 
+                                               FontSize="10" FontAttributes="Bold" />
+                                        <Label Grid.Column="3" Text="{Binding Status}" 
+                                               Style="{DynamicResource SecondaryLabelStyle}" 
+                                               FontSize="10" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </Frame>
+
+                    <!-- Player Action Buttons -->
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Standard Player Commands -->
+                        <Button Grid.Column="0" Grid.Row="0" Text="Kick"
+                                Command="{Binding KickPlayerCommand}"
+                                Style="{DynamicResource DangerButton}"
+                                FontSize="12" Margin="2" />
+
+                        <Button Grid.Column="1" Grid.Row="0" Text="Ban"
+                                Command="{Binding BanPlayerCommand}"
+                                Style="{DynamicResource DangerButton}"
+                                FontSize="12" Margin="2" />
+
+                        <Button Grid.Column="2" Grid.Row="0" Text="Op"
+                                Command="{Binding OpPlayerCommand}"
+                                Style="{DynamicResource SecondaryButton}"
+                                FontSize="12" Margin="2" />
+
+                        <Button Grid.Column="0" Grid.Row="1" Text="Creative"
+                                Command="{Binding SetCreativeCommand}"
+                                Style="{DynamicResource SecondaryButton}"
+                                FontSize="12" Margin="2" />
+
+                        <Button Grid.Column="1" Grid.Row="1" Text="Survival"
+                                Command="{Binding SetSurvivalCommand}"
+                                Style="{DynamicResource SecondaryButton}"
+                                FontSize="12" Margin="2" />
+
+                        <Button Grid.Column="2" Grid.Row="1" Text="Spectator"
+                                Command="{Binding SetSpectatorCommand}"
+                                Style="{DynamicResource SecondaryButton}"
+                                FontSize="12" Margin="2" />
+
+                        <!-- Custom Player Commands -->
+                        <CollectionView Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" 
+                                        ItemsSource="{Binding PlayerCustomCommands}"
+                                        Margin="0,8,0,0">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="4" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <Button Grid.Column="0" 
+                                                Text="{Binding Name}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ExecuteCustomCommandCommand}"
+                                                CommandParameter="{Binding .}"
+                                                Style="{DynamicResource SecondaryButton}"
+                                                FontSize="10" 
+                                                Margin="1" />
+                                        
+                                        <Button Grid.Column="1" 
+                                                Text="✏️"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditCustomCommandCommand}"
+                                                CommandParameter="{Binding .}"
+                                                Style="{DynamicResource SecondaryButton}"
+                                                FontSize="10" 
+                                                WidthRequest="30"
+                                                Margin="1" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </Grid>
+                </Grid>
+
+                <!-- Server Tab -->
+                <Grid IsVisible="{Binding IsServerTabVisible}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Server Controls -->
+                    <Grid Grid.Row="0" Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Button Grid.Column="0" Grid.Row="0" Text="Stop Server"
+                                Command="{Binding StopServerCommand}"
+                                Style="{DynamicResource DangerButton}"
+                                Margin="2" />
+
+                        <Button Grid.Column="1" Grid.Row="0" Text="Save World"
+                                Command="{Binding SaveWorldCommand}"
+                                Style="{DynamicResource PrimaryButton}"
+                                Margin="2" />
+
+                        <Button Grid.Column="0" Grid.Row="1" Text="Reload"
+                                Command="{Binding ReloadServerCommand}"
+                                Style="{DynamicResource SecondaryButton}"
+                                Margin="2" />
+
+                        <Button Grid.Column="1" Grid.Row="1" 
+                                Command="{Binding ToggleWhitelistCommand}"
+                                Style="{DynamicResource SecondaryButton}"
+                                Text="{Binding WhitelistButtonText}"
+                                Margin="2" />
+                    </Grid>
+
+                    <!-- Weather & Time Controls -->
+                    <Frame Grid.Row="1" Style="{DynamicResource CardFrameStyle}" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Label Grid.Row="0" Text="Weather &amp; Time" 
+                                   Style="{DynamicResource LabelStyle}" 
+                                   HorizontalTextAlignment="Center" />
+
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <Button Grid.Column="0" Grid.Row="0" Text="Clear"
+                                        Command="{Binding SetWeatherClearCommand}"
+                                        Style="{DynamicResource SecondaryButton}"
+                                        FontSize="12" Margin="2" />
+
+                                <Button Grid.Column="1" Grid.Row="0" Text="Rain"
+                                        Command="{Binding SetWeatherRainCommand}"
+                                        Style="{DynamicResource SecondaryButton}"
+                                        FontSize="12" Margin="2" />
+
+                                <Button Grid.Column="2" Grid.Row="0" Text="Thunder"
+                                        Command="{Binding SetWeatherThunderCommand}"
+                                        Style="{DynamicResource SecondaryButton}"
+                                        FontSize="12" Margin="2" />
+
+                                <Button Grid.Column="0" Grid.Row="1" Text="Day"
+                                        Command="{Binding SetTimeDayCommand}"
+                                        Style="{DynamicResource SecondaryButton}"
+                                        FontSize="12" Margin="2" />
+
+                                <Button Grid.Column="1" Grid.Row="1" Text="Night"
+                                        Command="{Binding SetTimeNightCommand}"
+                                        Style="{DynamicResource SecondaryButton}"
+                                        FontSize="12" Margin="2" />
+
+                                <Button Grid.Column="2" Grid.Row="1" Text="Noon"
+                                        Command="{Binding SetTimeNoonCommand}"
+                                        Style="{DynamicResource SecondaryButton}"
+                                        FontSize="12" Margin="2" />
+                            </Grid>
+                        </Grid>
+                    </Frame>
+
+                    <!-- Difficulty & Game Rules -->
+                    <Frame Grid.Row="2" Style="{DynamicResource CardFrameStyle}" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Label Grid.Row="0" Text="Difficulty &amp; Rules" 
+                                   Style="{DynamicResource LabelStyle}" 
+                                   HorizontalTextAlignment="Center" />
+
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Button Grid.Column="0" Text="Peaceful"
+                                        Command="{Binding SetDifficultyPeacefulCommand}"
+                                        Style="{DynamicResource SecondaryButton}"
+                                        FontSize="10" Margin="1" />
+
+                                <Button Grid.Column="1" Text="Easy"
+                                        Command="{Binding SetDifficultyEasyCommand}"
+                                        Style="{DynamicResource SecondaryButton}"
+                                        FontSize="10" Margin="1" />
+
+                                <Button Grid.Column="2" Text="Normal"
+                                        Command="{Binding SetDifficultyNormalCommand}"
+                                        Style="{DynamicResource SecondaryButton}"
+                                        FontSize="10" Margin="1" />
+
+                                <Button Grid.Column="3" Text="Hard"
+                                        Command="{Binding SetDifficultyHardCommand}"
+                                        Style="{DynamicResource SecondaryButton}"
+                                        FontSize="10" Margin="1" />
+                            </Grid>
+                        </Grid>
+                    </Frame>
+
+                    <!-- Custom Server Commands
+                    <Label Grid.Row="0" Text="Custom Commands" 
+                        Style="{DynamicResource LabelStyle}" 
+                        HorizontalTextAlignment="Center" />
+                         -->
+
+                    <CollectionView Grid.Row="3" ItemsSource="{Binding ServerCustomCommands}" Margin="0,8,0,0">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="4" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <Label Grid.Column="0" Grid.Row="0" 
+                                           Text="{Binding Name}" 
+                                           Style="{DynamicResource LabelStyle}" 
+                                           FontSize="12" />
+
+                                    <Label Grid.Column="0" Grid.Row="1" 
+                                           Text="{Binding Description}" 
+                                           Style="{DynamicResource SecondaryLabelStyle}" 
+                                           FontSize="10" />
+
+                                    <StackLayout Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" 
+                                                 Orientation="Horizontal" 
+                                                 VerticalOptions="Center">
+                                        <Button Text="Run"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ExecuteCustomCommandCommand}"
+                                                CommandParameter="{Binding .}"
+                                                Style="{DynamicResource PrimaryButton}"
+                                                FontSize="10" 
+                                                WidthRequest="60"
+                                                Margin="2,0" />
+                                        
+                                        <Button Text="Edit"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditCustomCommandCommand}"
+                                                CommandParameter="{Binding .}"
+                                                Style="{DynamicResource SecondaryButton}"
+                                                FontSize="10" 
+                                                WidthRequest="60"
+                                                Margin="2,0" />
+                                    </StackLayout>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Grid>
+            </Grid>
+
+            <!-- Connection Controls -->
+            <Button Grid.Row="3"
                     Command="{Binding ToggleConnectionCommand}"
                     Style="{DynamicResource PrimaryButton}"
                     Text="{Binding ToggleConnectionButtonText}" />
-
         </Grid>
-    </Grid>
+    </ScrollView>
 </ContentPage>

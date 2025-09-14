@@ -11,6 +11,7 @@ namespace CoralClientMobileApp.DbContext
         private readonly ILogger<ServerProfileContext>? _logger;
         
         public DbSet<ServerProfile> ServerProfiles { get; set; }
+        public DbSet<CustomCommand> CustomCommands { get; set; }
 
         public ServerProfileContext()
         {
