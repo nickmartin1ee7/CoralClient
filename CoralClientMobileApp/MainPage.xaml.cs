@@ -42,13 +42,6 @@ public partial class MainPage : ContentPage, IDisposable
 		await Navigation.PushModalAsync(rconPage);
 	}
 
-	protected override void OnDisappearing()
-	{
-		base.OnDisappearing();
-		// Dispose the ViewModel when page disappears permanently
-		_viewModel?.Dispose();
-	}
-
 	public void Dispose()
 	{
 		_viewModel?.Dispose();
