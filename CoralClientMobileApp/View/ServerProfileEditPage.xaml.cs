@@ -57,4 +57,16 @@ public partial class ServerProfileEditPage : ContentPage
             _logger.LogError(ex, "Error occurred while canceling server profile edit");
         }
     }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        
+        // Ensure the task is completed if the page is dismissed without explicit Save/Cancel
+        // This handles cases like hardware back button, gesture navigation, etc.
+        if (_taskCompletionSource != null && !_taskCompletionSource.Task.IsCompleted)
+        {
+            _taskCompletionSource.SetResult(null);
+        }
+    }
 }
