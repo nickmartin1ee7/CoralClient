@@ -13,6 +13,29 @@
         <Setter Property="Padding" Value="16,12"/>
         <Setter Property="MinimumHeightRequest" Value="44"/>
         <Setter Property="MinimumWidthRequest" Value="44"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup Name="CommonStates">
+                    <VisualState Name="Normal">
+                        <VisualState.Setters>
+                            <Setter Property="Scale" Value="1.0" />
+                            <Setter Property="Opacity" Value="1.0" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="Scale" Value="0.95" />
+                            <Setter Property="Opacity" Value="0.8" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.5" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
 
     <!-- Primary Button Style -->
@@ -34,6 +57,51 @@
     <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
         <Setter Property="TextColor" Value="{DynamicResource White}" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={DynamicResource PrimaryDark}, Dark={DynamicResource Secondary}}" />
+    </Style>
+
+    <!-- Command Action Button Style (for Run/Edit buttons) -->
+    <Style x:Key="CommandActionButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="WidthRequest" Value="60"/>
+        <Setter Property="Margin" Value="2,0"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup Name="CommonStates">
+                    <VisualState Name="Normal">
+                        <VisualState.Setters>
+                            <Setter Property="Scale" Value="1.0" />
+                            <Setter Property="Opacity" Value="1.0" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="Scale" Value="0.9" />
+                            <Setter Property="Opacity" Value="0.7" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.3" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <!-- Primary Command Action Button (for Run buttons) -->
+    <Style x:Key="PrimaryCommandActionButton" TargetType="Button" BasedOn="{StaticResource CommandActionButton}">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource White}, Dark={DynamicResource Black}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={DynamicResource Primary}, Dark={DynamicResource PrimaryLight}}" />
+        <Setter Property="FontAttributes" Value="Bold"/>
+    </Style>
+
+    <!-- Secondary Command Action Button (for Edit buttons) -->
+    <Style x:Key="SecondaryCommandActionButton" TargetType="Button" BasedOn="{StaticResource CommandActionButton}">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource Primary}, Dark={DynamicResource PrimaryLight}}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource Transparent}" />
+        <Setter Property="BorderColor" Value="{AppThemeBinding Light={DynamicResource Primary}, Dark={DynamicResource PrimaryLight}}" />
+        <Setter Property="BorderWidth" Value="2"/>
     </Style>
 
     <!-- Entry Styles -->
