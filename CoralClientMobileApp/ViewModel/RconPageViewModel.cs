@@ -51,10 +51,7 @@ namespace CoralClientMobileApp.ViewModel
         private string _serverVersionText = "Version: Unknown";
 
         [ObservableProperty]
-        private string _serverMotdText = "Welcome to the server!";
-
-        [ObservableProperty]
-        private string _uptimeText = "Uptime: Unknown";
+        private string _serverMotdText = "MOTD: Unknown";
 
         [ObservableProperty]
         private string _toggleConnectionButtonText = "Connect";
