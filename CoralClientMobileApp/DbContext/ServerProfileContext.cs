@@ -33,6 +33,7 @@ namespace CoralClientMobileApp.DbContext
                 {
                     ServerProfiles.AddRange(
                     [
+                        new ServerProfile { Uri = "192.168.2.200", MinecraftPort = 25565, RconPort = 25575, Password = "yourStrongestPassword" },
                         new ServerProfile { Uri = "sample1.example.com", MinecraftPort = 25565, RconPort = 25575, Password = "pass1" },
                         new ServerProfile { Uri = "sample2.example.com", MinecraftPort = 25566, RconPort = 25576, Password = "pass2" },
                         new ServerProfile { Uri = "sample3.example.com", MinecraftPort = 25567, RconPort = 25577, Password = "pass3" },

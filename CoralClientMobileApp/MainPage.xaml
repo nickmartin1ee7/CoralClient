@@ -2,11 +2,17 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:CoralClientMobileApp.ViewModel"
+             xmlns:converters="clr-namespace:CoralClientMobileApp.Converters"
              x:Class="CoralClientMobileApp.MainPage"
              BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1f1f1f}">
 
     <ContentPage.Resources>
         <ResourceDictionary>
+            <!-- Value Converters -->
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <converters:StatusColorConverter x:Key="StatusColorConverter" />
+            <converters:GreaterThanZeroConverter x:Key="GreaterThanZeroConverter" />
+            
             <!-- Inline Button Styles -->
             <Style x:Key="PrimaryButton" TargetType="Button">
                 <Setter Property="TextColor" Value="{AppThemeBinding Light=#FFFFFF, Dark=#000000}" />
@@ -50,65 +56,180 @@
 
     <Grid Margin="16">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
+            <!-- Refresh Button -->
+            <Button Grid.Row="0"
+                    IsVisible="{Binding ServerProfiles.Count, Converter={StaticResource GreaterThanZeroConverter}}"
+                    Command="{Binding RefreshServerStatusesCommand}"
+                    Style="{StaticResource SecondaryButton}"
+                    Text="Refresh All"
+                    Margin="0,0,0,16"
+                    HorizontalOptions="End" />
+
             <Image x:Name="LogoImage"
+                   Grid.Row="1"
                    Aspect="AspectFit"
                    Opacity="0.5" />
 
-            <CollectionView Grid.Row="0"
-                            ItemsSource="{Binding ServerProfiles}"
-                            SelectionMode="Single">
-                <CollectionView.ItemTemplate>
+            <CarouselView Grid.Row="1"
+                          ItemsSource="{Binding ServerProfiles}"
+                          IndicatorView="indicatorView"
+                          PeekAreaInsets="60">
+                <CarouselView.ItemTemplate>
                     <DataTemplate>
-                        <Grid Padding="0,8,0,8"
-                            BackgroundColor="Transparent">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
+                        <Grid Padding="20">
+                            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#2d2d2d}"
+                                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#404040}"
+                                   CornerRadius="16"
+                                   HasShadow="True"
+                                   Padding="0">
+                                
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
 
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                                    <!-- Header with server address -->
+                                    <Grid Grid.Row="0" BackgroundColor="{AppThemeBinding Light=#FF69B4, Dark=#8B4B8C}" Padding="16,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <Label Grid.Column="0"
+                                               Text="{Binding ServerUriText}"
+                                               TextColor="White"
+                                               FontAttributes="Bold"
+                                               FontSize="16"
+                                               VerticalOptions="Center" />
+                                        
+                                        <Label Grid.Column="1"
+                                               Text="{Binding PingText}"
+                                               TextColor="White"
+                                               FontSize="12"
+                                               VerticalOptions="Center"
+                                               HorizontalOptions="End"
+                                               IsVisible="{Binding IsOnline}" />
+                                    </Grid>
 
-                            <Frame Grid.ColumnSpan="3"
-                                   BackgroundColor="{AppThemeBinding Light=#FFB3BA, Dark=#8B4B8C}"
-                                   Opacity="0.25"
-                                   BorderColor="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}"
-                                   CornerRadius="8"
-                                   HasShadow="False" />
+                                    <!-- Server Status Content -->
+                                    <StackLayout Grid.Row="1" Padding="16" Spacing="12">
+                                        <!-- Loading indicator -->
+                                        <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                                         IsVisible="{Binding IsLoading}"
+                                                         Color="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}"
+                                                         HorizontalOptions="Center" />
+                                        
+                                        <!-- Server status when not loading -->
+                                        <StackLayout IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"
+                                                   Spacing="8">
+                                            
+                                            <!-- Status indicator -->
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                
+                                                <Ellipse Grid.Column="0"
+                                                       Fill="{Binding IsOnline, Converter={StaticResource StatusColorConverter}}"
+                                                       WidthRequest="12"
+                                                       HeightRequest="12"
+                                                       VerticalOptions="Center"
+                                                       Margin="0,0,8,0" />
+                                                
+                                                <Label Grid.Column="1"
+                                                     Text="{Binding StatusText}"
+                                                     FontSize="14"
+                                                     FontAttributes="Bold"
+                                                     TextColor="{AppThemeBinding Light=#333333, Dark=#CCCCCC}"
+                                                     VerticalOptions="Center" />
+                                            </Grid>
 
-                            <Button x:Name="LaunchProfileButton" Grid.Column="0"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=LaunchProfileCommand}"
-                                    CommandParameter="{Binding}"
-                                    Style="{StaticResource PrimaryButton}"
-                                    Margin="8,8,4,8"
-                                    Text="{Binding ServerUriText}"/>
+                                            <!-- MOTD -->
+                                            <Label Text="{Binding MotdText}"
+                                                 FontSize="12"
+                                                 TextColor="{AppThemeBinding Light=#666666, Dark=#AAAAAA}"
+                                                 IsVisible="{Binding IsOnline}"
+                                                 LineBreakMode="WordWrap" />
 
-                            <Button x:Name="EditProfileButton" Grid.Column="1"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=EditProfileCommand}"
-                                    CommandParameter="{Binding}"
-                                    Style="{StaticResource SecondaryButton}"
-                                    Margin="4,8,4,8"
-                                    Text="Edit" />
+                                            <!-- Player list preview (first few players) -->
+                                            <CollectionView ItemsSource="{Binding PlayerList}"
+                                                          IsVisible="{Binding IsOnline}"
+                                                          HeightRequest="80">
+                                                <CollectionView.ItemsLayout>
+                                                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="4" />
+                                                </CollectionView.ItemsLayout>
+                                                <CollectionView.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Label Text="{Binding}"
+                                                             FontSize="11"
+                                                             TextColor="{AppThemeBinding Light=#888888, Dark=#999999}"
+                                                             Margin="16,0,0,0" />
+                                                    </DataTemplate>
+                                                </CollectionView.ItemTemplate>
+                                            </CollectionView>
+                                        </StackLayout>
+                                    </StackLayout>
 
-                            <Button x:Name="DeleteProfileButton" Grid.Column="2"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=DeleteProfileCommand}"
-                                    CommandParameter="{Binding}"
-                                    Style="{StaticResource DangerButton}"
-                                    Margin="4,8,8,8"
-                                    Text="Delete" />
+                                    <!-- Action buttons -->
+                                    <Grid Grid.Row="3" Padding="16,0,16,16">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- First row: Edit and Delete buttons -->
+                                        <Button Grid.Row="0" Grid.Column="0"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=EditProfileCommand}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource SecondaryButton}"
+                                                Text="Edit"
+                                                Margin="0,0,4,8" />
+
+                                        <Button Grid.Row="0" Grid.Column="1"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=DeleteProfileCommand}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource DangerButton}"
+                                                Text="Delete"
+                                                Margin="4,0,0,8" />
+
+                                        <!-- Second row: Connect button spanning both columns -->
+                                        <Button Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=LaunchProfileCommand}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource PrimaryButton}"
+                                                Text="Connect" />
+                                    </Grid>
+                                </Grid>
+                            </Frame>
                         </Grid>
                     </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                </CarouselView.ItemTemplate>
+            </CarouselView>
+
+            <!-- Carousel indicator -->
+            <IndicatorView x:Name="indicatorView"
+                           Grid.Row="1"
+                           IndicatorColor="{AppThemeBinding Light=#E0E0E0, Dark=#404040}"
+                           SelectedIndicatorColor="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}"
+                           VerticalOptions="End"
+                           HorizontalOptions="Center"
+                           Margin="0,0,0,20" />
 
             <Button x:Name="AddServerProfileButton"
-                    Grid.Row="1"
+                    Grid.Row="2"
                     Command="{Binding AddServerProfileCommand}"
                     Style="{StaticResource PrimaryButton}"
                     Margin="0,16,0,0"

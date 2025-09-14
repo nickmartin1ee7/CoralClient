@@ -8,6 +8,9 @@ using CoralClientMobileApp.Model;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MinecraftQuery;
+using MinecraftQuery.Models;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace CoralClientMobileApp.ViewModel
 {
@@ -15,16 +18,45 @@ namespace CoralClientMobileApp.ViewModel
     {
         private readonly ServerProfileContext _serverProfileContext;
         private readonly ILogger<MainPageViewModel> _logger;
+        private readonly MinecraftQueryClient _queryClient;
         private Func<string, string, Task<string>>? _promptUserFuncAsync;
         private Func<ServerProfile, Task>? _showRconPageFuncAsync;
 
-        public ObservableCollection<ServerProfile> ServerProfiles { get; }
+        public ObservableCollection<ServerProfileViewModel> ServerProfiles { get; } = [];
+        
+        // Separate collections for server statuses and loading states
+        private readonly Dictionary<Guid, ServerStatus> _serverStatuses = new();
+        private readonly Dictionary<Guid, bool> _loadingStates = new();
 
-        public MainPageViewModel(ServerProfileContext serverProfileContext, ILogger<MainPageViewModel> logger)
+        [ObservableProperty]        
+        private bool _isLoadingAllStatuses;
+
+        public MainPageViewModel(ServerProfileContext serverProfileContext, ILogger<MainPageViewModel> logger, MinecraftQueryClient queryClient)
         {
             _serverProfileContext = serverProfileContext;
             _logger = logger;
-            ServerProfiles = new ObservableCollection<ServerProfile>();
+            _queryClient = queryClient;
+        }
+
+        // Helper methods for managing server statuses and loading states
+        public ServerStatus? GetServerStatus(Guid profileId)
+        {
+            return _serverStatuses.TryGetValue(profileId, out var status) ? status : null;
+        }
+
+        public bool IsProfileLoading(Guid profileId)
+        {
+            return _loadingStates.TryGetValue(profileId, out var isLoading) && isLoading;
+        }
+
+        private void SetServerStatus(Guid profileId, ServerStatus status)
+        {
+            _serverStatuses[profileId] = status;
+        }
+
+        private void SetLoadingState(Guid profileId, bool isLoading)
+        {
+            _loadingStates[profileId] = isLoading;
         }
 
         public async Task InitializeAsync()
@@ -52,18 +84,60 @@ namespace CoralClientMobileApp.ViewModel
             try
             {
                 var profiles = await _serverProfileContext.ServerProfiles.ToListAsync();
+                    
                 ServerProfiles.Clear();
                 
                 foreach (var profile in profiles)
                 {
-                    ServerProfiles.Add(profile);
+                    ServerProfiles.Add(new ServerProfileViewModel(profile, this));
                 }
+                
+                // Load server statuses for all profiles in background without blocking
+                _ = LoadServerStatusesAsync();
                 
                 _logger.LogInformation("Loaded {ProfileCount} server profiles from database", profiles.Count);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to load server profiles from database");
+            }
+        }
+
+        private async Task LoadServerStatusesAsync()
+        {
+            try
+            {
+                IsLoadingAllStatuses = true;
+                _logger.LogInformation("Starting to load server statuses for {ProfileCount} profiles", ServerProfiles.Count);
+                
+                var tasks = ServerProfiles.Select(async profileViewModel =>
+                {
+                    try
+                    {
+                        SetLoadingState(profileViewModel.ServerProfile.Id, true);
+                        profileViewModel.NotifyAllPropertiesChanged();
+                        var status = await _queryClient.QueryServerAsync(profileViewModel.ServerProfile.Uri, profileViewModel.ServerProfile.MinecraftPort);
+                        SetServerStatus(profileViewModel.ServerProfile.Id, status);
+                        SetLoadingState(profileViewModel.ServerProfile.Id, false);
+                        profileViewModel.NotifyAllPropertiesChanged();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to query server status for {ServerUri}", profileViewModel.ServerProfile.ServerUriText);
+                        SetLoadingState(profileViewModel.ServerProfile.Id, false);
+                        profileViewModel.NotifyAllPropertiesChanged();
+                    }
+                });
+
+                await Task.WhenAll(tasks);
+                
+                IsLoadingAllStatuses = false;
+                _logger.LogInformation("Finished loading server statuses for all profiles");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load server statuses");
+                IsLoadingAllStatuses = false;
             }
         }
 
@@ -93,7 +167,7 @@ namespace CoralClientMobileApp.ViewModel
                 await _serverProfileContext.ServerProfiles.AddAsync(newProfile);
                 await _serverProfileContext.SaveChangesAsync();
                 
-                ServerProfiles.Add(newProfile);
+                ServerProfiles.Add(new ServerProfileViewModel(newProfile, this));
                 
                 _logger.LogInformation("Successfully added server profile: {ServerUri}", newProfile.ServerUriText);
             }
@@ -104,20 +178,20 @@ namespace CoralClientMobileApp.ViewModel
         }
 
         [RelayCommand]
-        private async Task LaunchProfile(ServerProfile serverProfile)
+        private async Task LaunchProfile(ServerProfileViewModel serverProfileViewModel)
         {
-            _logger.LogInformation("Launching RCON connection to {ServerUri}", serverProfile.ServerUriText);
+            _logger.LogInformation("Launching RCON connection to {ServerUri}", serverProfileViewModel.ServerProfile.ServerUriText);
             
             if (_showRconPageFuncAsync != null)
-                await _showRconPageFuncAsync(serverProfile);
+                await _showRconPageFuncAsync(serverProfileViewModel.ServerProfile);
         }
 
         [RelayCommand]
-        private async Task EditProfile(ServerProfile serverProfile)
+        private async Task EditProfile(ServerProfileViewModel serverProfileViewModel)
         {
             try
             {
-                _logger.LogInformation("Editing server profile: {ServerUri}", serverProfile.ServerUriText);
+                _logger.LogInformation("Editing server profile: {ServerUri}", serverProfileViewModel.ServerProfile.ServerUriText);
                 
                 var editedProfile = await GetServerProfileAsync();
 
@@ -128,7 +202,7 @@ namespace CoralClientMobileApp.ViewModel
                 }
 
                 // Update the existing profile instead of removing and adding
-                var existingProfile = await _serverProfileContext.ServerProfiles.FindAsync(serverProfile.Id);
+                var existingProfile = await _serverProfileContext.ServerProfiles.FindAsync(serverProfileViewModel.ServerProfile.Id);
                 if (existingProfile != null)
                 {
                     existingProfile.Uri = editedProfile.Uri;
@@ -146,28 +220,45 @@ namespace CoralClientMobileApp.ViewModel
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to edit server profile: {ServerUri}", serverProfile.ServerUriText);
+                _logger.LogError(ex, "Failed to edit server profile: {ServerUri}", serverProfileViewModel.ServerProfile.ServerUriText);
             }
         }
 
         [RelayCommand]
-        private async Task DeleteProfile(ServerProfile serverProfile)
+        private async Task DeleteProfile(ServerProfileViewModel serverProfileViewModel)
         {
             try
             {
-                _logger.LogInformation("Deleting server profile: {ServerUri}", serverProfile.ServerUriText);
+                _logger.LogInformation("Deleting server profile: {ServerUri}", serverProfileViewModel.ServerProfile.ServerUriText);
                 
-                _serverProfileContext.ServerProfiles.Remove(serverProfile);
+                _serverProfileContext.ServerProfiles.Remove(serverProfileViewModel.ServerProfile);
                 await _serverProfileContext.SaveChangesAsync();
                 
-                ServerProfiles.Remove(serverProfile);
+                ServerProfiles.Remove(serverProfileViewModel);
                 
-                _logger.LogInformation("Successfully deleted server profile: {ServerUri}", serverProfile.ServerUriText);
+                // Clean up the dictionaries
+                _serverStatuses.Remove(serverProfileViewModel.ServerProfile.Id);
+                _loadingStates.Remove(serverProfileViewModel.ServerProfile.Id);
+                
+                _logger.LogInformation("Successfully deleted server profile: {ServerUri}", serverProfileViewModel.ServerProfile.ServerUriText);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to delete server profile: {ServerUri}", serverProfile.ServerUriText);
+                _logger.LogError(ex, "Failed to delete server profile: {ServerUri}", serverProfileViewModel.ServerProfile.ServerUriText);
             }
+        }
+
+        [RelayCommand]
+        private async Task RefreshServerStatuses()
+        {
+            // Don't start another refresh if already loading
+            if (IsLoadingAllStatuses)
+            {
+                _logger.LogInformation("Server status refresh already in progress, skipping");
+                return;
+            }
+            
+            await LoadServerStatusesAsync();
         }
 
         private async Task<ServerProfile?> GetServerProfileAsync()

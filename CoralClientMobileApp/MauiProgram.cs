@@ -5,6 +5,7 @@ using CoralClientMobileApp.ViewModel;
 using CoralClientMobileApp.Model;
 using MinecraftRcon;
 using DotNet.Meteor.HotReload.Plugin;
+using MinecraftQuery;
 
 namespace CoralClientMobileApp;
 
@@ -41,6 +42,7 @@ public static class MauiProgram
 		// Register services
 		builder.Services.AddDbContext<ServerProfileContext>();
 		builder.Services.AddTransient<RconClient>();
+		builder.Services.AddTransient<MinecraftQueryClient>();
 
 #if DEBUG
 		builder.Logging.AddDebug();
