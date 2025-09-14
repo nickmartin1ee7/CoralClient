@@ -23,7 +23,7 @@ namespace CoralClientMobileApp.ViewModel
         private string _commandText = string.Empty;
 
         [ObservableProperty]
-        private string _commandCategory = "General";
+        private string _commandCategory = "Default";
 
         [ObservableProperty]
         private bool _requiresPlayerName;
@@ -70,7 +70,7 @@ namespace CoralClientMobileApp.ViewModel
                 CommandName = string.Empty;
                 CommandDescription = string.Empty;
                 CommandText = string.Empty;
-                CommandCategory = "General";
+                CommandCategory = "Default";
                 RequiresPlayerName = false;
                 SelectedTarget = CommandTarget.Server;
             }

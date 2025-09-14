@@ -29,7 +29,7 @@ namespace CoralClientMobileApp.Model
         private bool _requiresPlayerName;
 
         [ObservableProperty]
-        private string _category = "General";
+        private string _category = "Default";
 
         [ObservableProperty]
         private CommandTarget _target = CommandTarget.Server;
@@ -37,16 +37,11 @@ namespace CoralClientMobileApp.Model
         [ObservableProperty]
         private Guid _serverProfileId;
 
-        [ObservableProperty]
-        private bool _isDefault = false;
-
-        public bool IsCustomCommand => !IsDefault;
-
         public CustomCommand()
         {
         }
 
-        public CustomCommand(string name, string description, string command, bool requiresPlayerName = false, string category = "General", CommandTarget target = CommandTarget.Server)
+        public CustomCommand(string name, string description, string command, bool requiresPlayerName = false, string category = "Default", CommandTarget target = CommandTarget.Server)
         {
             Name = name;
             Description = description;

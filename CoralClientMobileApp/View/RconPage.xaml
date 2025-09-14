@@ -237,8 +237,7 @@
                                                                 Style="{DynamicResource SecondaryButton}"
                                                                 FontSize="10" 
                                                                 WidthRequest="30"
-                                                                Margin="1"
-                                                                IsVisible="{Binding IsCustomCommand}" />
+                                                                Margin="1" />
                                                     </Grid>
                                                 </DataTemplate>
                                             </CollectionView.ItemTemplate>
@@ -313,8 +312,7 @@
                                                                 Style="{DynamicResource SecondaryButton}"
                                                                 FontSize="10" 
                                                                 WidthRequest="60"
-                                                                Margin="2,0"
-                                                                IsVisible="{Binding IsCustomCommand}" />
+                                                                Margin="2,0" />
                                                     </StackLayout>
                                                 </Grid>
                                             </DataTemplate>
