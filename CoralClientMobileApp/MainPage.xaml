@@ -32,11 +32,11 @@
             <CarouselView Grid.Row="0"
                           ItemsSource="{Binding ServerProfiles}"
                           IndicatorView="indicatorView"
-                          PeekAreaInsets="60"
+                          PeekAreaInsets="15"
                           Loop="False">
                 <CarouselView.ItemTemplate>
                     <DataTemplate>
-                        <Grid Padding="20">
+                        <Grid Padding="5,10">
                             <Frame BackgroundColor="{AppThemeBinding Light={DynamicResource FrameBackgroundColor}, Dark={DynamicResource FrameBackgroundColorDark}}"
                                    BorderColor="{AppThemeBinding Light={DynamicResource BorderColor}, Dark={DynamicResource BorderColorDark}}"
                                    CornerRadius="16"
