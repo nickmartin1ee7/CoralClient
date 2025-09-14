@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoralClientMobileApp", "Cor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinecraftRcon", "MinecraftRcon\MinecraftRcon.csproj", "{7C5B4BFF-AA46-4CF8-B6F8-8B169DEE123A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinecraftQuery", "MinecraftQuery\MinecraftQuery.csproj", "{8D6C5EFF-BB47-5DF9-C7G9-9C270EFF234B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,9 +24,5 @@ Global
 		{7C5B4BFF-AA46-4CF8-B6F8-8B169DEE123A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C5B4BFF-AA46-4CF8-B6F8-8B169DEE123A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C5B4BFF-AA46-4CF8-B6F8-8B169DEE123A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8D6C5EFF-BB47-5DF9-C7G9-9C270EFF234B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8D6C5EFF-BB47-5DF9-C7G9-9C270EFF234B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8D6C5EFF-BB47-5DF9-C7G9-9C270EFF234B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8D6C5EFF-BB47-5DF9-C7G9-9C270EFF234B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -153,29 +153,12 @@
                                                      VerticalOptions="Center" />
                                             </Grid>
 
-                                            <!-- MOTD -->
-                                            <Label Text="{Binding MotdText}"
+                                            <!-- Version info -->
+                                            <Label Text="{Binding VersionText}"
                                                  FontSize="12"
                                                  TextColor="{AppThemeBinding Light=#666666, Dark=#AAAAAA}"
                                                  IsVisible="{Binding IsOnline}"
                                                  LineBreakMode="WordWrap" />
-
-                                            <!-- Player list preview (first few players) -->
-                                            <CollectionView ItemsSource="{Binding PlayerList}"
-                                                          IsVisible="{Binding IsOnline}"
-                                                          HeightRequest="80">
-                                                <CollectionView.ItemsLayout>
-                                                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="4" />
-                                                </CollectionView.ItemsLayout>
-                                                <CollectionView.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Label Text="{Binding}"
-                                                             FontSize="11"
-                                                             TextColor="{AppThemeBinding Light=#888888, Dark=#999999}"
-                                                             Margin="16,0,0,0" />
-                                                    </DataTemplate>
-                                                </CollectionView.ItemTemplate>
-                                            </CollectionView>
                                         </StackLayout>
                                     </StackLayout>
 

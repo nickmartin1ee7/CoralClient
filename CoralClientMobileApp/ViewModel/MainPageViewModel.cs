@@ -5,11 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoralClientMobileApp.DbContext;
 using CoralClientMobileApp.Model;
+using CoralClientMobileApp.Services;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MinecraftQuery;
-using MinecraftQuery.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace CoralClientMobileApp.ViewModel
@@ -18,7 +17,7 @@ namespace CoralClientMobileApp.ViewModel
     {
         private readonly ServerProfileContext _serverProfileContext;
         private readonly ILogger<MainPageViewModel> _logger;
-        private readonly MinecraftQueryClient _queryClient;
+        private readonly MinecraftQueryService _queryService;
         private Func<string, string, Task<string>>? _promptUserFuncAsync;
         private Func<ServerProfile, Task>? _showRconPageFuncAsync;
 
@@ -31,11 +30,11 @@ namespace CoralClientMobileApp.ViewModel
         [ObservableProperty]        
         private bool _isLoadingAllStatuses;
 
-        public MainPageViewModel(ServerProfileContext serverProfileContext, ILogger<MainPageViewModel> logger, MinecraftQueryClient queryClient)
+        public MainPageViewModel(ServerProfileContext serverProfileContext, ILogger<MainPageViewModel> logger, MinecraftQueryService queryService)
         {
             _serverProfileContext = serverProfileContext;
             _logger = logger;
-            _queryClient = queryClient;
+            _queryService = queryService;
         }
 
         // Helper methods for managing server statuses and loading states
@@ -116,7 +115,7 @@ namespace CoralClientMobileApp.ViewModel
                     {
                         SetLoadingState(profileViewModel.ServerProfile.Id, true);
                         profileViewModel.NotifyAllPropertiesChanged();
-                        var status = await _queryClient.QueryServerAsync(profileViewModel.ServerProfile.Uri, profileViewModel.ServerProfile.MinecraftPort);
+                        var status = await _queryService.QueryServerAsync(profileViewModel.ServerProfile.Uri, profileViewModel.ServerProfile.MinecraftPort);
                         SetServerStatus(profileViewModel.ServerProfile.Id, status);
                         SetLoadingState(profileViewModel.ServerProfile.Id, false);
                         profileViewModel.NotifyAllPropertiesChanged();

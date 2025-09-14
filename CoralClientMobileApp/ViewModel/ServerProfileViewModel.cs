@@ -1,5 +1,4 @@
 using CoralClientMobileApp.Model;
-using MinecraftQuery.Models;
 
 namespace CoralClientMobileApp.ViewModel
 {
@@ -23,8 +22,6 @@ namespace CoralClientMobileApp.ViewModel
         
         public bool IsOnline => Status?.IsOnline ?? false;
         
-        public List<string> PlayerList => Status?.PlayerList ?? [];
-        
         public string StatusText
         {
             get
@@ -36,7 +33,7 @@ namespace CoralClientMobileApp.ViewModel
             }
         }
         
-        public string MotdText => Status?.Motd ?? "";
+        public string VersionText => Status?.VersionName ?? "";
         
         public string PingText => Status?.IsOnline == true ? $"{Status.Ping}ms" : "";
 
@@ -45,9 +42,8 @@ namespace CoralClientMobileApp.ViewModel
             OnPropertyChanged(nameof(IsLoading));
             OnPropertyChanged(nameof(Status));
             OnPropertyChanged(nameof(IsOnline));
-            OnPropertyChanged(nameof(PlayerList));
             OnPropertyChanged(nameof(StatusText));
-            OnPropertyChanged(nameof(MotdText));
+            OnPropertyChanged(nameof(VersionText));
             OnPropertyChanged(nameof(PingText));
         }
     }
