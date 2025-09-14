@@ -140,15 +140,8 @@
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
                                     <Grid Padding="8">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Text="{Binding Name}" 
+                                        <Label Text="{Binding Name}" 
                                                Style="{DynamicResource LabelStyle}" />
-                                        <Label Grid.Column="1" Text="{Binding Status}" 
-                                               Style="{DynamicResource SecondaryLabelStyle}" 
-                                               FontSize="10" />
                                     </Grid>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>

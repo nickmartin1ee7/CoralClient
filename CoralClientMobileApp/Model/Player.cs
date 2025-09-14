@@ -7,17 +7,13 @@ namespace CoralClientMobileApp.Model
         [ObservableProperty]
         private string _name = string.Empty;
 
-        [ObservableProperty]
-        private string _status = "Online";
-
         public Player()
         {
         }
 
-        public Player(string name, string status = "Online")
+        public Player(string name)
         {
             Name = name;
-            Status = status;
         }
     }
 }

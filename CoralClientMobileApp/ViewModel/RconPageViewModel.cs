@@ -936,20 +936,15 @@ namespace CoralClientMobileApp.ViewModel
                     OnlinePlayers.Remove(player);
                 }
 
-                // Add new players and update existing ones
+                // Add new players
                 foreach (var playerName in currentPlayerNames)
                 {
                     var existingPlayer = OnlinePlayers.FirstOrDefault(p => p.Name == playerName);
                     if (existingPlayer == null)
                     {
                         // Create new player
-                        var newPlayer = new Player(playerName, "Online");
+                        var newPlayer = new Player(playerName);
                         OnlinePlayers.Add(newPlayer);
-                    }
-                    else
-                    {
-                        // Update existing player status
-                        existingPlayer.Status = "Online";
                     }
                 }
             }
