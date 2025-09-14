@@ -285,11 +285,11 @@ namespace CoralClientMobileApp.ViewModel
 
         private async Task PollServerStatus()
         {
-            if (_cancellationTokenSource.Token.IsCancellationRequested)
-                return;
-
             try
             {
+                if (_cancellationTokenSource.Token.IsCancellationRequested)
+                    return;
+
                 var status = await _queryService.QueryServerFullAsync(_serverProfile.Uri, _serverProfile.MinecraftPort);
                 
                 if (status.IsOnline)
