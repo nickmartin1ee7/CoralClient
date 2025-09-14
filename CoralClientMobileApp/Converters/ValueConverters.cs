@@ -26,9 +26,9 @@ namespace CoralClientMobileApp.Converters
         {
             if (value is bool isOnline)
             {
-                return isOnline ? "Green" : "Red";
+                return isOnline ? Color.FromArgb("#00FF00") : Color.FromArgb("#FF0000"); // Green : Red
             }
-            return "Gray";
+            return Color.FromArgb("#808080"); // Gray
         }
 
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

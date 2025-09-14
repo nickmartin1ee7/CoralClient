@@ -226,7 +226,7 @@
                            SelectedIndicatorColor="{AppThemeBinding Light=#FF69B4, Dark=#FFB3BA}"
                            VerticalOptions="End"
                            HorizontalOptions="Center"
-                           Margin="0,0,0,20" />
+                           Margin="0,10,0,0" />
 
             <Button x:Name="AddServerProfileButton"
                     Grid.Row="2"
