@@ -10,15 +10,6 @@ namespace CoralClientMobileApp.Model
         [ObservableProperty]
         private string _status = "Online";
 
-        [ObservableProperty]
-        private string _gameMode = "Survival";
-
-        [ObservableProperty]
-        private bool _isOperator;
-
-        [ObservableProperty]
-        private string _dimension = "Overworld";
-
         public Player()
         {
         }

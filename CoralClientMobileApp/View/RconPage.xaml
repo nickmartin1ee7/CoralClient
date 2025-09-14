@@ -141,22 +141,12 @@
                                 <DataTemplate>
                                     <Grid Padding="8">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="2*" />
                                             <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <Label Grid.Column="0" Text="{Binding Name}" 
                                                Style="{DynamicResource LabelStyle}" />
-                                        <Label Grid.Column="1" Text="{Binding GameMode}" 
-                                               Style="{DynamicResource SecondaryLabelStyle}" 
-                                               FontSize="10" />
-                                        <Label Grid.Column="2" Text="OP" 
-                                               IsVisible="{Binding IsOperator}"
-                                               Style="{DynamicResource LabelStyle}" 
-                                               TextColor="Orange" 
-                                               FontSize="10" FontAttributes="Bold" />
-                                        <Label Grid.Column="3" Text="{Binding Status}" 
+                                        <Label Grid.Column="1" Text="{Binding Status}" 
                                                Style="{DynamicResource SecondaryLabelStyle}" 
                                                FontSize="10" />
                                     </Grid>

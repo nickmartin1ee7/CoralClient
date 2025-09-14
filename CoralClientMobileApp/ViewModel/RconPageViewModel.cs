@@ -945,9 +945,6 @@ namespace CoralClientMobileApp.ViewModel
                         // Create new player
                         var newPlayer = new Player(playerName, "Online");
                         OnlinePlayers.Add(newPlayer);
-                        
-                        // Fetch additional player info in background
-                        _ = Task.Run(async () => await FetchPlayerInfoAsync(newPlayer));
                     }
                     else
                     {
@@ -962,43 +959,6 @@ namespace CoralClientMobileApp.ViewModel
             }
             
             return Task.CompletedTask;
-        }
-
-        private async Task FetchPlayerInfoAsync(Player player)
-        {
-            try
-            {
-                if (CurrentState != State.CONNECTED) return;
-
-                // For now, set default values and mark that we've attempted to fetch info
-                // In a real implementation, you might use server plugins or mods to get this info safely
-                player.GameMode = "Unknown";
-                player.IsOperator = false;
-                
-                // You could implement specific logic here if your server supports safer commands
-                // For example, some servers have plugins that provide player info APIs
-                
-                await Task.Delay(100); // Small delay to prevent hammering the server
-            }
-            catch (Exception ex)
-            {
-                _logger.LogDebug(ex, "Failed to fetch additional info for player {PlayerName}", player.Name);
-            }
-        }
-
-        private async Task CheckPlayerOpStatusAsync(Player player)
-        {
-            // Placeholder - implement safer op checking if needed
-            // The previous implementation was too invasive (actually opping/deopping players)
-            player.IsOperator = false;
-            await Task.CompletedTask;
-        }
-
-        private async Task GetPlayerGameModeAsync(Player player)
-        {
-            // Placeholder - implement safer gamemode checking if needed
-            player.GameMode = "Unknown";
-            await Task.CompletedTask;
         }
     }
 }
