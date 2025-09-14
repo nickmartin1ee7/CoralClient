@@ -231,12 +231,12 @@
                                                                 Margin="1" />
                                                         
                                                         <Button Grid.Column="1" 
-                                                                Text="✏️"
+                                                                Text="Edit"
                                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditCustomCommandCommand}"
                                                                 CommandParameter="{Binding .}"
                                                                 Style="{DynamicResource SecondaryButton}"
                                                                 FontSize="10" 
-                                                                WidthRequest="30"
+                                                                WidthRequest="60"
                                                                 Margin="1" />
                                                     </Grid>
                                                 </DataTemplate>
@@ -301,7 +301,7 @@
                                                         <Button Text="Run"
                                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ExecuteCustomCommandCommand}"
                                                                 CommandParameter="{Binding .}"
-                                                                Style="{DynamicResource PrimaryButton}"
+                                                                Style="{DynamicResource DangerButton}"
                                                                 FontSize="10" 
                                                                 WidthRequest="60"
                                                                 Margin="2,0" />
