@@ -114,8 +114,7 @@ namespace CoralClientMobileApp.DbContext
                         Category = "Default",
                         Target = CommandTarget.Player,
                         RequiresPlayerName = true,
-                        ServerProfileId = serverProfile.Id,
-                        IsDefault = true
+                        ServerProfileId = serverProfile.Id
                     },
                     new CustomCommand
                     {
@@ -126,8 +125,7 @@ namespace CoralClientMobileApp.DbContext
                         Category = "Default",
                         Target = CommandTarget.Player,
                         RequiresPlayerName = true,
-                        ServerProfileId = serverProfile.Id,
-                        IsDefault = true
+                        ServerProfileId = serverProfile.Id
                     },
                     new CustomCommand
                     {
@@ -138,8 +136,7 @@ namespace CoralClientMobileApp.DbContext
                         Category = "Default",
                         Target = CommandTarget.Player,
                         RequiresPlayerName = true,
-                        ServerProfileId = serverProfile.Id,
-                        IsDefault = true
+                        ServerProfileId = serverProfile.Id
                     },
                     new CustomCommand
                     {
@@ -150,8 +147,7 @@ namespace CoralClientMobileApp.DbContext
                         Category = "Default",
                         Target = CommandTarget.Player,
                         RequiresPlayerName = true,
-                        ServerProfileId = serverProfile.Id,
-                        IsDefault = true
+                        ServerProfileId = serverProfile.Id
                     },
                     new CustomCommand
                     {
@@ -162,8 +158,7 @@ namespace CoralClientMobileApp.DbContext
                         Category = "Default",
                         Target = CommandTarget.Player,
                         RequiresPlayerName = true,
-                        ServerProfileId = serverProfile.Id,
-                        IsDefault = true
+                        ServerProfileId = serverProfile.Id
                     },
                     new CustomCommand
                     {
@@ -174,8 +169,7 @@ namespace CoralClientMobileApp.DbContext
                         Category = "Default",
                         Target = CommandTarget.Player,
                         RequiresPlayerName = true,
-                        ServerProfileId = serverProfile.Id,
-                        IsDefault = true
+                        ServerProfileId = serverProfile.Id
                     }
                 });
 
@@ -191,8 +185,7 @@ namespace CoralClientMobileApp.DbContext
                         Category = "Default",
                         Target = CommandTarget.Server,
                         RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id,
-                        IsDefault = true
+                        ServerProfileId = serverProfile.Id
                     },
                     new CustomCommand
                     {
@@ -203,8 +196,7 @@ namespace CoralClientMobileApp.DbContext
                         Category = "Default",
                         Target = CommandTarget.Server,
                         RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id,
-                        IsDefault = true
+                        ServerProfileId = serverProfile.Id
                     },
                     new CustomCommand
                     {
@@ -215,8 +207,7 @@ namespace CoralClientMobileApp.DbContext
                         Category = "Default",
                         Target = CommandTarget.Server,
                         RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id,
-                        IsDefault = true
+                        ServerProfileId = serverProfile.Id
                     },
                     new CustomCommand
                     {
@@ -227,8 +218,7 @@ namespace CoralClientMobileApp.DbContext
                         Category = "Default",
                         Target = CommandTarget.Server,
                         RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id,
-                        IsDefault = true
+                        ServerProfileId = serverProfile.Id
                     },
                     new CustomCommand
                     {
@@ -239,8 +229,7 @@ namespace CoralClientMobileApp.DbContext
                         Category = "Default",
                         Target = CommandTarget.Server,
                         RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id,
-                        IsDefault = true
+                        ServerProfileId = serverProfile.Id
                     },
                     new CustomCommand
                     {
@@ -251,8 +240,7 @@ namespace CoralClientMobileApp.DbContext
                         Category = "Default",
                         Target = CommandTarget.Server,
                         RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id,
-                        IsDefault = true
+                        ServerProfileId = serverProfile.Id
                     },
                     new CustomCommand
                     {
@@ -263,8 +251,7 @@ namespace CoralClientMobileApp.DbContext
                         Category = "Default",
                         Target = CommandTarget.Server,
                         RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id,
-                        IsDefault = true
+                        ServerProfileId = serverProfile.Id
                     },
                     new CustomCommand
                     {
@@ -275,8 +262,7 @@ namespace CoralClientMobileApp.DbContext
                         Category = "Default",
                         Target = CommandTarget.Server,
                         RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id,
-                        IsDefault = true
+                        ServerProfileId = serverProfile.Id
                     },
                     new CustomCommand
                     {
@@ -287,8 +273,7 @@ namespace CoralClientMobileApp.DbContext
                         Category = "Default",
                         Target = CommandTarget.Server,
                         RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id,
-                        IsDefault = true
+                        ServerProfileId = serverProfile.Id
                     }
                 });
             }

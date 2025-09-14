@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:CoralClientMobileApp.ViewModel"
              xmlns:converters="clr-namespace:CoralClientMobileApp.Converters"
              x:Class="CoralClientMobileApp.View.RconPage"
-             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1f1f1f}">
+             BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundColor}, Dark={StaticResource PageBackgroundColorDark}}">
     
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -149,6 +149,20 @@
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
                                     <Grid Padding="8">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroup Name="CommonStates">
+                                                <VisualState Name="Normal">
+                                                    <VisualState.Setters>
+                                                        <Setter Property="BackgroundColor" Value="Transparent" />
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                                <VisualState Name="Selected">
+                                                    <VisualState.Setters>
+                                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SelectionColor}, Dark={StaticResource SelectionColorDark}}" />
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                        </VisualStateManager.VisualStateGroups>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="40" />
                                             <ColumnDefinition Width="*" />
@@ -179,7 +193,7 @@
                                                 <!-- Loading indicator -->
                                                 <ActivityIndicator IsRunning="{Binding IsLoadingAvatar}"
                                                                    IsVisible="{Binding IsLoadingAvatar}"
-                                                                   Color="{AppThemeBinding Light=#007ACC, Dark=#00D4FF}"
+                                                                   Color="{AppThemeBinding Light={StaticResource ActivityIndicatorColor}, Dark={StaticResource ActivityIndicatorColorDark}}"
                                                                    WidthRequest="16"
                                                                    HeightRequest="16" />
                                             </Grid>

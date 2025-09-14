@@ -133,4 +133,10 @@
         <Setter Property="Margin" Value="0,0,0,8"/>
     </Style>
 
+    <!-- CollectionView Styles -->
+    <Style x:Key="PlayerListCollectionView" TargetType="CollectionView">
+        <Setter Property="SelectionMode" Value="Single"/>
+        <Setter Property="BackgroundColor" Value="Transparent"/>
+    </Style>
+
 </ResourceDictionary>

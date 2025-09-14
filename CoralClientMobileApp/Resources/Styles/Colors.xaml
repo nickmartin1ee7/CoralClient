@@ -42,6 +42,14 @@
     <Color x:Key="WarningColor">#ffc107</Color>
     <Color x:Key="InfoColor">#17a2b8</Color>
     
+    <!-- Activity Indicator Colors -->
+    <Color x:Key="ActivityIndicatorColor">#007ACC</Color>
+    <Color x:Key="ActivityIndicatorColorDark">#00D4FF</Color>
+    
+    <!-- Selection Colors -->
+    <Color x:Key="SelectionColor">#8B4B8C</Color>
+    <Color x:Key="SelectionColorDark">#8B4B8C</Color>
+    
     <!-- Transparent -->
     <Color x:Key="Transparent">Transparent</Color>
     <Color x:Key="White">#FFFFFF</Color>
