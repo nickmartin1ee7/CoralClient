@@ -168,7 +168,6 @@ namespace CoralClientMobileApp.ViewModel
                 case State.DISCONNECTED:
                 {
                     ServerNameText = _serverProfile.ServerUriText;
-                    OnlinePlayerText = "Players: ?/?";
                     WriteToCommandLog("Info", "Disconnected");
                     IsSendCommandEnabled = false;
                     ToggleConnectionButtonText = "Connect";
