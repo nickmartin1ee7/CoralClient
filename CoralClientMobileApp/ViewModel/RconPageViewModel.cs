@@ -290,7 +290,7 @@ namespace CoralClientMobileApp.ViewModel
 
             try
             {
-                var status = await _queryService.QueryServerAsync(_serverProfile.Uri, _serverProfile.MinecraftPort);
+                var status = await _queryService.QueryServerFullAsync(_serverProfile.Uri, _serverProfile.MinecraftPort);
                 
                 if (status.IsOnline)
                 {

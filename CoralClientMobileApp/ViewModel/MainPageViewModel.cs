@@ -154,7 +154,7 @@ namespace CoralClientMobileApp.ViewModel
                     profileViewModel?.NotifyAllPropertiesChanged();
                 }
 
-                var status = await _queryService.QueryServerAsync(profile.Uri, profile.MinecraftPort);
+                var status = await _queryService.QueryServerFullAsync(profile.Uri, profile.MinecraftPort);
                 SetServerStatus(profile.Id, status);
                 
                 // Mark as completed first poll and set loading to false only if this was the first poll

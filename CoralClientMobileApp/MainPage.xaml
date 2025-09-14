@@ -149,6 +149,39 @@
                                                  TextColor="{AppThemeBinding Light=#666666, Dark=#AAAAAA}"
                                                  IsVisible="{Binding IsOnline}"
                                                  LineBreakMode="WordWrap" />
+                                            
+                                            <!-- MOTD -->
+                                            <Label Text="{Binding MotdText}"
+                                                 FontSize="12"
+                                                 FontAttributes="Italic"
+                                                 TextColor="{AppThemeBinding Light=#666666, Dark=#AAAAAA}"
+                                                 IsVisible="{Binding IsOnline}"
+                                                 LineBreakMode="WordWrap"
+                                                 Margin="0,4,0,0" />
+                                            
+                                            <!-- Detailed server info (Game type, Map, etc.) -->
+                                            <Label Text="{Binding DetailedServerInfo}"
+                                                 FontSize="11"
+                                                 TextColor="{AppThemeBinding Light=#888888, Dark=#999999}"
+                                                 IsVisible="{Binding IsOnline}"
+                                                 LineBreakMode="WordWrap"
+                                                 Margin="0,4,0,0" />
+                                            
+                                            <!-- Plugins info -->
+                                            <Label Text="{Binding PluginsText}"
+                                                 FontSize="11"
+                                                 TextColor="{AppThemeBinding Light=#888888, Dark=#999999}"
+                                                 IsVisible="{Binding IsOnline}"
+                                                 LineBreakMode="WordWrap"
+                                                 Margin="0,2,0,0" />
+                                            
+                                            <!-- Player list (if available) -->
+                                            <Label Text="{Binding PlayerListText}"
+                                                 FontSize="11"
+                                                 TextColor="{AppThemeBinding Light=#888888, Dark=#999999}"
+                                                 IsVisible="{Binding HasPlayerList}"
+                                                 LineBreakMode="WordWrap"
+                                                 Margin="0,4,0,0" />
                                         </StackLayout>
                                     </StackLayout>
 
