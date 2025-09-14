@@ -37,7 +37,6 @@ namespace CoralClientMobileApp.ViewModel
         
         public string PingText => Status?.IsOnline == true ? $"{Status.Ping}ms" : "";
         
-        // New properties for McQuery.Net information
         public string MotdText => Status?.Motd ?? "";
         
         public string GameTypeText => Status?.GameType ?? "";
@@ -54,15 +53,15 @@ namespace CoralClientMobileApp.ViewModel
                 var parts = new List<string>();
                 
                 if (!string.IsNullOrEmpty(status.GameType))
-                    parts.Add($"Game: {status.GameType}");
+                    parts.Add($"• Game: {status.GameType}");
                     
                 if (!string.IsNullOrEmpty(status.Map))
-                    parts.Add($"Map: {status.Map}");
+                    parts.Add($"• Map: {status.Map}");
                     
                 if (!string.IsNullOrEmpty(status.GameId))
-                    parts.Add($"Game ID: {status.GameId}");
+                    parts.Add($"• Game ID: {status.GameId}");
                 
-                return string.Join(" • ", parts);
+                return string.Join(Environment.NewLine, parts).Trim();
             }
         }
         

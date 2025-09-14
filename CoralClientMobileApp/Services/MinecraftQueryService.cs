@@ -90,6 +90,16 @@ namespace CoralClientMobileApp.Services
                     PlayerList = fullStatusResponse.PlayerList
                 };
             }
+            catch (SocketException se) when (se.SocketErrorCode == SocketError.HostNotFound)
+
+            {
+                // For DNS resolution failures - do not fallback to basic status
+                return new Model.ServerStatus
+                {
+                    IsOnline = false,
+                    ErrorMessage = se.Message
+                };
+            }
             catch (Exception ex)
             {
                 // Fallback to basic status if full status fails
@@ -110,23 +120,15 @@ namespace CoralClientMobileApp.Services
 
         private async Task<string> ResolveHostnameAsync(string hostname)
         {
-            try
+            // If it's already an IP address, return as is
+            if (IPAddress.TryParse(hostname, out _))
             {
-                // If it's already an IP address, return as is
-                if (IPAddress.TryParse(hostname, out _))
-                {
-                    return hostname;
-                }
-                
-                // Resolve hostname to IP address
-                var hostEntry = await Dns.GetHostEntryAsync(hostname);
-                return hostEntry.AddressList.First(addr => addr.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).ToString();
-            }
-            catch
-            {
-                // If resolution fails, try to parse as IP anyway
                 return hostname;
             }
+            
+            // Resolve hostname to IP address
+            var hostEntry = await Dns.GetHostEntryAsync(hostname);
+            return hostEntry.AddressList.First(addr => addr.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).ToString();
         }
 
         private async Task<int> PingServerAsync(string address, int port)
@@ -161,7 +163,7 @@ namespace CoralClientMobileApp.Services
                 stopwatch.Stop();
                 return (int)stopwatch.ElapsedMilliseconds;
             }
-            catch
+            catch (Exception ex)
             {
                 return -1;
             }
