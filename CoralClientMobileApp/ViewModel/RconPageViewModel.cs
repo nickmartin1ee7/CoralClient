@@ -280,7 +280,7 @@ namespace CoralClientMobileApp.ViewModel
 
         private void StartStatusPolling()
         {
-            _queryTimer = new Timer(async _ => await PollServerStatus(), null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+            _queryTimer = new Timer(async _ => await PollServerStatus(), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
         }
 
         private async Task PollServerStatus()

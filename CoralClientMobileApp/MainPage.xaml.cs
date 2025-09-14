@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CoralClientMobileApp;
 
-public partial class MainPage : ContentPage
+public partial class MainPage : ContentPage, IDisposable
 {
 	private readonly MainPageViewModel _viewModel;
 	private readonly IServiceProvider _serviceProvider;
@@ -40,6 +40,18 @@ public partial class MainPage : ContentPage
 		var rconPage = _serviceProvider.GetRequiredService<RconPage>();
 		rconPage.Initialize(serverProfile);
 		await Navigation.PushModalAsync(rconPage);
+	}
+
+	protected override void OnDisappearing()
+	{
+		base.OnDisappearing();
+		// Dispose the ViewModel when page disappears permanently
+		_viewModel?.Dispose();
+	}
+
+	public void Dispose()
+	{
+		_viewModel?.Dispose();
 	}
 }
 

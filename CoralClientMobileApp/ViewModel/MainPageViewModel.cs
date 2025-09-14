@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CoralClientMobileApp.DbContext;
 using CoralClientMobileApp.Model;
@@ -13,11 +14,13 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace CoralClientMobileApp.ViewModel
 {
-    public partial class MainPageViewModel : BaseObservableViewModel
+    public partial class MainPageViewModel : BaseObservableViewModel, IDisposable
     {
         private readonly ServerProfileContext _serverProfileContext;
         private readonly ILogger<MainPageViewModel> _logger;
         private readonly MinecraftQueryService _queryService;
+        private readonly CancellationTokenSource _cancellationTokenSource = new();
+        private readonly Dictionary<Guid, Timer> _serverQueryTimers = new();
         private Func<string, string, Task<string>>? _promptUserFuncAsync;
         private Func<ServerProfile, Task>? _showRconPageFuncAsync;
 
@@ -26,9 +29,7 @@ namespace CoralClientMobileApp.ViewModel
         // Separate collections for server statuses and loading states
         private readonly Dictionary<Guid, ServerStatus> _serverStatuses = new();
         private readonly Dictionary<Guid, bool> _loadingStates = new();
-
-        [ObservableProperty]        
-        private bool _isLoadingAllStatuses;
+        private readonly Dictionary<Guid, bool> _hasCompletedFirstPoll = new();
 
         public MainPageViewModel(ServerProfileContext serverProfileContext, ILogger<MainPageViewModel> logger, MinecraftQueryService queryService)
         {
@@ -91,8 +92,8 @@ namespace CoralClientMobileApp.ViewModel
                     ServerProfiles.Add(new ServerProfileViewModel(profile, this));
                 }
                 
-                // Load server statuses for all profiles in background without blocking
-                _ = LoadServerStatusesAsync();
+                // Start polling for each server profile
+                StartServerPolling();
                 
                 _logger.LogInformation("Loaded {ProfileCount} server profiles from database", profiles.Count);
             }
@@ -102,41 +103,85 @@ namespace CoralClientMobileApp.ViewModel
             }
         }
 
-        private async Task LoadServerStatusesAsync()
+        private void StartServerPolling()
         {
+            _logger.LogInformation("Starting continuous polling for {ProfileCount} server profiles", ServerProfiles.Count);
+            
+            foreach (var profileViewModel in ServerProfiles)
+            {
+                StartPollingForProfile(profileViewModel.ServerProfile);
+            }
+        }
+
+        private void StartPollingForProfile(ServerProfile profile)
+        {
+            if (_serverQueryTimers.ContainsKey(profile.Id))
+            {
+                _serverQueryTimers[profile.Id].Dispose();
+            }
+
+            _serverQueryTimers[profile.Id] = new Timer(
+                async _ => await PollServerStatus(profile),
+                null,
+                TimeSpan.Zero,
+                TimeSpan.FromSeconds(5)
+            );
+        }
+
+        private void StopPollingForProfile(Guid profileId)
+        {
+            if (_serverQueryTimers.TryGetValue(profileId, out var timer))
+            {
+                timer.Dispose();
+                _serverQueryTimers.Remove(profileId);
+            }
+        }
+
+        private async Task PollServerStatus(ServerProfile profile)
+        {
+            if (_cancellationTokenSource.Token.IsCancellationRequested)
+                return;
+
             try
             {
-                IsLoadingAllStatuses = true;
-                _logger.LogInformation("Starting to load server statuses for {ProfileCount} profiles", ServerProfiles.Count);
-                
-                var tasks = ServerProfiles.Select(async profileViewModel =>
+                // Only set loading state to true for the very first poll
+                if (!_hasCompletedFirstPoll.ContainsKey(profile.Id) || !_hasCompletedFirstPoll[profile.Id])
                 {
-                    try
-                    {
-                        SetLoadingState(profileViewModel.ServerProfile.Id, true);
-                        profileViewModel.NotifyAllPropertiesChanged();
-                        var status = await _queryService.QueryServerAsync(profileViewModel.ServerProfile.Uri, profileViewModel.ServerProfile.MinecraftPort);
-                        SetServerStatus(profileViewModel.ServerProfile.Id, status);
-                        SetLoadingState(profileViewModel.ServerProfile.Id, false);
-                        profileViewModel.NotifyAllPropertiesChanged();
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Failed to query server status for {ServerUri}", profileViewModel.ServerProfile.ServerUriText);
-                        SetLoadingState(profileViewModel.ServerProfile.Id, false);
-                        profileViewModel.NotifyAllPropertiesChanged();
-                    }
-                });
+                    SetLoadingState(profile.Id, true);
+                    
+                    // Find and notify the specific profile view model
+                    var profileViewModel = ServerProfiles.FirstOrDefault(p => p.ServerProfile.Id == profile.Id);
+                    profileViewModel?.NotifyAllPropertiesChanged();
+                }
 
-                await Task.WhenAll(tasks);
+                var status = await _queryService.QueryServerAsync(profile.Uri, profile.MinecraftPort);
+                SetServerStatus(profile.Id, status);
                 
-                IsLoadingAllStatuses = false;
-                _logger.LogInformation("Finished loading server statuses for all profiles");
+                // Mark as completed first poll and set loading to false only if this was the first poll
+                if (!_hasCompletedFirstPoll.ContainsKey(profile.Id) || !_hasCompletedFirstPoll[profile.Id])
+                {
+                    _hasCompletedFirstPoll[profile.Id] = true;
+                    SetLoadingState(profile.Id, false);
+                }
+                
+                // Notify UI thread that this specific profile's status has updated
+                var profileViewModelAfter = ServerProfiles.FirstOrDefault(p => p.ServerProfile.Id == profile.Id);
+                profileViewModelAfter?.NotifyAllPropertiesChanged();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to load server statuses");
-                IsLoadingAllStatuses = false;
+                _logger.LogDebug(ex, "Failed to query server status for {ServerUri} during polling", profile.ServerUriText);
+                
+                // Mark as completed first poll and set loading to false only if this was the first poll
+                if (!_hasCompletedFirstPoll.ContainsKey(profile.Id) || !_hasCompletedFirstPoll[profile.Id])
+                {
+                    _hasCompletedFirstPoll[profile.Id] = true;
+                    SetLoadingState(profile.Id, false);
+                }
+                
+                // Find and notify the specific profile view model
+                var profileViewModel = ServerProfiles.FirstOrDefault(p => p.ServerProfile.Id == profile.Id);
+                profileViewModel?.NotifyAllPropertiesChanged();
             }
         }
 
@@ -166,7 +211,11 @@ namespace CoralClientMobileApp.ViewModel
                 await _serverProfileContext.ServerProfiles.AddAsync(newProfile);
                 await _serverProfileContext.SaveChangesAsync();
                 
-                ServerProfiles.Add(new ServerProfileViewModel(newProfile, this));
+                var newProfileViewModel = new ServerProfileViewModel(newProfile, this);
+                ServerProfiles.Add(newProfileViewModel);
+                
+                // Start polling for the new server profile
+                StartPollingForProfile(newProfile);
                 
                 _logger.LogInformation("Successfully added server profile: {ServerUri}", newProfile.ServerUriText);
             }
@@ -211,7 +260,7 @@ namespace CoralClientMobileApp.ViewModel
                     
                     await _serverProfileContext.SaveChangesAsync();
                     
-                    // Refresh the collection
+                    // Refresh the collection and restart polling
                     await LoadServerProfilesAsync();
                     
                     _logger.LogInformation("Successfully updated server profile: {ServerUri}", existingProfile.ServerUriText);
@@ -233,11 +282,15 @@ namespace CoralClientMobileApp.ViewModel
                 _serverProfileContext.ServerProfiles.Remove(serverProfileViewModel.ServerProfile);
                 await _serverProfileContext.SaveChangesAsync();
                 
+                // Stop polling for this profile
+                StopPollingForProfile(serverProfileViewModel.ServerProfile.Id);
+                
                 ServerProfiles.Remove(serverProfileViewModel);
                 
                 // Clean up the dictionaries
                 _serverStatuses.Remove(serverProfileViewModel.ServerProfile.Id);
                 _loadingStates.Remove(serverProfileViewModel.ServerProfile.Id);
+                _hasCompletedFirstPoll.Remove(serverProfileViewModel.ServerProfile.Id);
                 
                 _logger.LogInformation("Successfully deleted server profile: {ServerUri}", serverProfileViewModel.ServerProfile.ServerUriText);
             }
@@ -245,19 +298,6 @@ namespace CoralClientMobileApp.ViewModel
             {
                 _logger.LogError(ex, "Failed to delete server profile: {ServerUri}", serverProfileViewModel.ServerProfile.ServerUriText);
             }
-        }
-
-        [RelayCommand]
-        private async Task RefreshServerStatuses()
-        {
-            // Don't start another refresh if already loading
-            if (IsLoadingAllStatuses)
-            {
-                _logger.LogInformation("Server status refresh already in progress, skipping");
-                return;
-            }
-            
-            await LoadServerStatusesAsync();
         }
 
         private async Task<ServerProfile?> GetServerProfileAsync()
@@ -299,6 +339,25 @@ namespace CoralClientMobileApp.ViewModel
                 RconPort = serverRconPortParsed,
                 Password = serverRconPassword
             };
+        }
+
+        public void Dispose()
+        {
+            _cancellationTokenSource?.Cancel();
+            
+            // Dispose all server query timers
+            foreach (var timer in _serverQueryTimers.Values)
+            {
+                timer?.Dispose();
+            }
+            _serverQueryTimers.Clear();
+            
+            // Clear all tracking dictionaries
+            _serverStatuses.Clear();
+            _loadingStates.Clear();
+            _hasCompletedFirstPoll.Clear();
+            
+            _cancellationTokenSource?.Dispose();
         }
     }
 }

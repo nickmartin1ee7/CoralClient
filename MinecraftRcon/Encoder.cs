@@ -16,7 +16,7 @@ namespace MinecraftRcon
             bytes.AddRange(BitConverter.GetBytes(msg.Id));
             bytes.AddRange(BitConverter.GetBytes((int)msg.Type));
             bytes.AddRange(Encoding.ASCII.GetBytes(msg.Body));
-            bytes.AddRange(new byte[] { 0, 0 });
+            bytes.AddRange([0, 0]);
 
             return bytes.ToArray();
         }
