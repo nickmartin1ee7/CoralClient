@@ -1000,23 +1000,5 @@ namespace CoralClientMobileApp.ViewModel
             player.GameMode = "Unknown";
             await Task.CompletedTask;
         }
-
-        private async Task<string> ExecuteRconCommandInternalAsync(string command)
-        {
-            try
-            {
-                if (_rcon?.IsConnected == true)
-                {
-                    await _rcon.SendCommandAsync(command);
-                    return string.Empty; // For now, we don't capture responses
-                }
-                return string.Empty;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogDebug(ex, "Failed to execute internal RCON command: {Command}", command);
-                return string.Empty;
-            }
-        }
     }
 }
