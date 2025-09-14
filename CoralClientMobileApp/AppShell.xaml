@@ -23,7 +23,7 @@
     </Shell.Resources>
 
     <ShellContent
-        Title="Home"
+        Title="Server Browser"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
 
