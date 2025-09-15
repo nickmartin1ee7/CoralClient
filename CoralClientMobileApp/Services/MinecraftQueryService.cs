@@ -48,11 +48,8 @@ namespace CoralClientMobileApp.Services
             }
             catch (Exception ex)
             {
-                return new Model.ServerStatus
-                {
-                    IsOnline = false,
-                    ErrorMessage = ex.Message
-                };
+                // Fallback to TCP check if query fails
+                return await TcpFallbackCheckAsync(address, port, ex.Message);
             }
         }
 
@@ -109,12 +106,71 @@ namespace CoralClientMobileApp.Services
                 }
                 catch
                 {
+                    // If both full and basic query fail, fallback to TCP check
+                    return await TcpFallbackCheckAsync(address, port, ex.Message);
+                }
+            }
+        }
+
+        private async Task<Model.ServerStatus> TcpFallbackCheckAsync(string address, int port, string originalError)
+        {
+            try
+            {
+                // Try to connect via TCP to determine if server is at least reachable
+                var resolvedAddress = await ResolveHostnameAsync(address);
+                var endpoint = new IPEndPoint(IPAddress.Parse(resolvedAddress), port);
+                
+                using var tcpClient = new TcpClient();
+                var connectTask = tcpClient.ConnectAsync(endpoint.Address, endpoint.Port);
+                var timeoutTask = Task.Delay(TimeSpan.FromSeconds(5));
+                
+                var completedTask = await Task.WhenAny(connectTask, timeoutTask);
+                
+                if (completedTask == timeoutTask)
+                {
+                    // Connection timed out - server is offline
                     return new Model.ServerStatus
                     {
                         IsOnline = false,
-                        ErrorMessage = ex.Message
+                        ErrorMessage = $"Query failed: {originalError}. TCP connection timed out."
                     };
                 }
+                
+                if (connectTask.IsFaulted)
+                {
+                    // Connection failed - server is offline
+                    return new Model.ServerStatus
+                    {
+                        IsOnline = false,
+                        ErrorMessage = $"Query failed: {originalError}. TCP connection failed: {connectTask.Exception?.GetBaseException().Message}"
+                    };
+                }
+                
+                // TCP connection succeeded - server is online but query protocol failed
+                var ping = await PingServerAsync(address, port);
+                return new Model.ServerStatus
+                {
+                    IsOnline = true,
+                    OnlinePlayers = 0,
+                    MaxPlayers = 0,
+                    VersionName = "Unknown (Query Failed)",
+                    Ping = ping > 0 ? ping : 0,
+                    Motd = "Query protocol unavailable",
+                    GameType = "Unknown",
+                    Map = "Unknown",
+                    HostIp = resolvedAddress,
+                    HostPort = port,
+                    ErrorMessage = $"Server online but query failed: {originalError}"
+                };
+            }
+            catch (Exception tcpEx)
+            {
+                // Even TCP check failed - server is definitely offline
+                return new Model.ServerStatus
+                {
+                    IsOnline = false,
+                    ErrorMessage = $"Query failed: {originalError}. TCP check also failed: {tcpEx.Message}"
+                };
             }
         }
 
@@ -163,7 +219,7 @@ namespace CoralClientMobileApp.Services
                 stopwatch.Stop();
                 return (int)stopwatch.ElapsedMilliseconds;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return -1;
             }
