@@ -348,7 +348,8 @@
             <Button Grid.Row="3"
                     Command="{Binding ToggleConnectionCommand}"
                     Style="{DynamicResource PrimaryButton}"
-                    Text="{Binding ToggleConnectionButtonText}" />
+                    Text="{Binding ToggleConnectionButtonText}"
+                    IsEnabled="{Binding IsConnectionButtonEnabled}" />
         </Grid>
     </ScrollView>
 </ContentPage>

@@ -253,12 +253,19 @@ namespace CoralClientMobileApp.ViewModel
                 var existingProfile = await _serverProfileContext.ServerProfiles.FindAsync(serverProfileViewModel.ServerProfile.Id);
                 if (existingProfile != null)
                 {
+                    existingProfile.Name = editedProfile.Name;
                     existingProfile.Uri = editedProfile.Uri;
                     existingProfile.MinecraftPort = editedProfile.MinecraftPort;
                     existingProfile.RconPort = editedProfile.RconPort;
                     existingProfile.Password = editedProfile.Password;
                     
                     await _serverProfileContext.SaveChangesAsync();
+                    
+                    // Reset polling and loading states for this profile
+                    StopPollingForProfile(existingProfile.Id);
+                    _serverStatuses.Remove(existingProfile.Id);
+                    _loadingStates.Remove(existingProfile.Id);
+                    _hasCompletedFirstPoll.Remove(existingProfile.Id);
                     
                     // Refresh the collection and restart polling
                     await LoadServerProfilesAsync();

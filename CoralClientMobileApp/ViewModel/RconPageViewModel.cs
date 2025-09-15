@@ -85,7 +85,8 @@ namespace CoralClientMobileApp.ViewModel
         [ObservableProperty]
         private bool _isServerTabVisible;
 
-        // Collections
+    [ObservableProperty]
+    private bool _isConnectionButtonEnabled = true;        // Collections
         public ObservableCollection<Player> OnlinePlayers { get; } = new();
         public ObservableCollection<CustomCommand> PlayerCustomCommands { get; } = new();
         public ObservableCollection<CustomCommand> ServerCustomCommands { get; } = new();
@@ -105,6 +106,8 @@ namespace CoralClientMobileApp.ViewModel
         }
 
         public ServerProfile ServerProfile => _serverProfile;
+
+        public bool CanConnect => _serverProfile.HasRconPassword;
 
         public RconPageViewModel(ServerProfile serverProfile, RconClient rcon, ILogger<RconPageViewModel> logger, MinecraftQueryService queryService, ICustomCommandService customCommandService, IPlayerAvatarService playerAvatarService)
         {
@@ -402,7 +405,14 @@ namespace CoralClientMobileApp.ViewModel
                     await DisconnectAsync();
                     break;
                 case State.DISCONNECTED:
-                    await ConnectAsync();
+                    if (CanConnect)
+                    {
+                        await ConnectAsync();
+                    }
+                    else
+                    {
+                        WriteToCommandLog("Error", "RCON password not configured. Cannot connect to RCON.");
+                    }
                     break;
             }
         }
@@ -534,10 +544,17 @@ namespace CoralClientMobileApp.ViewModel
         {
             if (CurrentState != State.CONNECTED) return;
 
+            if (!CanConnect)
+            {
+                WriteToCommandLog("Error", "No RCON password configured. Cannot authenticate.");
+                await DisconnectAsync();
+                return;
+            }
+
             try
             {
                 WriteToCommandLog("Info", "Attempting to authenticate...");
-                await _rcon.AuthenticateAsync(_serverProfile.Password);
+                await _rcon.AuthenticateAsync(_serverProfile.Password!);
                 // Authentication result will be handled by OnAuthenticationCompleted
             }
             catch (Exception e)
@@ -576,10 +593,20 @@ namespace CoralClientMobileApp.ViewModel
             {
                 case State.DISCONNECTED:
                 {
-                    ServerNameText = _serverProfile.ServerUriText;
+                    ServerNameText = _serverProfile.DisplayName;
                     WriteToCommandLog("Info", "Disconnected");
                     IsSendCommandEnabled = false;
-                    ToggleConnectionButtonText = "Connect";
+                    
+                    if (!CanConnect)
+                    {
+                        ToggleConnectionButtonText = "RCON Unavailable";
+                        IsConnectionButtonEnabled = false;
+                    }
+                    else
+                    {
+                        ToggleConnectionButtonText = "Connect";
+                        IsConnectionButtonEnabled = true;
+                    }
                 }
                 break;
                 case State.CONNECTED:
@@ -588,12 +615,14 @@ namespace CoralClientMobileApp.ViewModel
                     // Only enable command sending if authenticated
                     IsSendCommandEnabled = _rcon.IsAuthenticated;
                     ToggleConnectionButtonText = "Disconnect";
+                    IsConnectionButtonEnabled = true;
                 }
                 break;
                 case State.CONNECTING:
                 {
                     IsSendCommandEnabled = false;
                     ToggleConnectionButtonText = "Connecting...";
+                    IsConnectionButtonEnabled = false;
                 }
                 break;
             }

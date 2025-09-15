@@ -58,12 +58,17 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         
-                                        <Label Grid.Column="0"
-                                               Text="{Binding ServerUriText}"
-                                               TextColor="White"
-                                               FontAttributes="Bold"
-                                               FontSize="16"
-                                               VerticalOptions="Center" />
+                                        <StackLayout Grid.Column="0" VerticalOptions="Center">
+                                            <Label Text="{Binding ServerProfile.DisplayName}"
+                                                   TextColor="White"
+                                                   FontAttributes="Bold"
+                                                   FontSize="16" />
+                                            <Label Text="{Binding ServerUriText}"
+                                                   TextColor="White"
+                                                   FontSize="12"
+                                                   Opacity="0.8"
+                                                   IsVisible="{Binding ServerProfile.Name, Converter={StaticResource IsNotNullConverter}}" />
+                                        </StackLayout>
                                         
                                         <Label Grid.Column="1"
                                                Text="{Binding PingText}"
@@ -176,12 +181,12 @@
                                                 Text="Delete"
                                                 Margin="4,0,0,8" />
 
-                                        <!-- Second row: Connect button spanning both columns -->
+                                        <!-- Second row: Select button spanning both columns -->
                                         <Button Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type local:MainPageViewModel}}, Path=LaunchProfileCommand}"
                                                 CommandParameter="{Binding}"
                                                 Style="{DynamicResource PrimaryButton}"
-                                                Text="Connect" />
+                                                Text="Select" />
                                     </Grid>
                                 </Grid>
                             </Frame>

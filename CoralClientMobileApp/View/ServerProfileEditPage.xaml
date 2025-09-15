@@ -11,6 +11,15 @@
             <Label Text="Server Profile Details" 
                    Style="{DynamicResource HeaderLabelStyle}" />
 
+            <!-- Server Name -->
+            <StackLayout>
+                <Label Text="Server Name (Optional)" Style="{DynamicResource LabelStyle}" />
+                <Entry x:Name="NameEntry" 
+                       Text="{Binding Name}"
+                       Placeholder="e.g., My Minecraft Server"
+                       Style="{DynamicResource EntryStyle}" />
+            </StackLayout>
+
             <!-- Server URI -->
             <StackLayout>
                 <Label Text="Server URI or IP Address" Style="{DynamicResource LabelStyle}" />
@@ -42,10 +51,10 @@
 
             <!-- RCON Password -->
             <StackLayout>
-                <Label Text="RCON Password" Style="{DynamicResource LabelStyle}" />
+                <Label Text="RCON Password (Optional)" Style="{DynamicResource LabelStyle}" />
                 <Entry x:Name="RconPasswordEntry" 
                        Text="{Binding RconPassword}"
-                       Placeholder="Enter RCON password"
+                       Placeholder="Enter RCON password (leave empty if not using RCON)"
                        IsPassword="True"
                        Style="{DynamicResource EntryStyle}" />
             </StackLayout>

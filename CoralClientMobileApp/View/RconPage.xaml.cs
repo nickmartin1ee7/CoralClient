@@ -21,8 +21,8 @@ namespace CoralClientMobileApp.View
             _vm.OpenEditorRequested += OnOpenEditorRequested;
             BindingContext = _vm;
 
-            // Auto-connect
-            if (_vm.CurrentState == RconPageViewModel.State.DISCONNECTED)
+            // Auto-connect only if RCON password is available
+            if (_vm.CurrentState == RconPageViewModel.State.DISCONNECTED && _vm.CanConnect)
             {
                 _vm.ToggleConnectionCommand.Execute(null);
             }
