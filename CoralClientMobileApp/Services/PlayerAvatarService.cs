@@ -5,6 +5,7 @@ namespace CoralClientMobileApp.Services
     public interface IPlayerAvatarService
     {
         string GetPlayerAvatarUrl(string playerName, int size = 100);
+        string GetPlayerAvatarUrlByUuid(string uuid, int size = 100);
         Task LoadPlayerAvatarAsync(Model.Player player, int size = 100);
     }
 
@@ -26,6 +27,16 @@ namespace CoralClientMobileApp.Services
             return $"{MC_HEADS_BASE_URL}/avatar/{playerName}/{size}/nohelm.png";
         }
 
+        public string GetPlayerAvatarUrlByUuid(string uuid, int size = 100)
+        {
+            if (string.IsNullOrWhiteSpace(uuid))
+                return string.Empty;
+
+            // Remove dashes from UUID if present
+            var cleanUuid = uuid.Replace("-", "");
+            return $"{MC_HEADS_BASE_URL}/avatar/{cleanUuid}/{size}/nohelm.png";
+        }
+
         public Task LoadPlayerAvatarAsync(Model.Player player, int size = 100)
         {
             if (player == null || string.IsNullOrWhiteSpace(player.Name))
@@ -34,7 +45,16 @@ namespace CoralClientMobileApp.Services
             try
             {
                 player.IsLoadingAvatar = true;
-                player.AvatarUrl = GetPlayerAvatarUrl(player.Name, size);
+                
+                // Prefer UUID-based avatar if available, fallback to name-based
+                if (!string.IsNullOrWhiteSpace(player.Uuid))
+                {
+                    player.AvatarUrl = GetPlayerAvatarUrlByUuid(player.Uuid, size);
+                }
+                else
+                {
+                    player.AvatarUrl = GetPlayerAvatarUrl(player.Name, size);
+                }
             }
             catch (Exception ex)
             {

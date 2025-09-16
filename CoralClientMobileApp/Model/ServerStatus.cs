@@ -16,19 +16,25 @@ namespace CoralClientMobileApp.Model
         
         public string Motd { get; set; } = string.Empty;
         
-        public string GameType { get; set; } = string.Empty;
+        public string StrippedMotd { get; set; } = string.Empty;
         
-        public string Map { get; set; } = string.Empty;
+        public string GameType { get; set; } = string.Empty;
         
         public string HostIp { get; set; } = string.Empty;
         
         public int HostPort { get; set; }
         
-        // Full status properties (optional, might be null for basic status)
+        public string[]? PlayerList { get; set; }
+        
+        public string? Favicon { get; set; }
+        
+        public byte[]? FaviconBytes { get; set; }
+        
+        // Legacy properties kept for backward compatibility (always null with MineStat)
+        public string Map { get; set; } = string.Empty;
+        
         public string? GameId { get; set; }
         
         public string? Plugins { get; set; }
-        
-        public string[]? PlayerList { get; set; }
     }
 }

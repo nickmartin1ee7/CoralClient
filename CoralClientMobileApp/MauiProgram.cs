@@ -6,7 +6,6 @@ using CoralClientMobileApp.Model;
 using CoralClientMobileApp.Services;
 using MinecraftRcon;
 using DotNet.Meteor.HotReload.Plugin;
-using McQuery.Net;
 
 namespace CoralClientMobileApp;
 
@@ -50,13 +49,6 @@ public static class MauiProgram
 		builder.Services.AddDbContext<ServerProfileContext>();
 
 		// Register services
-		builder.Services.AddTransient<IMcQueryClientFactory, McQueryClientFactory>();
-		builder.Services.AddTransient<IMcQueryClient>(sp =>
-		{
-			var factory = sp.GetRequiredService<IMcQueryClientFactory>();
-			var client = factory.Get();
-			return client;
-		});
 		builder.Services.AddTransient<RconClient>();
 		builder.Services.AddTransient<MinecraftQueryService>();
 		builder.Services.AddTransient<ICustomCommandService, CustomCommandService>();
