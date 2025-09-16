@@ -736,7 +736,7 @@ namespace CoralClientMobileApp.ViewModel
                         // Update MOTD
                         if (!string.IsNullOrEmpty(status.StrippedMotd))
                         {
-                            ServerMotdText = status.StrippedMotd;
+                            ServerMotdText = $"MOTD: {status.StrippedMotd}";
                         }
                         
                         // Update player list if we have player names
