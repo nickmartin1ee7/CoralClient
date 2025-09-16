@@ -1,6 +1,9 @@
 # Coral Client
 
-An Android Mobile App.
+A MAUI Android mobile app to facilitate Minecraft RCON-protocol commands.
+- Allows easy server administration
+- Displays player count and player heads
+- Supports Query operations
 
 ## Screenshots
 
