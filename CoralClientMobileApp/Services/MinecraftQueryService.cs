@@ -13,7 +13,7 @@ namespace CoralClientMobileApp.Services
 
         public async Task<Model.ServerStatus> QueryServerAsync(string address, int port)
         {
-            return await Task.Run(() =>
+            return await Task.Run(async () =>
             {
                 try
                 {
@@ -39,7 +39,7 @@ namespace CoralClientMobileApp.Services
                 }
                 catch (Exception ex)
                 {
-                    return TcpFallbackCheck(address, port, ex.Message);
+                    return await TcpFallbackCheckAsync(address, port, ex.Message);
                 }
             });
         }
@@ -49,7 +49,7 @@ namespace CoralClientMobileApp.Services
             return await QueryServerAsync(address, port);
         }
 
-        private Model.ServerStatus TcpFallbackCheck(string address, int port, string originalError)
+        private async Task<Model.ServerStatus> TcpFallbackCheckAsync(string address, int port, string originalError)
         {
             try
             {
@@ -57,7 +57,7 @@ namespace CoralClientMobileApp.Services
                 var connectTask = tcpClient.ConnectAsync(address, port);
                 var timeoutTask = Task.Delay(TimeSpan.FromSeconds(5));
                 
-                var completedTask = Task.WhenAny(connectTask, timeoutTask).Result;
+                var completedTask = await Task.WhenAny(connectTask, timeoutTask);
                 
                 if (completedTask == timeoutTask)
                 {

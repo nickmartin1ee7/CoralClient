@@ -13,6 +13,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MinecraftRcon;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Dispatching;
 
 namespace CoralClientMobileApp.ViewModel
 {
@@ -37,6 +38,7 @@ namespace CoralClientMobileApp.ViewModel
         private readonly StringBuilder _commandLogBuffer = new StringBuilder();
         private readonly CancellationTokenSource _cancellationTokenSource = new();
         private State _currentState;
+        private readonly SynchronizationContext? _syncContext;
         private Timer? _queryTimer;
 
         [ObservableProperty]
@@ -117,6 +119,7 @@ namespace CoralClientMobileApp.ViewModel
             _queryService = queryService ?? throw new ArgumentNullException(nameof(queryService));
             _customCommandService = customCommandService ?? throw new ArgumentNullException(nameof(customCommandService));
             _playerAvatarService = playerAvatarService ?? throw new ArgumentNullException(nameof(playerAvatarService));
+            _syncContext = SynchronizationContext.Current;
             ServerNameText = serverProfile.ServerUriText;
 
             // Load custom commands
@@ -124,10 +127,18 @@ namespace CoralClientMobileApp.ViewModel
 
             _logger.LogInformation("Initializing RconPageViewModel for server: {ServerUri}", serverProfile.ServerUriText);
 
-            _rcon.Disconnected += (o, e) => CurrentState = State.DISCONNECTED;
-            _rcon.Connected += (o, e) => CurrentState = State.CONNECTED;
+            _rcon.Disconnected += (o, e) => 
+            {
+                _syncContext?.Post(_ => CurrentState = State.DISCONNECTED, null);
+            };
+            _rcon.Connected += (o, e) => 
+            {
+                _syncContext?.Post(_ => CurrentState = State.CONNECTED, null);
+            };
             _rcon.MessageReceived += (o, e) =>
-                WriteToCommandLog("Server", e.Body);
+            {
+                _syncContext?.Post(_ => WriteToCommandLog("Server", e.Body), null);
+            };
             _rcon.AuthenticationCompleted += OnAuthenticationCompleted;
 
             StateChange += UiStateChangeLogic;
@@ -566,23 +577,26 @@ namespace CoralClientMobileApp.ViewModel
 
         private void OnAuthenticationCompleted(object? sender, bool success)
         {
-            if (success)
+            _syncContext?.Post(_ =>
             {
-                _logger.LogInformation("Authentication successful");
-                WriteToCommandLog("Info", "Authentication successful");
-                // Enable command sending now that we're authenticated
-                if (CurrentState == State.CONNECTED)
+                if (success)
                 {
-                    IsSendCommandEnabled = true;
+                    _logger.LogInformation("Authentication successful");
+                    WriteToCommandLog("Info", "Authentication successful");
+                    // Enable command sending now that we're authenticated
+                    if (CurrentState == State.CONNECTED)
+                    {
+                        IsSendCommandEnabled = true;
+                    }
                 }
-            }
-            else
-            {
-                _logger.LogWarning("Authentication failed - invalid password");
-                WriteToCommandLog("Error", "Authentication failed - invalid password");
-                // Disconnect on authentication failure
-                _ = Task.Run(async () => await DisconnectAsync());
-            }
+                else
+                {
+                    _logger.LogWarning("Authentication failed - invalid password");
+                    WriteToCommandLog("Error", "Authentication failed - invalid password");
+                    // Disconnect on authentication failure
+                    _ = Task.Run(async () => await DisconnectAsync());
+                }
+            }, null);
         }
 
         private void UiStateChangeLogic(object? sender, EventArgs e)
@@ -690,7 +704,7 @@ namespace CoralClientMobileApp.ViewModel
 
         private void StartStatusPolling()
         {
-            _queryTimer = new Timer(_ => _ = PollServerStatusAsync(), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+            _queryTimer = new Timer(async _ => await PollServerStatusAsync().ConfigureAwait(false), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
         }
 
         private async Task PollServerStatusAsync()
@@ -700,51 +714,63 @@ namespace CoralClientMobileApp.ViewModel
                 if (_cancellationTokenSource.Token.IsCancellationRequested)
                     return;
 
-                var status = await _queryService.QueryServerFullAsync(_serverProfile.Uri, _serverProfile.MinecraftPort);
+                // Execute query on background thread
+                var status = await Task.Run(async () => 
+                    await _queryService.QueryServerFullAsync(_serverProfile.Uri, _serverProfile.MinecraftPort)
+                ).ConfigureAwait(false);
                 
-                if (status.IsOnline)
+                // Dispatch UI updates to main thread
+                _syncContext?.Post(_ =>
                 {
-                    // Update player count
-                    OnlinePlayerText = $"Players: {status.OnlinePlayers}/{status.MaxPlayers}";
-                    
-                    // Update server version
-                    if (!string.IsNullOrEmpty(status.VersionName))
+                    if (status.IsOnline)
                     {
-                        ServerVersionText = $"Version: {status.VersionName}";
-                    }
-                    
-                    // Update MOTD
-                    if (!string.IsNullOrEmpty(status.Motd))
-                    {
-                        ServerMotdText = status.Motd.RemoveColorCodes();
-                    }
-                    
-                    // Update player list if we have player names
-                    if (status.PlayerList?.Any() == true)
-                    {
-                        await UpdatePlayerListAsync(status.PlayerList);
+                        // Update player count
+                        OnlinePlayerText = $"Players: {status.OnlinePlayers}/{status.MaxPlayers}";
+                        
+                        // Update server version
+                        if (!string.IsNullOrEmpty(status.VersionName))
+                        {
+                            ServerVersionText = $"Version: {status.VersionName}";
+                        }
+                        
+                        // Update MOTD
+                        if (!string.IsNullOrEmpty(status.Motd))
+                        {
+                            ServerMotdText = status.Motd.RemoveColorCodes();
+                        }
+                        
+                        // Update player list if we have player names
+                        if (status.PlayerList?.Any() == true)
+                        {
+                            UpdatePlayerListOnMainThread(status.PlayerList);
+                        }
+                        else
+                        {
+                            OnlinePlayers.Clear();
+                        }
                     }
                     else
                     {
+                        OnlinePlayerText = "Players: ?/?";
+                        ServerVersionText = "Version: Server Offline";
                         OnlinePlayers.Clear();
                     }
-                }
-                else
-                {
-                    OnlinePlayerText = "Players: ?/?";
-                    ServerVersionText = "Version: Server Offline";
-                    OnlinePlayers.Clear();
-                }
+                }, null);
             }
             catch (Exception ex)
             {
                 _logger.LogDebug(ex, "Failed to query server status during polling");
-                OnlinePlayerText = "Players: ?/?";
-                ServerVersionText = "Version: Query Failed";
+                
+                // Dispatch error state updates to main thread
+                _syncContext?.Post(_ =>
+                {
+                    OnlinePlayerText = "Players: ?/?";
+                    ServerVersionText = "Version: Query Failed";
+                }, null);
             }
         }
 
-        private Task UpdatePlayerListAsync(string[] currentPlayerNames)
+        private void UpdatePlayerListOnMainThread(string[] currentPlayerNames)
         {
             try
             {
@@ -765,7 +791,7 @@ namespace CoralClientMobileApp.ViewModel
                         var newPlayer = new Player(playerName);
                         OnlinePlayers.Add(newPlayer);
                         
-                        // Load avatar asynchronously (fire and forget)
+                        // Load avatar asynchronously (fire and forget) on background thread
                         _ = Task.Run(async () => await _playerAvatarService.LoadPlayerAvatarAsync(newPlayer));
                     }
                 }
@@ -774,8 +800,6 @@ namespace CoralClientMobileApp.ViewModel
             {
                 _logger.LogError(ex, "Failed to update player list");
             }
-            
-            return Task.CompletedTask;
         }
     }
 }

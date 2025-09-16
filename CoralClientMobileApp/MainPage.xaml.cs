@@ -33,6 +33,17 @@ public partial class MainPage : ContentPage, IDisposable
 		
 		// Initialize the ViewModel and load data when the page appears
 		await _viewModel.InitializeAsync();
+		
+		// Start polling when the main page appears
+		_viewModel.StartPolling();
+	}
+
+	protected override void OnDisappearing()
+	{
+		base.OnDisappearing();
+		
+		// Stop polling when navigating away from the main page
+		_viewModel.StopPolling();
 	}
 
 	private async Task<ServerProfile?> ShowServerProfileEditModal(ServerProfile? existingProfile)

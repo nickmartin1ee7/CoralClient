@@ -21,6 +21,7 @@ namespace CoralClientMobileApp.ViewModel
         private readonly MinecraftQueryService _queryService;
         private readonly CancellationTokenSource _cancellationTokenSource = new();
         private readonly Dictionary<Guid, Timer> _serverQueryTimers = new();
+        private readonly SynchronizationContext? _syncContext;
         private Func<ServerProfile?, Task<ServerProfile?>>? _showServerProfileEditModalFuncAsync;
         private Func<ServerProfile, Task>? _showRconPageFuncAsync;
 
@@ -30,12 +31,15 @@ namespace CoralClientMobileApp.ViewModel
         private readonly Dictionary<Guid, ServerStatus> _serverStatuses = new();
         private readonly Dictionary<Guid, bool> _loadingStates = new();
         private readonly Dictionary<Guid, bool> _hasCompletedFirstPoll = new();
+        private DateTime _lastSortTime = DateTime.MinValue;
+        private readonly TimeSpan _sortCooldown = TimeSpan.FromSeconds(1); // Prevent sorting more than once per second
 
         public MainPageViewModel(ServerProfileContext serverProfileContext, ILogger<MainPageViewModel> logger, MinecraftQueryService queryService)
         {
             _serverProfileContext = serverProfileContext;
             _logger = logger;
             _queryService = queryService;
+            _syncContext = SynchronizationContext.Current;
         }
 
         // Helper methods for managing server statuses and loading states
@@ -52,11 +56,57 @@ namespace CoralClientMobileApp.ViewModel
         private void SetServerStatus(Guid profileId, ServerStatus status)
         {
             _serverStatuses[profileId] = status;
+            
+            // Sort profiles after status update to keep online servers at the top
+            SortServerProfiles();
         }
 
         private void SetLoadingState(Guid profileId, bool isLoading)
         {
             _loadingStates[profileId] = isLoading;
+        }
+
+        private void SortServerProfiles(bool force = false)
+        {
+            // Rate limit sorting to prevent excessive reordering (unless forced)
+            var now = DateTime.UtcNow;
+            if (!force && now - _lastSortTime < _sortCooldown)
+                return;
+
+            // Sort profiles with online servers first, then by name
+            var sortedProfiles = ServerProfiles
+                .OrderByDescending(p => p.IsOnline)
+                .ThenBy(p => p.ServerProfile.Name)
+                .ToList();
+
+            // Only update if the order has actually changed
+            bool hasOrderChanged = false;
+            for (int i = 0; i < sortedProfiles.Count; i++)
+            {
+                if (i >= ServerProfiles.Count || !ReferenceEquals(ServerProfiles[i], sortedProfiles[i]))
+                {
+                    hasOrderChanged = true;
+                    break;
+                }
+            }
+
+            if (hasOrderChanged)
+            {
+                _lastSortTime = now;
+                
+                // Dispatch the collection reordering to the UI thread
+                _syncContext?.Post(_ =>
+                {
+                    // Clear and re-add in the new order
+                    ServerProfiles.Clear();
+                    foreach (var profile in sortedProfiles)
+                    {
+                        ServerProfiles.Add(profile);
+                    }
+                    
+                    _logger.LogDebug("Reordered server profiles - online servers moved to top");
+                }, null);
+            }
         }
 
         public async Task InitializeAsync()
@@ -92,8 +142,10 @@ namespace CoralClientMobileApp.ViewModel
                     ServerProfiles.Add(new ServerProfileViewModel(profile, this));
                 }
                 
-                // Start polling for each server profile
-                StartServerPolling();
+                // Sort profiles initially (offline servers will be at the bottom initially)
+                SortServerProfiles(force: true);
+                
+                // Don't start polling here - it will be started when the page appears
                 
                 _logger.LogInformation("Loaded {ProfileCount} server profiles from database", profiles.Count);
             }
@@ -101,6 +153,27 @@ namespace CoralClientMobileApp.ViewModel
             {
                 _logger.LogError(ex, "Failed to load server profiles from database");
             }
+        }
+
+        public void StartPolling()
+        {
+            _logger.LogInformation("Starting server polling");
+            StartServerPolling();
+        }
+
+        public void StopPolling()
+        {
+            _logger.LogInformation("Stopping server polling");
+            StopAllPolling();
+        }
+
+        private void StopAllPolling()
+        {
+            foreach (var timer in _serverQueryTimers.Values)
+            {
+                timer?.Dispose();
+            }
+            _serverQueryTimers.Clear();
         }
 
         private void StartServerPolling()
@@ -121,7 +194,7 @@ namespace CoralClientMobileApp.ViewModel
             }
 
             _serverQueryTimers[profile.Id] = new Timer(
-                async _ => await PollServerStatus(profile),
+                async _ => await PollServerStatus(profile).ConfigureAwait(false),
                 null,
                 TimeSpan.Zero,
                 TimeSpan.FromSeconds(5)
@@ -149,12 +222,19 @@ namespace CoralClientMobileApp.ViewModel
                 {
                     SetLoadingState(profile.Id, true);
                     
-                    // Find and notify the specific profile view model
-                    var profileViewModel = ServerProfiles.FirstOrDefault(p => p.ServerProfile.Id == profile.Id);
-                    profileViewModel?.NotifyAllPropertiesChanged();
+                    // Find and notify the specific profile view model on UI thread
+                    _syncContext?.Post(_ =>
+                    {
+                        var profileViewModel = ServerProfiles.FirstOrDefault(p => p.ServerProfile.Id == profile.Id);
+                        profileViewModel?.NotifyAllPropertiesChanged();
+                    }, null);
                 }
 
-                var status = await _queryService.QueryServerFullAsync(profile.Uri, profile.MinecraftPort);
+                // Execute query on background thread
+                var status = await Task.Run(async () => 
+                    await _queryService.QueryServerFullAsync(profile.Uri, profile.MinecraftPort)
+                ).ConfigureAwait(false);
+                
                 SetServerStatus(profile.Id, status);
                 
                 // Mark as completed first poll and set loading to false only if this was the first poll
@@ -165,8 +245,11 @@ namespace CoralClientMobileApp.ViewModel
                 }
                 
                 // Notify UI thread that this specific profile's status has updated
-                var profileViewModelAfter = ServerProfiles.FirstOrDefault(p => p.ServerProfile.Id == profile.Id);
-                profileViewModelAfter?.NotifyAllPropertiesChanged();
+                _syncContext?.Post(_ =>
+                {
+                    var profileViewModelAfter = ServerProfiles.FirstOrDefault(p => p.ServerProfile.Id == profile.Id);
+                    profileViewModelAfter?.NotifyAllPropertiesChanged();
+                }, null);
             }
             catch (Exception ex)
             {
@@ -179,9 +262,12 @@ namespace CoralClientMobileApp.ViewModel
                     SetLoadingState(profile.Id, false);
                 }
                 
-                // Find and notify the specific profile view model
-                var profileViewModel = ServerProfiles.FirstOrDefault(p => p.ServerProfile.Id == profile.Id);
-                profileViewModel?.NotifyAllPropertiesChanged();
+                // Find and notify the specific profile view model on UI thread
+                _syncContext?.Post(_ =>
+                {
+                    var profileViewModel = ServerProfiles.FirstOrDefault(p => p.ServerProfile.Id == profile.Id);
+                    profileViewModel?.NotifyAllPropertiesChanged();
+                }, null);
             }
         }
 
@@ -214,8 +300,14 @@ namespace CoralClientMobileApp.ViewModel
                 var newProfileViewModel = new ServerProfileViewModel(newProfile, this);
                 ServerProfiles.Add(newProfileViewModel);
                 
-                // Start polling for the new server profile
-                StartPollingForProfile(newProfile);
+                // Sort profiles to ensure the new profile is in the correct position
+                SortServerProfiles(force: true);
+                
+                // Start polling for the new server profile only if polling is active
+                if (_serverQueryTimers.Count > 0 || ServerProfiles.Count == 1)
+                {
+                    StartPollingForProfile(newProfile);
+                }
                 
                 _logger.LogInformation("Successfully added server profile: {ServerUri}", newProfile.ServerUriText);
             }
@@ -249,6 +341,9 @@ namespace CoralClientMobileApp.ViewModel
                     return;
                 }
 
+                // Check if polling was active before stopping it
+                var wasPollingActive = _serverQueryTimers.Count > 0;
+
                 // Update the existing profile instead of removing and adding
                 var existingProfile = await _serverProfileContext.ServerProfiles.FindAsync(serverProfileViewModel.ServerProfile.Id);
                 if (existingProfile != null)
@@ -267,8 +362,14 @@ namespace CoralClientMobileApp.ViewModel
                     _loadingStates.Remove(existingProfile.Id);
                     _hasCompletedFirstPoll.Remove(existingProfile.Id);
                     
-                    // Refresh the collection and restart polling
+                    // Refresh the collection 
                     await LoadServerProfilesAsync();
+                    
+                    // Restart polling only if it was active before
+                    if (wasPollingActive)
+                    {
+                        StartServerPolling();
+                    }
                     
                     _logger.LogInformation("Successfully updated server profile: {ServerUri}", existingProfile.ServerUriText);
                 }
@@ -318,12 +419,8 @@ namespace CoralClientMobileApp.ViewModel
         {
             _cancellationTokenSource?.Cancel();
             
-            // Dispose all server query timers
-            foreach (var timer in _serverQueryTimers.Values)
-            {
-                timer?.Dispose();
-            }
-            _serverQueryTimers.Clear();
+            // Stop all polling
+            StopAllPolling();
             
             // Clear all tracking dictionaries
             _serverStatuses.Clear();
