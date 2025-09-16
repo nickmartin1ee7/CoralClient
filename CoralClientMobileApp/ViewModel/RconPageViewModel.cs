@@ -734,9 +734,9 @@ namespace CoralClientMobileApp.ViewModel
                         }
                         
                         // Update MOTD
-                        if (!string.IsNullOrEmpty(status.Motd))
+                        if (!string.IsNullOrEmpty(status.StrippedMotd))
                         {
-                            ServerMotdText = status.Motd.RemoveColorCodes();
+                            ServerMotdText = status.StrippedMotd;
                         }
                         
                         // Update player list if we have player names

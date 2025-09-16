@@ -37,7 +37,7 @@ namespace CoralClientMobileApp.ViewModel
         
         public string PingText => Status?.IsOnline == true ? $"{Status.Ping}ms" : "";
         
-        public string MotdText => Status?.Motd ?? "";
+        public string MotdText => Status?.StrippedMotd ?? "";
         
         public string GameTypeText => Status?.GameType ?? "";
         
