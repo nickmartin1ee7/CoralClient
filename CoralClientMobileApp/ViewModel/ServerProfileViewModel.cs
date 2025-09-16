@@ -87,7 +87,7 @@ namespace CoralClientMobileApp.ViewModel
                 if (status?.PlayerList?.Any() != true)
                     return "";
                     
-                return $"Players: {string.Join(", ", status.PlayerList)}";
+                return $"Players: {string.Join(", ", status.PlayerList.OrderBy(p => p))}";
             }
         }
 
