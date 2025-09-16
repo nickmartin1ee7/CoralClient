@@ -34,11 +34,11 @@ namespace CoralClientMobileApp.ViewModel
             }
         }
         
-        public string VersionText => Status?.VersionName ?? "";
+        public string VersionText => Status?.VersionName?.RemoveColorCodes()?.Trim() ?? "";
         
         public string PingText => Status?.IsOnline == true ? $"{Status.Ping}ms" : "";
         
-        public string MotdText => Status?.StrippedMotd?.RemoveColorCodes().Trim() ?? "";
+        public string MotdText => Status?.StrippedMotd?.RemoveColorCodes()?.Trim() ?? "";
         
         public string GameTypeText => Status?.GameType ?? "";
         
@@ -58,7 +58,7 @@ namespace CoralClientMobileApp.ViewModel
                 var parts = new List<string>();
                 
                 if (!string.IsNullOrEmpty(status.GameType))
-                    parts.Add($"Game: {status.GameType}");
+                    parts.Add($"Game: {status.GameType?.RemoveColorCodes()?.Trim()}");
                     
                 if (!string.IsNullOrEmpty(status.HostIp))
                     parts.Add($"Host: {status.HostIp}:{status.HostPort}");
@@ -77,7 +77,9 @@ namespace CoralClientMobileApp.ViewModel
                 if (status?.PlayerList?.Any() != true)
                     return "";
                     
-                return $"Players: {string.Join(", ", status.PlayerList.OrderBy(p => p))}";
+                return $"Players: {string.Join(", ", status.PlayerList
+                    .Select(player => player?.RemoveColorCodes()?.Trim())
+                    .OrderBy(p => p))}";
             }
         }
 

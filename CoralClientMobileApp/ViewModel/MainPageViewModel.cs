@@ -31,8 +31,6 @@ namespace CoralClientMobileApp.ViewModel
         private readonly Dictionary<Guid, ServerStatus> _serverStatuses = new();
         private readonly Dictionary<Guid, bool> _loadingStates = new();
         private readonly Dictionary<Guid, bool> _hasCompletedFirstPoll = new();
-        private DateTime _lastSortTime = DateTime.MinValue;
-        private readonly TimeSpan _sortCooldown = TimeSpan.FromSeconds(1); // Prevent sorting more than once per second
 
         public MainPageViewModel(ServerProfileContext serverProfileContext, ILogger<MainPageViewModel> logger, MinecraftQueryService queryService)
         {
@@ -56,57 +54,11 @@ namespace CoralClientMobileApp.ViewModel
         private void SetServerStatus(Guid profileId, ServerStatus status)
         {
             _serverStatuses[profileId] = status;
-            
-            // Sort profiles after status update to keep online servers at the top
-            SortServerProfiles();
         }
 
         private void SetLoadingState(Guid profileId, bool isLoading)
         {
             _loadingStates[profileId] = isLoading;
-        }
-
-        private void SortServerProfiles(bool force = false)
-        {
-            // Rate limit sorting to prevent excessive reordering (unless forced)
-            var now = DateTime.UtcNow;
-            if (!force && now - _lastSortTime < _sortCooldown)
-                return;
-
-            // Sort profiles with online servers first, then by name
-            var sortedProfiles = ServerProfiles
-                .OrderByDescending(p => p.IsOnline)
-                .ThenBy(p => p.ServerProfile.Name)
-                .ToList();
-
-            // Only update if the order has actually changed
-            bool hasOrderChanged = false;
-            for (int i = 0; i < sortedProfiles.Count; i++)
-            {
-                if (i >= ServerProfiles.Count || !ReferenceEquals(ServerProfiles[i], sortedProfiles[i]))
-                {
-                    hasOrderChanged = true;
-                    break;
-                }
-            }
-
-            if (hasOrderChanged)
-            {
-                _lastSortTime = now;
-                
-                // Dispatch the collection reordering to the UI thread
-                _syncContext?.Post(_ =>
-                {
-                    // Clear and re-add in the new order
-                    ServerProfiles.Clear();
-                    foreach (var profile in sortedProfiles)
-                    {
-                        ServerProfiles.Add(profile);
-                    }
-                    
-                    _logger.LogDebug("Reordered server profiles - online servers moved to top");
-                }, null);
-            }
         }
 
         public async Task InitializeAsync()
@@ -141,9 +93,6 @@ namespace CoralClientMobileApp.ViewModel
                 {
                     ServerProfiles.Add(new ServerProfileViewModel(profile, this));
                 }
-                
-                // Sort profiles initially (offline servers will be at the bottom initially)
-                SortServerProfiles(force: true);
                 
                 // Don't start polling here - it will be started when the page appears
                 
@@ -299,9 +248,6 @@ namespace CoralClientMobileApp.ViewModel
                 
                 var newProfileViewModel = new ServerProfileViewModel(newProfile, this);
                 ServerProfiles.Add(newProfileViewModel);
-                
-                // Sort profiles to ensure the new profile is in the correct position
-                SortServerProfiles(force: true);
                 
                 // Start polling for the new server profile only if polling is active
                 if (_serverQueryTimers.Count > 0 || ServerProfiles.Count == 1)
