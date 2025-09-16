@@ -29,12 +29,5 @@ namespace CoralClientMobileApp.Model
         public string? Favicon { get; set; }
         
         public byte[]? FaviconBytes { get; set; }
-        
-        // Legacy properties kept for backward compatibility (always null with MineStat)
-        public string Map { get; set; } = string.Empty;
-        
-        public string? GameId { get; set; }
-        
-        public string? Plugins { get; set; }
     }
 }

@@ -1,3 +1,4 @@
+using CoralClientMobileApp.Helpers;
 using CoralClientMobileApp.Model;
 
 namespace CoralClientMobileApp.ViewModel
@@ -37,11 +38,15 @@ namespace CoralClientMobileApp.ViewModel
         
         public string PingText => Status?.IsOnline == true ? $"{Status.Ping}ms" : "";
         
-        public string MotdText => Status?.StrippedMotd ?? "";
+        public string MotdText => Status?.StrippedMotd?.RemoveColorCodes().Trim() ?? "";
         
         public string GameTypeText => Status?.GameType ?? "";
         
-        public string MapText => Status?.Map ?? "";
+        public byte[]? FaviconBytes => Status?.FaviconBytes;
+        
+        public bool HasFavicon => Status?.FaviconBytes?.Length > 0;
+        
+        public string HostText => Status?.IsOnline == true ? $"{Status.HostIp}:{Status.HostPort}" : "";
         
         public string DetailedServerInfo
         {
@@ -53,27 +58,12 @@ namespace CoralClientMobileApp.ViewModel
                 var parts = new List<string>();
                 
                 if (!string.IsNullOrEmpty(status.GameType))
-                    parts.Add($"• Game: {status.GameType}");
+                    parts.Add($"Game: {status.GameType}");
                     
-                if (!string.IsNullOrEmpty(status.Map))
-                    parts.Add($"• Map: {status.Map}");
-                    
-                if (!string.IsNullOrEmpty(status.GameId))
-                    parts.Add($"• Game ID: {status.GameId}");
+                if (!string.IsNullOrEmpty(status.HostIp))
+                    parts.Add($"Host: {status.HostIp}:{status.HostPort}");
                 
                 return string.Join(Environment.NewLine, parts).Trim();
-            }
-        }
-        
-        public string PluginsText
-        {
-            get
-            {
-                var status = Status;
-                if (string.IsNullOrEmpty(status?.Plugins))
-                    return "";
-                    
-                return $"Plugins: {status.Plugins}";
             }
         }
         
@@ -101,9 +91,10 @@ namespace CoralClientMobileApp.ViewModel
             OnPropertyChanged(nameof(PingText));
             OnPropertyChanged(nameof(MotdText));
             OnPropertyChanged(nameof(GameTypeText));
-            OnPropertyChanged(nameof(MapText));
+            OnPropertyChanged(nameof(FaviconBytes));
+            OnPropertyChanged(nameof(HasFavicon));
+            OnPropertyChanged(nameof(HostText));
             OnPropertyChanged(nameof(DetailedServerInfo));
-            OnPropertyChanged(nameof(PluginsText));
             OnPropertyChanged(nameof(HasPlayerList));
             OnPropertyChanged(nameof(PlayerListText));
         }

@@ -14,6 +14,7 @@
             <converters:GreaterThanZeroConverter x:Key="GreaterThanZeroConverter" />
             <converters:IsNullConverter x:Key="IsNullConverter" />
             <converters:IsNotNullConverter x:Key="IsNotNullConverter" />
+            <converters:ByteArrayToImageSourceConverter x:Key="ByteArrayToImageSourceConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -54,11 +55,22 @@
                                     <!-- Header with server address -->
                                     <Grid Grid.Row="0" BackgroundColor="{AppThemeBinding Light={DynamicResource Primary}, Dark={DynamicResource Secondary}}" Padding="16,12">
                                         <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         
-                                        <StackLayout Grid.Column="0" VerticalOptions="Center">
+                                        <!-- Server Favicon -->
+                                        <Image Grid.Column="0"
+                                               Source="{Binding FaviconBytes, Converter={StaticResource ByteArrayToImageSourceConverter}}"
+                                               WidthRequest="32"
+                                               HeightRequest="32"
+                                               VerticalOptions="Center"
+                                               Margin="0,0,12,0"
+                                               IsVisible="{Binding HasFavicon}"
+                                               Aspect="AspectFit" />
+                                        
+                                        <StackLayout Grid.Column="1" VerticalOptions="Center">
                                             <Label Text="{Binding ServerProfile.DisplayName}"
                                                    TextColor="White"
                                                    FontAttributes="Bold"
@@ -70,7 +82,7 @@
                                                    IsVisible="{Binding ServerProfile.Name, Converter={StaticResource IsNotNullConverter}}" />
                                         </StackLayout>
                                         
-                                        <Label Grid.Column="1"
+                                        <Label Grid.Column="2"
                                                Text="{Binding PingText}"
                                                TextColor="White"
                                                FontSize="12"
@@ -129,21 +141,13 @@
                                                  LineBreakMode="WordWrap"
                                                  Margin="0,4,0,0" />
                                             
-                                            <!-- Detailed server info (Game type, Map, etc.) -->
+                                            <!-- Detailed server info (Game type, Host, etc.) -->
                                             <Label Text="{Binding DetailedServerInfo}"
                                                  FontSize="11"
                                                  TextColor="{AppThemeBinding Light={DynamicResource TertiaryTextColor}, Dark={DynamicResource TertiaryTextColorDark}}"
                                                  IsVisible="{Binding IsOnline}"
                                                  LineBreakMode="WordWrap"
                                                  Margin="0,4,0,0" />
-                                            
-                                            <!-- Plugins info -->
-                                            <Label Text="{Binding PluginsText}"
-                                                 FontSize="11"
-                                                 TextColor="{AppThemeBinding Light={DynamicResource TertiaryTextColor}, Dark={DynamicResource TertiaryTextColorDark}}"
-                                                 IsVisible="{Binding IsOnline}"
-                                                 LineBreakMode="WordWrap"
-                                                 Margin="0,2,0,0" />
                                             
                                             <!-- Player list (if available) -->
                                             <Label Text="{Binding PlayerListText}"
