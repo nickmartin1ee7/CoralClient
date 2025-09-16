@@ -92,16 +92,12 @@
                                     </Grid>
 
                                     <!-- Server Status Content -->
-                                    <StackLayout Grid.Row="1" Padding="16" Spacing="12">
-                                        <!-- Loading indicator -->
-                                        <ActivityIndicator IsRunning="{Binding IsLoading}"
-                                                         IsVisible="{Binding IsLoading}"
-                                                         Color="{AppThemeBinding Light={DynamicResource Primary}, Dark={DynamicResource PrimaryLight}}"
-                                                         HorizontalOptions="Center" />
-                                        
-                                        <!-- Server status when not loading -->
-                                        <StackLayout IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"
-                                                   Spacing="8">
+                                    <Grid Grid.Row="1">
+                                        <!-- Main content -->
+                                        <StackLayout Padding="16" Spacing="12">
+                                            <!-- Server status when not loading -->
+                                            <StackLayout IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"
+                                                       Spacing="8">
                                             
                                             <!-- Status indicator -->
                                             <Grid>
@@ -157,7 +153,15 @@
                                                  LineBreakMode="WordWrap"
                                                  Margin="0,4,0,0" />
                                         </StackLayout>
-                                    </StackLayout>
+                                        </StackLayout>
+                                        
+                                        <!-- Loading indicator overlay -->
+                                        <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                                         IsVisible="{Binding IsLoading}"
+                                                         Color="{AppThemeBinding Light={DynamicResource Primary}, Dark={DynamicResource PrimaryLight}}"
+                                                         HorizontalOptions="Center"
+                                                         VerticalOptions="Center" />
+                                    </Grid>
 
                                     <!-- Action buttons -->
                                     <Grid Grid.Row="3" Padding="16,0,16,16">
