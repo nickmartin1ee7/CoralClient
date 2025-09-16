@@ -35,7 +35,7 @@ namespace CoralClientMobileApp.DbContext
                 {
                     await ServerProfiles.AddRangeAsync(
                     [
-                        new ServerProfile { Name = "Local Server", Uri = "192.168.2.200", MinecraftPort = 25565, RconPort = 25575, Password = "AStrongPassword" },
+                        new ServerProfile { Name = "Local Server", Uri = "192.168.4.150", MinecraftPort = 25565, RconPort = 25575, Password = "AStrongPassword" },
                         new ServerProfile { Name = "Example Server", Uri = "sample1.example.com", MinecraftPort = 25565, RconPort = 25575, Password = "pass1" },
                     ]);
 
