@@ -3,13 +3,11 @@ name: CI/CD
 on:
   push:
     branches: [ main ]
-
-env:
-  APP_VERSION: "1.0.0"  # Default version, can be overridden by secrets
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
-
     runs-on: macos-latest
 
     steps:
@@ -31,13 +29,24 @@ jobs:
 
     - name: Restore dependencies
       run: dotnet restore CoralClientMobileApp/CoralClientMobileApp.csproj
-      
+
+    - name: Determine App Version
+      id: versioning
+      run: |
+        BASE_VERSION="${{ secrets.APP_VERSION }}"   # e.g. "1.2"
+        BUILD_NUMBER="${GITHUB_RUN_NUMBER}"
+        FULL_VERSION="${BASE_VERSION}.${BUILD_NUMBER}"
+
+        echo "base_version=$BASE_VERSION" >> $GITHUB_OUTPUT
+        echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+        echo "full_version=$FULL_VERSION" >> $GITHUB_OUTPUT
+
     - name: Set Android version
       uses: damienaicheh/update-android-version-manifest-action@v1.0.0
       with:
         android-manifest-path: ./CoralClientMobileApp/Platforms/Android/AndroidManifest.xml
-        version-name: ${{ secrets.APP_VERSION || env.APP_VERSION }}
-        version-code: ${{ github.run_number }}
+        version-name: ${{ steps.versioning.outputs.full_version }}
+        version-code: ${{ steps.versioning.outputs.build_number }}
         
     - name: Build Android APK
       run: dotnet publish CoralClientMobileApp/CoralClientMobileApp.csproj -c Release -f net8.0-android --no-restore
@@ -63,8 +72,8 @@ jobs:
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v1      
       with:
-        tag_name: v${{ secrets.APP_VERSION || env.APP_VERSION }}-build${{ github.run_number }}
-        name: CoralClient v${{ secrets.APP_VERSION || env.APP_VERSION }} (Build ${{ github.run_number }})
+        tag_name: v${{ steps.versioning.outputs.full_version }}
+        name: CoralClient v${{ steps.versioning.outputs.full_version }}
         draft: false
         prerelease: false
         files: |
