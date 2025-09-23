@@ -33,50 +33,110 @@ jobs:
     - name: Determine App Version
       id: versioning
       run: |
-        BASE_VERSION="${{ secrets.APP_VERSION }}"   # e.g. "1.2"
+        BASE_VERSION="${{ secrets.APP_VERSION || '1.0' }}"   # e.g. "1.2"
         BUILD_NUMBER="${GITHUB_RUN_NUMBER}"
         FULL_VERSION="${BASE_VERSION}.${BUILD_NUMBER}"
+        VERSION_CODE=$(($BUILD_NUMBER + 1000))  # Ensure monotonic increase
 
         echo "base_version=$BASE_VERSION" >> $GITHUB_OUTPUT
         echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
         echo "full_version=$FULL_VERSION" >> $GITHUB_OUTPUT
+        echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+
+    - name: Setup Android Keystore
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android-keystore.jks
 
     - name: Set Android version
       uses: damienaicheh/update-android-version-manifest-action@v1.0.0
       with:
         android-manifest-path: ./CoralClientMobileApp/Platforms/Android/AndroidManifest.xml
         version-name: ${{ steps.versioning.outputs.full_version }}
-        version-code: ${{ steps.versioning.outputs.build_number }}
-        
-    - name: Build Android APK
-      run: dotnet publish CoralClientMobileApp/CoralClientMobileApp.csproj -c Release -f net8.0-android --no-restore
-      
-    - name: Build Android AAB
-      run: dotnet publish CoralClientMobileApp/CoralClientMobileApp.csproj -c Release -f net8.0-android -p:AndroidPackageFormat=aab --no-restore
-      
-    - name: Upload APK Artifact
+        version-code: ${{ steps.versioning.outputs.version_code }}
+
+    # Debug build for PR testing
+    - name: Build Android APK (Debug)
+      if: github.event_name == 'pull_request'
+      run: dotnet publish CoralClientMobileApp/CoralClientMobileApp.csproj -c Debug -f net8.0-android --no-restore
+
+    - name: Upload Debug APK Artifact
+      if: github.event_name == 'pull_request'
       uses: actions/upload-artifact@v4
       with:
-        name: android-apk
-        path: "**/bin/Release/net8.0-android/publish/*.apk"
-        retention-days: 30
-        
-    - name: Upload AAB Artifact
+        name: android-apk-debug
+        path: "**/bin/Debug/net8.0-android/publish/*.apk"
+        retention-days: 7
+
+    # Production builds for main branch
+    - name: Build Android AAB (Release - Signed)
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        dotnet publish CoralClientMobileApp/CoralClientMobileApp.csproj \
+          -c Release \
+          -f net8.0-android \
+          -p:AndroidPackageFormat=aab \
+          -p:AndroidKeyStore=true \
+          -p:AndroidSigningKeyStore=android-keystore.jks \
+          -p:AndroidSigningKeyAlias="${{ secrets.ANDROID_KEY_ALIAS }}" \
+          -p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEY_PASSWORD }}" \
+          -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
+          --no-restore
+
+    - name: Build Android APK (Release - Signed)
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        dotnet publish CoralClientMobileApp/CoralClientMobileApp.csproj \
+          -c Release \
+          -f net8.0-android \
+          -p:AndroidKeyStore=true \
+          -p:AndroidSigningKeyStore=android-keystore.jks \
+          -p:AndroidSigningKeyAlias="${{ secrets.ANDROID_KEY_ALIAS }}" \
+          -p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEY_PASSWORD }}" \
+          -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
+          --no-restore
+
+    - name: Upload AAB Artifact (Production)
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: actions/upload-artifact@v4
       with:
-        name: android-aab
+        name: android-aab-release
         path: "**/bin/Release/net8.0-android/publish/*.aab"
-        retention-days: 30
-    
+        retention-days: 90
+
+    - name: Upload APK Artifact (Production)
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-apk-release
+        path: "**/bin/Release/net8.0-android/publish/*.apk"
+        retention-days: 90
+
+    - name: Clean up keystore
+      if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: rm -f android-keystore.jks
+
     - name: Create GitHub Release
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v1      
       with:
         tag_name: v${{ steps.versioning.outputs.full_version }}
-        name: CoralClient v${{ steps.versioning.outputs.full_version }}
+        name: CoralClient v${{ steps.versioning.outputs.full_version }} (Build ${{ steps.versioning.outputs.version_code }})
         draft: false
         prerelease: false
         files: |
-          **/bin/Release/net8.0-android/publish/*.apk
           **/bin/Release/net8.0-android/publish/*.aab
+          **/bin/Release/net8.0-android/publish/*.apk
         generate_release_notes: true
+        body: |
+          ## Release Notes
+          
+          **Version:** ${{ steps.versioning.outputs.full_version }}  
+          **Build Number:** ${{ steps.versioning.outputs.version_code }}  
+          **Platform:** Android
+          
+          ### Files
+          - `*.aab` - Android App Bundle for Google Play Store
+          - `*.apk` - APK for direct installation/testing
+          
+          This release is ready for Google Play Store submission.
