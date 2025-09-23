@@ -7,9 +7,14 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  # Job 1: Setup and determine version
+  setup:
     runs-on: macos-latest
-
+    outputs:
+      base_version: ${{ steps.versioning.outputs.base_version }}
+      build_number: ${{ steps.versioning.outputs.build_number }}
+      full_version: ${{ steps.versioning.outputs.full_version }}
+      version_code: ${{ steps.versioning.outputs.version_code }}
     steps:
     - uses: actions/checkout@v4
       
@@ -43,11 +48,6 @@ jobs:
         echo "full_version=$FULL_VERSION" >> $GITHUB_OUTPUT
         echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
 
-    - name: Setup Android Keystore
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: |
-        echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android-keystore.jks
-
     - name: Set Android version
       uses: damienaicheh/update-android-version-manifest-action@v1.0.0
       with:
@@ -55,22 +55,137 @@ jobs:
         version-name: ${{ steps.versioning.outputs.full_version }}
         version-code: ${{ steps.versioning.outputs.version_code }}
 
-    # Debug build for PR testing
+    - name: Upload modified manifest
+      uses: actions/upload-artifact@v4
+      with:
+        name: modified-manifest
+        path: CoralClientMobileApp/Platforms/Android/AndroidManifest.xml
+        retention-days: 1
+
+  # Job 2: Debug build for PRs
+  debug-build:
+    needs: setup
+    runs-on: macos-latest
+    if: github.event_name == 'pull_request'
+    steps:
+    - uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Install .NET MAUI workload
+      run: dotnet workload install maui
+
+    - name: Restore dependencies
+      run: dotnet restore CoralClientMobileApp/CoralClientMobileApp.csproj
+
+    - name: Download modified manifest
+      uses: actions/download-artifact@v4
+      with:
+        name: modified-manifest
+        path: CoralClientMobileApp/Platforms/Android/
+
     - name: Build Android APK (Debug)
-      if: github.event_name == 'pull_request'
       run: dotnet publish CoralClientMobileApp/CoralClientMobileApp.csproj -c Debug -f net8.0-android --no-restore
 
     - name: Upload Debug APK Artifact
-      if: github.event_name == 'pull_request'
       uses: actions/upload-artifact@v4
       with:
         name: android-apk-debug
         path: "**/bin/Debug/net8.0-android/publish/*.apk"
         retention-days: 7
 
-    # Production builds for main branch
+  # Job 3: Keystore setup and validation
+  keystore-setup:
+    needs: setup
+    runs-on: macos-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Android Keystore
+      run: |
+        echo "Setting up keystore..."
+        echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android-keystore.jks
+        
+    - name: Validate keystore file
+      run: |
+        echo "Validating keystore..."
+        ls -la android-keystore.jks
+        file android-keystore.jks
+        
+    - name: Test keystore access
+      run: |
+        echo "Testing keystore access..."
+        if keytool -list -keystore android-keystore.jks -storepass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" -alias "${{ secrets.ANDROID_KEY_ALIAS }}" > /dev/null 2>&1; then
+          echo "Keystore access successful"
+        else
+          echo "Keystore access failed"
+          exit 1
+        fi
+
+    - name: Upload keystore
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-keystore
+        path: android-keystore.jks
+        retention-days: 1
+
+  # Job 4: Build AAB (Release - Signed)
+  build-aab:
+    needs: [setup, keystore-setup]
+    runs-on: macos-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Install .NET MAUI workload
+      run: dotnet workload install maui
+
+    - name: Restore dependencies
+      run: dotnet restore CoralClientMobileApp/CoralClientMobileApp.csproj
+
+    - name: Download modified manifest
+      uses: actions/download-artifact@v4
+      with:
+        name: modified-manifest
+        path: CoralClientMobileApp/Platforms/Android/
+
+    - name: Download keystore
+      uses: actions/download-artifact@v4
+      with:
+        name: android-keystore
+        path: .
+
+    - name: Verify keystore location
+      run: |
+        echo "Current directory:"
+        pwd
+        echo "Files in current directory:"
+        ls -la
+        echo "Keystore file details:"
+        ls -la android-keystore.jks
+
     - name: Build Android AAB (Release - Signed)
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: |
         dotnet publish CoralClientMobileApp/CoralClientMobileApp.csproj \
           -c Release \
@@ -83,8 +198,51 @@ jobs:
           -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
           --no-restore
 
+    - name: Upload AAB Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-aab-release
+        path: "**/bin/Release/net8.0-android/publish/*.aab"
+        retention-days: 90
+
+  # Job 5: Build APK (Release - Signed)
+  build-apk:
+    needs: [setup, keystore-setup]
+    runs-on: macos-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Install .NET MAUI workload
+      run: dotnet workload install maui
+
+    - name: Restore dependencies
+      run: dotnet restore CoralClientMobileApp/CoralClientMobileApp.csproj
+
+    - name: Download modified manifest
+      uses: actions/download-artifact@v4
+      with:
+        name: modified-manifest
+        path: CoralClientMobileApp/Platforms/Android/
+
+    - name: Download keystore
+      uses: actions/download-artifact@v4
+      with:
+        name: android-keystore
+        path: .
+
     - name: Build Android APK (Release - Signed)
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: |
         dotnet publish CoralClientMobileApp/CoralClientMobileApp.csproj \
           -c Release \
@@ -96,43 +254,45 @@ jobs:
           -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
           --no-restore
 
-    - name: Upload AAB Artifact (Production)
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      uses: actions/upload-artifact@v4
-      with:
-        name: android-aab-release
-        path: "**/bin/Release/net8.0-android/publish/*.aab"
-        retention-days: 90
-
-    - name: Upload APK Artifact (Production)
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: android-apk-release
         path: "**/bin/Release/net8.0-android/publish/*.apk"
         retention-days: 90
 
-    - name: Clean up keystore
-      if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: rm -f android-keystore.jks
+  # Job 6: Create GitHub Release
+  create-release:
+    needs: [setup, build-aab, build-apk]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+    - name: Download AAB
+      uses: actions/download-artifact@v4
+      with:
+        name: android-aab-release
+        path: ./artifacts/
+
+    - name: Download APK
+      uses: actions/download-artifact@v4
+      with:
+        name: android-apk-release
+        path: ./artifacts/
 
     - name: Create GitHub Release
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v1      
       with:
-        tag_name: v${{ steps.versioning.outputs.full_version }}
-        name: CoralClient v${{ steps.versioning.outputs.full_version }} (Build ${{ steps.versioning.outputs.version_code }})
+        tag_name: v${{ needs.setup.outputs.full_version }}
+        name: CoralClient v${{ needs.setup.outputs.full_version }} (Build ${{ needs.setup.outputs.version_code }})
         draft: false
         prerelease: false
-        files: |
-          **/bin/Release/net8.0-android/publish/*.aab
-          **/bin/Release/net8.0-android/publish/*.apk
+        files: ./artifacts/**/*
         generate_release_notes: true
         body: |
           ## Release Notes
           
-          **Version:** ${{ steps.versioning.outputs.full_version }}  
-          **Build Number:** ${{ steps.versioning.outputs.version_code }}  
+          **Version:** ${{ needs.setup.outputs.full_version }}  
+          **Build Number:** ${{ needs.setup.outputs.version_code }}  
           **Platform:** Android
           
           ### Files
