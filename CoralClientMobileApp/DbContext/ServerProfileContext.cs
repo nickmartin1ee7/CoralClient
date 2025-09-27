@@ -103,180 +103,7 @@ namespace CoralClientMobileApp.DbContext
 
             foreach (var serverProfile in serverProfiles)
             {
-                // Default Player Commands
-                defaultCommands.AddRange(new[]
-                {
-                    new CustomCommand
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Kick",
-                        Description = "Kick player from server",
-                        Command = "kick {player}",
-                        Category = "Default",
-                        Target = CommandTarget.Player,
-                        RequiresPlayerName = true,
-                        ServerProfileId = serverProfile.Id
-                    },
-                    new CustomCommand
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Ban",
-                        Description = "Ban player from server",
-                        Command = "ban {player}",
-                        Category = "Default",
-                        Target = CommandTarget.Player,
-                        RequiresPlayerName = true,
-                        ServerProfileId = serverProfile.Id
-                    },
-                    new CustomCommand
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Op",
-                        Description = "Give player operator privileges",
-                        Command = "op {player}",
-                        Category = "Default",
-                        Target = CommandTarget.Player,
-                        RequiresPlayerName = true,
-                        ServerProfileId = serverProfile.Id
-                    },
-                    new CustomCommand
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Creative",
-                        Description = "Set player to creative mode",
-                        Command = "gamemode creative {player}",
-                        Category = "Default",
-                        Target = CommandTarget.Player,
-                        RequiresPlayerName = true,
-                        ServerProfileId = serverProfile.Id
-                    },
-                    new CustomCommand
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Survival",
-                        Description = "Set player to survival mode",
-                        Command = "gamemode survival {player}",
-                        Category = "Default",
-                        Target = CommandTarget.Player,
-                        RequiresPlayerName = true,
-                        ServerProfileId = serverProfile.Id
-                    },
-                    new CustomCommand
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Spectator",
-                        Description = "Set player to spectator mode",
-                        Command = "gamemode spectator {player}",
-                        Category = "Default",
-                        Target = CommandTarget.Player,
-                        RequiresPlayerName = true,
-                        ServerProfileId = serverProfile.Id
-                    }
-                });
-
-                // Default Server Commands
-                defaultCommands.AddRange(new[]
-                {
-                    new CustomCommand
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Stop Server",
-                        Description = "Stop the Minecraft server",
-                        Command = "stop",
-                        Category = "Default",
-                        Target = CommandTarget.Server,
-                        RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id
-                    },
-                    new CustomCommand
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Save World",
-                        Description = "Save the current world",
-                        Command = "save-all",
-                        Category = "Default",
-                        Target = CommandTarget.Server,
-                        RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id
-                    },
-                    new CustomCommand
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Reload",
-                        Description = "Reload server configuration",
-                        Command = "reload",
-                        Category = "Default",
-                        Target = CommandTarget.Server,
-                        RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id
-                    },
-                    new CustomCommand
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Clear Weather",
-                        Description = "Set weather to clear",
-                        Command = "weather clear",
-                        Category = "Default",
-                        Target = CommandTarget.Server,
-                        RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id
-                    },
-                    new CustomCommand
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Rain",
-                        Description = "Set weather to rain",
-                        Command = "weather rain",
-                        Category = "Default",
-                        Target = CommandTarget.Server,
-                        RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id
-                    },
-                    new CustomCommand
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Thunder",
-                        Description = "Set weather to thunder",
-                        Command = "weather thunder",
-                        Category = "Default",
-                        Target = CommandTarget.Server,
-                        RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id
-                    },
-                    new CustomCommand
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Day",
-                        Description = "Set time to day",
-                        Command = "time set day",
-                        Category = "Default",
-                        Target = CommandTarget.Server,
-                        RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id
-                    },
-                    new CustomCommand
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Night",
-                        Description = "Set time to night",
-                        Command = "time set night",
-                        Category = "Default",
-                        Target = CommandTarget.Server,
-                        RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id
-                    },
-                    new CustomCommand
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Noon",
-                        Description = "Set time to noon",
-                        Command = "time set noon",
-                        Category = "Default",
-                        Target = CommandTarget.Server,
-                        RequiresPlayerName = false,
-                        ServerProfileId = serverProfile.Id
-                    }
-                });
+                defaultCommands.AddRange(GetDefaultCommandsForProfile(serverProfile.Id));
             }
 
             if (defaultCommands.Any())
@@ -285,6 +112,213 @@ namespace CoralClientMobileApp.DbContext
                 await SaveChangesAsync();
                 _logger?.LogInformation("Seeded {Count} default custom commands", defaultCommands.Count);
             }
+        }
+
+        public async Task SeedDefaultCommandsForProfileAsync(Guid serverProfileId)
+        {
+            _logger?.LogInformation("Seeding default custom commands for server profile: {ServerProfileId}", serverProfileId);
+
+            // Check if this profile already has default commands
+            var existingCommands = await CustomCommands
+                .Where(c => c.ServerProfileId == serverProfileId && c.Category == "Default")
+                .AnyAsync();
+
+            if (existingCommands)
+            {
+                _logger?.LogInformation("Server profile {ServerProfileId} already has default commands, skipping seeding", serverProfileId);
+                return;
+            }
+
+            var defaultCommands = GetDefaultCommandsForProfile(serverProfileId);
+
+            if (defaultCommands.Any())
+            {
+                await CustomCommands.AddRangeAsync(defaultCommands);
+                await SaveChangesAsync();
+                _logger?.LogInformation("Seeded {Count} default custom commands for server profile: {ServerProfileId}", defaultCommands.Count, serverProfileId);
+            }
+        }
+
+        private List<CustomCommand> GetDefaultCommandsForProfile(Guid serverProfileId)
+        {
+            var defaultCommands = new List<CustomCommand>();
+
+            // Default Player Commands
+            defaultCommands.AddRange(new[]
+            {
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Kick",
+                    Description = "Kick player from server",
+                    Command = "kick {player}",
+                    Category = "Default",
+                    Target = CommandTarget.Player,
+                    RequiresPlayerName = true,
+                    ServerProfileId = serverProfileId
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Ban",
+                    Description = "Ban player from server",
+                    Command = "ban {player}",
+                    Category = "Default",
+                    Target = CommandTarget.Player,
+                    RequiresPlayerName = true,
+                    ServerProfileId = serverProfileId
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Op",
+                    Description = "Give player operator privileges",
+                    Command = "op {player}",
+                    Category = "Default",
+                    Target = CommandTarget.Player,
+                    RequiresPlayerName = true,
+                    ServerProfileId = serverProfileId
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Creative",
+                    Description = "Set player to creative mode",
+                    Command = "gamemode creative {player}",
+                    Category = "Default",
+                    Target = CommandTarget.Player,
+                    RequiresPlayerName = true,
+                    ServerProfileId = serverProfileId
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Survival",
+                    Description = "Set player to survival mode",
+                    Command = "gamemode survival {player}",
+                    Category = "Default",
+                    Target = CommandTarget.Player,
+                    RequiresPlayerName = true,
+                    ServerProfileId = serverProfileId
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Spectator",
+                    Description = "Set player to spectator mode",
+                    Command = "gamemode spectator {player}",
+                    Category = "Default",
+                    Target = CommandTarget.Player,
+                    RequiresPlayerName = true,
+                    ServerProfileId = serverProfileId
+                }
+            });
+
+            // Default Server Commands
+            defaultCommands.AddRange(new[]
+            {
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Stop Server",
+                    Description = "Stop the Minecraft server",
+                    Command = "stop",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = serverProfileId
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Save World",
+                    Description = "Save the current world",
+                    Command = "save-all",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = serverProfileId
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Reload",
+                    Description = "Reload server configuration",
+                    Command = "reload",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = serverProfileId
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Clear Weather",
+                    Description = "Set weather to clear",
+                    Command = "weather clear",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = serverProfileId
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Rain",
+                    Description = "Set weather to rain",
+                    Command = "weather rain",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = serverProfileId
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Thunder",
+                    Description = "Set weather to thunder",
+                    Command = "weather thunder",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = serverProfileId
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Day",
+                    Description = "Set time to day",
+                    Command = "time set day",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = serverProfileId
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Night",
+                    Description = "Set time to night",
+                    Command = "time set night",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = serverProfileId
+                },
+                new CustomCommand
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Noon",
+                    Description = "Set time to noon",
+                    Command = "time set noon",
+                    Category = "Default",
+                    Target = CommandTarget.Server,
+                    RequiresPlayerName = false,
+                    ServerProfileId = serverProfileId
+                }
+            });
+
+            return defaultCommands;
         }
     }
 }
