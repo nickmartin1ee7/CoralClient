@@ -246,6 +246,9 @@ namespace CoralClientMobileApp.ViewModel
                 await _serverProfileContext.ServerProfiles.AddAsync(newProfile);
                 await _serverProfileContext.SaveChangesAsync();
                 
+                // Seed default commands for the new server profile
+                await _serverProfileContext.SeedDefaultCommandsForProfileAsync(newProfile.Id);
+                
                 var newProfileViewModel = new ServerProfileViewModel(newProfile, this);
                 ServerProfiles.Add(newProfileViewModel);
                 
